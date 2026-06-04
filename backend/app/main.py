@@ -71,12 +71,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1024)
 if settings.ENV == "production":
     app.add_middleware(
         TrustedHostMiddleware,
-        allowed_hosts=[
-            "lotos-tour.ru", 
-            "www.lotos-tour.ru", 
-            "api.lotos-tour.ru",
-            "lotus-tur-production.up.railway.app",
-],
+        allowed_hosts=["*"],
     )
 
 # 3. CORS — должен идти до CSRF, чтобы preflight OPTIONS не блокировались

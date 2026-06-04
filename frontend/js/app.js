@@ -61,20 +61,8 @@ function mockApiFallback(path, options) {
     return Promise.resolve(toursData);
   }
   if (path === "/api/bookings" && options.method === "POST") {
-    const body = JSON.parse(options.body);
-    let bookings = JSON.parse(localStorage.getItem("my_bookings") || "[]");
-    const tour = toursData.find((t) => t.id === body.tour_id);
-    const newBooking = {
-      id: "b_" + Date.now(),
-      tour_id: body.tour_id,
-      tour_name: tour ? tour.name : "Неизвестный тур",
-      tour_date: body.tour_date || "2026-06-12",
-      people_count: body.people_count || 1,
-      status: "booked",
-    };
-    bookings.push(newBooking);
-    localStorage.setItem("my_bookings", JSON.stringify(bookings));
-    return Promise.resolve(newBooking);
+    // SECURITY FIX: бронирование требует реального сервера
+    return Promise.reject(new Error("Сервер недоступен. Бронирование невозможно."));
   }
   if (path === "/api/bookings/my") {
     let bookings = JSON.parse(localStorage.getItem("my_bookings") || "[]");
@@ -91,8 +79,8 @@ function mockApiFallback(path, options) {
     return Promise.resolve(achievementsList);
   }
   if (path === "/api/auth/login" || path === "/api/auth/register") {
-    const body = JSON.parse(options.body);
-    return Promise.resolve({ username: body.username || "Приморский_Странник", access_token: "mock-jwt-token" });
+    // SECURITY FIX: никогда не обходим авторизацию через mock
+    return Promise.reject(new Error("Сервер недоступен. Попробуйте позже."));
   }
   if (path === "/api/promo/ref") {
     return Promise.resolve({ link: "https://poravpohod.ru/ref?id=43219" });
@@ -712,6 +700,18 @@ async function loadAvatarFromPC(input) {
 
   const file = input.files[0];
 
+  // SECURITY FIX: проверяем тип и размер файла
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  if (!allowedTypes.includes(file.type)) {
+    alert("Допустимые форматы: JPEG, PNG, WEBP, GIF");
+    return;
+  }
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  if (file.size > maxSize) {
+    alert("Файл слишком большой. Максимальный размер: 5MB");
+    return;
+  }
+
   // Показываем превью немедленно
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -719,16 +719,13 @@ async function loadAvatarFromPC(input) {
   };
   reader.readAsDataURL(file);
 
-  // Пробуем загрузить на сервер через URL (API принимает URL, не blob)
-  // Для реального upload нужен отдельный endpoint — пока сохраняем data URL локально
-  // TODO: заменить на multipart upload endpoint
+  // Локально сохраняем base64 preview (API потребует cdn URL в production)
   try {
     const dataUrl = await new Promise((res) => {
       const r = new FileReader();
       r.onload = (e) => res(e.target.result);
       r.readAsDataURL(file);
     });
-    // Локально сохраняем base64 preview (API потребует cdn URL в production)
     localStorage.setItem("avatar_preview", dataUrl);
   } catch (e) {
     console.warn("Не удалось сохранить аватар:", e);

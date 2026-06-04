@@ -2,7 +2,7 @@
    ОСНОВНАЯ ЛОГИКА САЙТА (app.js)
    ============================================================ */
 
-const API_URL = "https://lotus-tur-production.up.railway.app";
+const API_URL = "https://lotus-tur-production-23c6.up.railway.app";
 
 /* ── Токен из URL-параметра (после OAuth-редиректа) ─────── */
 const _urlParams = new URLSearchParams(window.location.search);

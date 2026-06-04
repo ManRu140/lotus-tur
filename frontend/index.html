@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Пора в поход — Туры по Приморскому краю</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- CSS подключается в правильном порядке: переменные первыми -->
+     <!-- BUG FIX: путь был /frontend/css/style.css (абсолютный, не работает при file://).
+          Исправлено на относительный путь css/style.css -->
+     <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+
+    <!-- Скрытый input для загрузки аватара (display:none перенесён в CSS) -->
+    <input
+      type="file"
+      id="avatarFileInput"
+      accept="image/*"
+      class="visually-hidden"
+    />
+
+    <!-- ══════════════════════════════════════════════
+         МОДАЛЬНОЕ ОКНО БРОНИРОВАНИЯ
+         ══════════════════════════════════════════════ -->
+    <div class="modal-booking" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookModalTitle">
+      <div class="booking-container">
+        <button class="close-profile" id="closeBookingBtn" aria-label="Закрыть">
+          &times;
+        </button>
+        <h3 class="modal-title" id="bookModalTitle">Бронирование тура</h3>
+
+        <form class="booking-form" id="bookingForm" novalidate>
+          <div class="form-group-block">
+            <label for="bookName">ФИО полностью</label>
+            <input
+              type="text"
+              id="bookName"
+              placeholder="Иванов Иван Александрович"
+              required
+            />
+          </div>
+
+          <div class="form-row-grid">
+            <div class="form-group-block">
+              <label for="bookPhone">Телефон</label>
+              <input
+                type="tel"
+                id="bookPhone"
+                placeholder="+7 (999) 000-00-00"
+                required
+              />
+            </div>
+            <div class="form-group-block">
+              <label for="bookEmail">E-mail</label>
+              <input
+                type="email"
+                id="bookEmail"
+                placeholder="example@mail.ru"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-row-grid">
+            <div class="form-group-block">
+              <label for="bookTourSelect">Выбор направления</label>
+              <select id="bookTourSelect" required></select>
+            </div>
+            <div class="form-group-block">
+              <label for="bookTime">Удобное время</label>
+              <select id="bookTime" required>
+                <option value="09:00">Утро (09:00)</option>
+                <option value="14:00">День (14:00)</option>
+                <option value="19:00">Вечер (19:00)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="miniCalendarPlaceholder"></div>
+
+          <div class="form-group-block">
+            <label for="bookMessage">Пожелания к туру</label>
+            <textarea
+              id="bookMessage"
+              placeholder="Например: трансфер, питание..."
+            ></textarea>
+          </div>
+
+          <!-- BUG FIX: поле people_count было захардкожено в JS как 1 -->
+          <div class="form-group-block">
+            <label for="bookPeopleCount">Количество человек</label>
+            <select id="bookPeopleCount">
+              <option value="1">1 человек</option>
+              <option value="2">2 человека</option>
+              <option value="3">3 человека</option>
+              <option value="4">4 человека</option>
+              <option value="5">5 человек</option>
+              <option value="6">6 человек</option>
+            </select>
+          </div>
+
+          <button type="submit" class="booking-submit" id="bookSubmitBtn">
+            Подтвердить заказ
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ
+         ══════════════════════════════════════════════ -->
+    <div class="modal-auth" id="authModal" role="dialog" aria-modal="true" aria-label="Авторизация">
+      <div class="auth-container">
+        <button class="close-profile" id="closeAuthBtn" aria-label="Закрыть">
+          &times;
+        </button>
+
+        <div class="auth-tabs" role="tablist">
+          <button
+            class="auth-tab-btn active"
+            id="tabLoginBtn"
+            role="tab"
+            aria-selected="true"
+            data-mode="login"
+          >
+            Вход
+          </button>
+          <button
+            class="auth-tab-btn"
+            id="tabRegisterBtn"
+            role="tab"
+            aria-selected="false"
+            data-mode="register"
+          >
+            Регистрация
+          </button>
+        </div>
+
+        <form id="authMainForm" novalidate>
+          <div class="auth-form-wrapper">
+            <input
+              type="text"
+              id="authLoginInput"
+              placeholder="Имя пользователя или Email"
+              required
+            />
+            <!-- Поля регистрации скрыты классом, не inline style -->
+            <input
+              type="email"
+              id="authEmailInput"
+              placeholder="Ваш действующий Email"
+              class="auth-register-only"
+            />
+            <input
+              type="password"
+              id="authPasswordInput"
+              placeholder="Пароль"
+              required
+            />
+            <input
+              type="password"
+              id="authPasswordConfirmInput"
+              placeholder="Повторите пароль"
+              class="auth-register-only"
+            />
+            <button type="submit" class="auth-submit" id="authSubmitBtn">
+              Войти
+            </button>
+          </div>
+        </form>
+
+        <p class="social-title">Или войти через сервисы</p>
+        <div class="social-grid">
+          <button class="social-btn social-btn--vk" data-provider="VK">VK</button>
+          <button class="social-btn social-btn--max" data-provider="MAX">MAX</button>
+          <button class="social-btn social-btn--google" id="googleLoginBtn">Google</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         ВЫЕЗЖАЮЩИЙ ЛИЧНЫЙ КАБИНЕТ
+         ══════════════════════════════════════════════ -->
+    <aside class="side-profile" id="sideProfile" aria-label="Личный кабинет">
+      <button class="close-profile" id="closeProfileBtn" aria-label="Закрыть">&times;</button>
+
+      <div class="profile-header">
+        <div class="avatar-container" id="avatarTrigger" role="button" tabindex="0" aria-label="Обновить аватар">
+          <img
+            id="profileAvatar"
+            src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
+            alt="Аватар пользователя"
+          />
+          <div class="avatar-overlay" aria-hidden="true">Обновить</div>
+        </div>
+        <div class="profile-name-container" id="nicknameWrapper">
+          <h3 id="profileName" role="button" tabindex="0" aria-label="Нажмите для изменения имени">
+            Приморский_Странник
+          </h3>
+        </div>
+      </div>
+
+      <nav class="profile-tabs-nav" role="tablist" aria-label="Вкладки профиля">
+        <button class="p-tab-btn active" role="tab" aria-selected="true" id="tabBtn1" data-tab="0">Туры</button>
+        <button class="p-tab-btn" role="tab" aria-selected="false" id="tabBtn2" data-tab="1">Достижения</button>
+        <button class="p-tab-btn" role="tab" aria-selected="false" id="tabBtn3" data-tab="2">Промокоды</button>
+      </nav>
+
+      <!-- Вкладка: Туры -->
+      <div class="profile-tab-content active" id="pTab1" role="tabpanel">
+        <div class="tour-filters">
+          <button class="filter-chip active" data-filter="all" id="fAll">Все</button>
+          <button class="filter-chip" data-filter="booked" id="fBooked">Забронировано</button>
+          <button class="filter-chip" data-filter="started" id="fStarted">Начатые</button>
+          <button class="filter-chip" data-filter="completed" id="fCompleted">Завершенные</button>
+        </div>
+        <div id="toursList"></div>
+      </div>
+
+      <!-- Вкладка: Достижения -->
+      <div class="profile-tab-content" id="pTab2" role="tabpanel">
+        <div class="achievements-grid" id="achGrid"></div>
+      </div>
+
+      <!-- Вкладка: Промокоды -->
+      <div class="profile-tab-content" id="pTab3" role="tabpanel">
+        <div class="promo-section">
+          <h4 id="refTitle">Твоя реферальная ссылка</h4>
+          <div class="copy-box">
+            <input
+              type="text"
+              value="https://poravpohod.ru/ref?id=43219"
+              id="refLink"
+              readonly
+              aria-label="Реферальная ссылка"
+            />
+            <button type="button" id="btnCopy">Копировать</button>
+          </div>
+        </div>
+        <div class="promo-section">
+          <h4 id="promoTitle">Ввести промокод</h4>
+          <div class="input-box">
+            <input type="text" placeholder="PRIMORYE10" id="promoInput" aria-label="Промокод" />
+            <button type="button" id="btnApply">Применить</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="logout-btn" id="logoutBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        Выйти из аккаунта
+      </button>
+    </aside>
+
+    <!-- ══════════════════════════════════════════════
+         ХЕДЕР + НАВИГАЦИЯ
+         ══════════════════════════════════════════════ -->
+    <header id="main">
+      <div class="nav-container" id="main-nav">
+        <div class="nav-bg-fluid" id="fluid-oval" aria-hidden="true"></div>
+
+        <div class="logo">
+          <img
+            src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=45&q=80"
+            alt="Логотип Лотос"
+            id="logoImg"
+            class="logo-img"
+          />
+          <span id="txtLogo">Пора в поход</span>
+        </div>
+
+        <nav aria-label="Основное меню">
+          <ul>
+            <li><a href="#about" class="nav-link nav-target" id="m1">О нас</a></li>
+            <li><a href="#tours-anchor" class="nav-link nav-target" id="m2">Туры</a></li>
+            <li><a href="#" class="nav-link nav-target" id="m4" data-action="openBookingGeneral">Забронировать</a></li>
+          </ul>
+        </nav>
+
+        <div class="right-block">
+          <button class="lang-switch nav-target" id="langBtn" type="button" aria-label="Сменить язык">RU</button>
+          <button class="profile-btn nav-target" id="profileTrigger" type="button" aria-label="Профиль">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-content">
+        <h1 id="heroH1">Приморский Край</h1>
+        <p id="heroP">
+          Откройте для себя первозданную магию Дальнего Востока. Дикие скалы,
+          бирюзовые бухты океана, таинственные острова и величественные вершины
+          ждут вас.
+        </p>
+        <button class="btn-book" id="heroBtn" type="button" data-action="openBookingGeneral">
+          В путь &rarr;
+        </button>
+      </div>
+      <div></div>
+    </header>
+
+    <!-- ══════════════════════════════════════════════
+         СЕКЦИЯ ТУРОВ
+         ══════════════════════════════════════════════ -->
+    <div id="tours-anchor">
+      <section class="tours-section" aria-labelledby="txtToursTitle">
+        <div class="section-head">
+          <div class="section-title-block">
+            <span class="tour-card-tag-inline" id="txtToursSub">Наши направления</span>
+            <h2 class="section-main-title" id="txtToursTitle">Популярные туры</h2>
+          </div>
+          <button class="btn-all-tours" id="toggleGridBtn" type="button">
+            <span id="txtBtnAll">Все туры</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+        <div class="tours-grid" id="toursContainer"></div>
+      </section>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         СЕКЦИЯ «ШАГ ЗА ШАГОМ»
+         ══════════════════════════════════════════════ -->
+    <section class="section-dark">
+      <div>
+        <h2 id="sec1H2">Шаг за шагом<br />к новым<br />горизонтам</h2>
+      </div>
+      <div class="image-grid">
+        <div class="img-box img-box--forest"></div>
+        <div class="img-box img-box--sport"></div>
+      </div>
+      <div class="text-block" id="sec1Txt">
+        «Пора в поход» — туристический клуб, который занимается организацией
+        пеших, водных, горных и других походов с опытными инструкторами в России
+        и за рубежом.
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         СЕКЦИЯ «О НАС»
+         ══════════════════════════════════════════════ -->
+    <div class="section-light-bg trigger-light-theme">
+      <section class="section-about" id="about" aria-labelledby="sec2H2">
+        <div class="about-image" role="img" aria-label="Фото природы"></div>
+        <div class="about-content">
+          <h2 id="sec2H2">О нас</h2>
+          <p id="sec2P1">
+            Все наши маршруты хорошо нам известны, а инструкторы, которые на них
+            работают, либо сами прокладывали трек, либо постоянно его
+            совершенствуют.
+          </p>
+          <p id="sec2P2">
+            Мы стараемся составлять маршрут таким образом, чтобы путешествие
+            было как можно доступнее всем любителям активного отдыха.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         СЕКЦИЯ ОТЗЫВОВ
+         ══════════════════════════════════════════════ -->
+    <section id="reviews-section" aria-label="Отзывы клиентов">
+      <h2>Отзывы</h2>
+      <div class="marquee-fix-wrapper" id="marqueeWrapper">
+        <div id="marquee-line">
+
+          <article class="review-card-item">
+            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
+            <p class="review-text">
+              "Тур на остров Аскольд — лучшее, что я делал в жизни. Гиды
+              профессиональные, атмосфера потрясающая."
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--ik">ИК</div>
+              <div>
+                <span class="review-name">Игорь К.</span>
+                <span class="review-tour">Остров Аскольд</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card-item">
+            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
+            <p class="review-text">
+              "Бухта Триозерье — сказка! Вода чистейшая, инструкторы заботливые.
+              Обязательно вернёмся снова."
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--ap">АП</div>
+              <div>
+                <span class="review-name">Анна П.</span>
+                <span class="review-tour">Бухта Триозерье</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card-item">
+            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
+            <p class="review-text">
+              "Морской сафари-тур — адреналин, нерпы и брызги океана. Никаких
+              слов, только эмоции!"
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--sm">СМ</div>
+              <div>
+                <span class="review-name">Сергей М.</span>
+                <span class="review-tour">Морской Сафари-тур</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card-item">
+            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
+            <p class="review-text">
+              "Остров Петрова — мистика и тишина. Тисовая роща, древние тайны.
+              Настоящее путешествие во времени."
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--on">ОН</div>
+              <div>
+                <span class="review-name">Ольга Н.</span>
+                <span class="review-tour">Остров Петрова</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card-item">
+            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
+            <p class="review-text">
+              "Пик Сестра буквально открыл мне глаза на красоту Приморья. Закат
+              оттуда — это что-то нереальное."
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--ds">ДС</div>
+              <div>
+                <span class="review-name">Дмитрий С.</span>
+                <span class="review-tour">Пик Сестра</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card-item">
+            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
+            <p class="review-text">
+              "Сафари-парк превзошел все ожидания. Видели тигра в 10 метрах от
+              нас — незабываемо!"
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--ev">ЕВ</div>
+              <div>
+                <span class="review-name">Елена В.</span>
+                <span class="review-tour">Сафари-парк</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Дублируем карточки для бесшовного marquee-цикла -->
+          <article class="review-card-item" aria-hidden="true">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">
+              "Тур на остров Аскольд — лучшее, что я делал в жизни. Гиды
+              профессиональные, атмосфера потрясающая."
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--ik">ИК</div>
+              <div>
+                <span class="review-name">Игорь К.</span>
+                <span class="review-tour">Остров Аскольд</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card-item" aria-hidden="true">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">
+              "Бухта Триозерье — сказка! Вода чистейшая, инструкторы заботливые.
+              Обязательно вернёмся снова."
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--ap">АП</div>
+              <div>
+                <span class="review-name">Анна П.</span>
+                <span class="review-tour">Бухта Триозерье</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card-item" aria-hidden="true">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">
+              "Морской сафари-тур — адреналин, нерпы и брызги океана. Никаких
+              слов, только эмоции!"
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--sm">СМ</div>
+              <div>
+                <span class="review-name">Сергей М.</span>
+                <span class="review-tour">Морской Сафари-тур</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card-item" aria-hidden="true">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">
+              "Остров Петрова — мистика и тишина. Тисовая роща, древние тайны.
+              Настоящее путешествие во времени."
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--on">ОН</div>
+              <div>
+                <span class="review-name">Ольга Н.</span>
+                <span class="review-tour">Остров Петрова</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card-item" aria-hidden="true">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">
+              "Пик Сестра буквально открыл мне глаза на красоту Приморья. Закат
+              оттуда — это что-то нереальное."
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--ds">ДС</div>
+              <div>
+                <span class="review-name">Дмитрий С.</span>
+                <span class="review-tour">Пик Сестра</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-card-item" aria-hidden="true">
+            <div class="review-stars">★★★★★</div>
+            <p class="review-text">
+              "Сафари-парк превзошел все ожидания. Видели тигра в 10 метрах от
+              нас — незабываемо!"
+            </p>
+            <div class="review-author">
+              <div class="review-avatar review-avatar--ev">ЕВ</div>
+              <div>
+                <span class="review-name">Елена В.</span>
+                <span class="review-tour">Сафари-парк</span>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════
+         ФУТЕР
+         ══════════════════════════════════════════════ -->
+    <footer class="main-footer">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <h3 class="footer-brand">Лотос Тур</h3>
+          <p class="footer-desc">
+            Осознанный туризм с 2015 года. Создаём камерные экспедиции в малых
+            группах, которые минимизируют воздействие на экосистемы и меняют
+            взгляд на мир.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-col-title">КОНТАКТЫ</h4>
+          <ul class="footer-list">
+            <li class="footer-list-item">
+              <span class="footer-icon" aria-hidden="true">✉</span>
+              <a href="mailto:info@lotos-tour.ru">info@lotos-tour.ru</a>
+            </li>
+            <li class="footer-list-item">
+              <span class="footer-icon" aria-hidden="true">📞</span>
+              <a href="tel:+79841997844">+7 (984) 199-78-44</a>
+            </li>
+            <li class="footer-list-item">
+              <span class="footer-icon" aria-hidden="true">📍</span>
+              Находка, пр-кт Мира, д.6
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-col-title">РЕКВИЗИТЫ</h4>
+          <ul class="footer-list">
+            <li class="footer-list-item">ООО «Лотос Тур Проект»</li>
+            <li class="footer-list-item">ИНН: 2508078378</li>
+            <li class="footer-list-item">КПП: 250801001</li>
+            <li class="footer-list-item">Лицензия № МТ3 012345</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2026 Лотос Тур Проект. Все права защищены.</p>
+        <p class="footer-made">Сделано с ❤ в Приморье</p>
+      </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/google-auth.js"></script>
+  </body>
+</html>

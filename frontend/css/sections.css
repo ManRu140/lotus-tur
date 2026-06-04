@@ -1,0 +1,323 @@
+/* ============================================================
+   СЕКЦИИ, ОТЗЫВЫ, ФУТЕР (sections.css)
+   ============================================================ */
+
+/* ── СЕКЦИЯ «ШАГ ЗА ШАГОМ» ───────────────────────────────── */
+.section-dark {
+  background-color: var(--bg-dark);
+  color: var(--text-light-main);
+  padding: 100px 10%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 50px;
+}
+.section-dark h2 {
+  font-size: 2.2rem;
+  font-weight: 400;
+  letter-spacing: 2px;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+.section-dark .image-grid {
+  flex: 1.5;
+  display: flex;
+  gap: 20px;
+}
+.section-dark .img-box {
+  flex: 1;
+  height: 250px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 4px;
+}
+
+/* Фоны для блоков с изображениями (вынесены из inline style) */
+.img-box--forest {
+  background-image: url("https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=400&q=80");
+}
+.img-box--sport {
+  background-image: url("https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=400&q=80");
+}
+
+.section-dark .text-block {
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-light-muted);
+  font-weight: 300;
+  align-self: flex-end;
+}
+
+/* ── СЕКЦИЯ «О НАС» ──────────────────────────────────────── */
+.section-light-bg {
+  background-color: var(--bg-light);
+}
+.section-about {
+  padding: 120px 10%;
+  display: flex;
+  gap: 80px;
+  align-items: center;
+  color: var(--text-dark-main);
+}
+.about-image {
+  flex: 1;
+  height: 500px;
+  background: url("https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=80")
+    no-repeat center center / cover;
+  border-radius: 4px;
+}
+.about-content h2 {
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 30px;
+  font-weight: 500;
+}
+.about-content p {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-dark-muted);
+  margin-bottom: 20px;
+}
+
+/* ── СЕКЦИЯ ТУРОВ: заголовок ─────────────────────────────── */
+.section-main-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+/* ── БЕГУЩАЯ СТРОКА ОТЗЫВОВ ──────────────────────────────── */
+#reviews-section {
+  background: linear-gradient(
+    180deg,
+    var(--bg-dark) 0%,
+    rgba(10, 20, 38, 0.5) 100%
+  );
+  padding: 90px 0 60px 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.02);
+  box-sizing: border-box;
+  width: 100%;
+}
+#reviews-section h2 {
+  font-size: 2.5rem;
+  color: #fff;
+  font-weight: 800;
+  padding-left: 4%;
+  margin: 0 0 45px 0;
+  letter-spacing: -0.5px;
+}
+
+.marquee-fix-wrapper {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+#marquee-line {
+  display: flex;
+  gap: 25px;
+  padding: 10px;
+  width: max-content;
+  animation: globalMarquee 35s linear infinite;
+}
+
+/* Карточка отзыва */
+.review-card-item {
+  flex: 0 0 420px;
+  background: rgba(13, 22, 41, 0.6);
+  border: 1px solid rgba(0, 240, 255, 0.08);
+  border-radius: 20px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  transition:
+    border-color 0.3s,
+    background-color 0.3s,
+    transform 0.3s;
+}
+.review-card-item:hover {
+  border-color: rgba(0, 240, 255, 0.25);
+  background: rgba(13, 22, 41, 0.85);
+  transform: translateY(-2px);
+}
+
+/* Звёзды */
+.review-stars {
+  color: var(--accent-liquid);
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+/* Текст отзыва */
+.review-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 25px 0;
+}
+
+/* Автор */
+.review-author {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.review-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* Цвета аватаров (вынесены из inline style) */
+.review-avatar--ik {
+  background: #1a4f5c;
+}
+.review-avatar--ap {
+  background: #3b2f5c;
+}
+.review-avatar--sm {
+  background: #2a4a2a;
+}
+.review-avatar--on {
+  background: #4a3a1a;
+}
+.review-avatar--ds {
+  background: #22525c;
+}
+.review-avatar--ev {
+  background: #194a5c;
+}
+
+.review-name {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: block;
+}
+.review-tour {
+  color: rgba(0, 240, 255, 0.5);
+  font-size: 0.8rem;
+}
+
+/* ── ФУТЕР ───────────────────────────────────────────────── */
+.main-footer {
+  background-color: #02050a;
+  border-top: 1px solid rgba(0, 240, 255, 0.15);
+  padding: 80px 4% 30px 4%;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Сетка футера (вынесена из inline style) */
+.footer-grid {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-bottom: 60px;
+}
+
+.footer-about {
+  flex: 1 1 40%;
+  min-width: 280px;
+  max-width: 500px;
+}
+.footer-brand {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 20px 0;
+  letter-spacing: -0.5px;
+}
+.footer-desc {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.footer-col {
+  flex: 1 1 20%;
+  min-width: 220px;
+}
+.footer-col-title {
+  color: var(--accent-liquid);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin: 0 0 25px 0;
+}
+
+.footer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.footer-list-item {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.9rem;
+}
+.footer-list-item a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-list-item a:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+.footer-icon {
+  color: var(--accent-liquid);
+  margin-right: 6px;
+}
+
+/* Нижняя строка футера (вынесена из inline style) */
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+.footer-copy,
+.footer-made {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ── АНИМАЦИИ ─────────────────────────────────────────────── */
+@keyframes globalMarquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50% - 12.5px));
+  }
+}
+
+/* ── CALENDAR: past-day (BUG FIX — added) ─────────────────── */
+.cal-day.past-day {
+  opacity: 0.3;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}

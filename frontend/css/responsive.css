@@ -1,0 +1,727 @@
+/* ============================================================
+   АДАПТИВНОСТЬ — MOBILE FIRST (responsive.css)
+   ============================================================
+   Порядок брейкпоинтов (Mobile First):
+     base          — 0px+   (смартфоны, портретная ориентация)
+     @min 480px    — крупные смартфоны / ландшафт
+     @min 768px    — планшеты, портрет
+     @min 968px    — планшеты, ландшафт / малые ноутбуки
+     @min 1200px   — десктоп
+     @min 1600px   — широкоформатные мониторы
+   ============================================================ */
+
+/* ── 0. ГЛОБАЛЬНЫЕ ПЕРЕХОДЫ И TOUCH-ОПТИМИЗАЦИЯ ─────────── */
+
+/*
+ * Все интерактивные элементы получают:
+ *  - достаточную минимальную область касания (44 × 44 px по WCAG 2.5.5)
+ *  - стабильные hardware-ускоренные переходы
+ *  - отключение callout / долгого нажатия там, где оно мешает
+ */
+a,
+button,
+[role="button"],
+[tabindex="0"],
+input,
+select,
+textarea,
+label {
+  /* Убираем мигание синей подсветки на Android WebView */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* ускоряет обработку одиночного тапа */
+}
+
+/* Кнопки и ссылки — минимальная область 44px */
+button,
+.btn-book,
+.btn-all-tours,
+.tour-btn,
+.filter-chip,
+.social-btn,
+.auth-submit,
+.booking-submit,
+.logout-btn,
+.close-profile,
+.p-tab-btn,
+.auth-tab-btn,
+.calendar-nav-btn,
+.lang-switch,
+.profile-btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Плавные переходы состояний для всего интерактивного */
+a,
+button,
+input,
+select,
+textarea {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease,
+    opacity 0.25s ease,
+    transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Плавное открытие/закрытие панелей */
+.side-profile,
+.modal-auth,
+.modal-booking,
+.nav-container {
+  will-change: transform, opacity;
+}
+
+/* Предотвращаем нежелательный zoom на input-фокусе в Safari */
+input,
+select,
+textarea {
+  font-size: max(16px, 1em); /* не меньше 16px — Safari не зумит */
+}
+
+/* Улучшенный focus-visible для клавиатурной навигации */
+:focus-visible {
+  outline: 2px solid var(--accent-liquid);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── 1. BASE — Смартфоны (< 480px) ──────────────────────── */
+
+/* Навигация: фиксированный баннер → абсолютный внутри header */
+.nav-container {
+  position: absolute;
+  top: 16px;
+  left: 4%;
+  width: 92%;
+  padding: 0 16px;
+}
+
+header {
+  padding: 24px 4% 40px;
+  min-height: 100svh; /* dvh/svh для корректного отображения на мобиле */
+}
+
+/* Скрываем nav-ссылки и правый блок — на мобиле нет места */
+nav,
+.right-block {
+  display: none;
+}
+
+/* Hero */
+.hero-content {
+  margin-top: 20vh;
+  margin-bottom: 10vh;
+  max-width: 100%;
+}
+.hero-content h1 {
+  font-size: clamp(2rem, 8vw, 4rem);
+  letter-spacing: clamp(1px, 1vw, 3px);
+}
+.hero-content p {
+  font-size: clamp(0.9rem, 3vw, 1.1rem);
+}
+
+/* Кнопка «Забронировать» — на всю ширину, крупная зона касания */
+.btn-book {
+  width: 100%;
+  justify-content: center;
+  padding: 16px 24px;
+  font-size: 1rem;
+}
+
+/* Секция «Шаг за шагом» */
+.section-dark {
+  flex-direction: column;
+  padding: 60px 4%;
+  gap: 30px;
+}
+.section-dark .image-grid {
+  flex-direction: column;
+  gap: 12px;
+}
+.section-dark .img-box {
+  height: 200px;
+  width: 100%;
+}
+
+/* Секция «О нас» */
+.section-about {
+  flex-direction: column;
+  padding: 60px 4%;
+  gap: 30px;
+}
+.about-image {
+  width: 100%;
+  height: 260px;
+  border-radius: 12px;
+}
+.about-content h2 {
+  font-size: clamp(1.4rem, 5vw, 2rem);
+}
+
+/* Туры — стэк вместо аккордеона */
+.tours-section {
+  padding: 60px 4% 50px;
+}
+.section-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+.section-main-title {
+  font-size: clamp(1.4rem, 5vw, 2rem);
+}
+.btn-all-tours {
+  width: 100%;
+  justify-content: center;
+  padding: 14px 20px;
+}
+.tours-grid {
+  flex-direction: column;
+  gap: 12px;
+}
+.tour-card {
+  height: 280px;
+  border-radius: 16px;
+}
+/* На мобиле сразу показываем hover-инфо без hover */
+.tours-grid:not(.view-all-cards) .tour-card .tour-static-title {
+  display: none;
+}
+.tours-grid:not(.view-all-cards) .tour-card .tour-hover-info {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* В режиме «все туры» — одна колонка */
+.tours-grid.view-all-cards {
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+/* Отзывы */
+#reviews-section {
+  padding: 60px 0 40px;
+}
+#reviews-section h2 {
+  font-size: clamp(1.5rem, 6vw, 2.5rem);
+  padding-left: 4%;
+  margin-bottom: 28px;
+}
+.review-card-item {
+  flex: 0 0 300px;
+  padding: 22px;
+}
+
+/* Футер */
+.main-footer {
+  padding: 50px 4% 24px;
+}
+.footer-grid {
+  flex-direction: column;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+.footer-about {
+  max-width: 100%;
+}
+.footer-bottom {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Боковая панель профиля — полноэкранная */
+.side-profile {
+  width: 100%;
+  right: -100%;
+  padding: 30px 20px;
+}
+
+/* Модальные окна */
+.auth-container {
+  width: 92vw;
+  max-width: 440px;
+  padding: 30px 20px;
+}
+.booking-container {
+  width: 92vw;
+  max-width: 540px;
+  padding: 30px 20px;
+  max-height: 92svh;
+}
+
+/* Форма бронирования — одна колонка */
+.form-row-grid {
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+/* Кнопки соцсетей — крупнее */
+.social-btn {
+  padding: 12px 8px;
+  font-size: 0.85rem;
+}
+
+/* ── 2. @480px — Крупные смартфоны, ландшафт ────────────── */
+@media (min-width: 480px) {
+  header {
+    padding: 28px 5% 40px;
+  }
+  .nav-container {
+    top: 18px;
+    left: 5%;
+    width: 90%;
+  }
+  .hero-content {
+    margin-top: 22vh;
+  }
+  .btn-book {
+    width: auto;
+    padding: 14px 28px;
+  }
+  .about-image {
+    height: 320px;
+  }
+  .tour-card {
+    height: 320px;
+  }
+  .tours-grid.view-all-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .review-card-item {
+    flex: 0 0 360px;
+  }
+  .section-dark .img-box {
+    height: 220px;
+  }
+}
+
+/* ── 3. @768px — Планшеты, портрет ──────────────────────── */
+@media (min-width: 768px) {
+  /* Навигация снова фиксированная */
+  .nav-container {
+    position: fixed;
+    top: 20px;
+    left: 5%;
+    width: 90%;
+    padding: 0 24px 0 30px;
+  }
+
+  header {
+    padding: 40px 8% 60px;
+  }
+  .hero-content {
+    margin-top: 26vh;
+    max-width: 80%;
+  }
+
+  /* Показываем правый блок (язык + профиль) */
+  .right-block {
+    display: flex;
+  }
+
+  /* Туры — 2 колонки в режиме «все» */
+  .tours-grid.view-all-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  /* Аккордеон горизонтальный, но карточки ниже */
+  .tours-grid:not(.view-all-cards) {
+    flex-direction: row;
+  }
+  .tour-card {
+    height: 420px;
+  }
+  /* Восстанавливаем hover-поведение на планшете (pointer: fine) */
+  @media (pointer: fine) {
+    .tours-grid:not(.view-all-cards) .tour-card .tour-static-title {
+      display: block;
+    }
+    .tours-grid:not(.view-all-cards) .tour-card .tour-hover-info {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .tours-grid:not(.view-all-cards) .tour-card:hover .tour-static-title {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .tours-grid:not(.view-all-cards) .tour-card:hover .tour-hover-info {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  /* Секция о нас */
+  .section-about {
+    flex-direction: row;
+    padding: 80px 8%;
+    gap: 50px;
+  }
+  .about-image {
+    height: 400px;
+  }
+
+  /* Секция шаг за шагом */
+  .section-dark {
+    flex-direction: row;
+    padding: 80px 8%;
+    gap: 40px;
+  }
+  .section-dark .image-grid {
+    flex-direction: row;
+  }
+  .section-dark .img-box {
+    height: 230px;
+  }
+
+  /* Форма — 2 колонки для ряда */
+  .form-row-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* Профиль */
+  .side-profile {
+    width: 420px;
+    right: -450px;
+    padding: 40px 30px;
+  }
+  .side-profile.open {
+    right: 0;
+  }
+
+  /* Секция туров */
+  .section-head {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+  .btn-all-tours {
+    width: auto;
+  }
+
+  /* Отзывы */
+  .review-card-item {
+    flex: 0 0 400px;
+  }
+
+  /* Футер */
+  .footer-grid {
+    flex-direction: row;
+  }
+  .footer-bottom {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* ── 4. @968px — Планшет ландшафт / малый ноутбук ───────── */
+@media (min-width: 968px) {
+  /* Показываем полную навигацию */
+  nav {
+    display: flex;
+  }
+
+  header {
+    padding: 40px 10%;
+  }
+  .hero-content {
+    max-width: 650px;
+    margin-top: 25vh;
+    margin-bottom: 15vh;
+  }
+
+  .section-dark,
+  .section-about {
+    padding: 100px 10%;
+  }
+  .section-dark .img-box {
+    height: 250px;
+  }
+  .about-image {
+    height: 500px;
+  }
+
+  .tours-section {
+    padding: 100px 5% 80px;
+  }
+
+  .tour-card {
+    height: 550px;
+  }
+
+  .tours-grid.view-all-cards {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+  }
+
+  .review-card-item {
+    flex: 0 0 420px;
+  }
+
+  #reviews-section {
+    padding: 90px 0 60px;
+  }
+  #reviews-section h2 {
+    padding-left: 5%;
+  }
+
+  .main-footer {
+    padding: 80px 4% 30px;
+  }
+}
+
+/* ── 5. @1200px — Десктоп ────────────────────────────────── */
+@media (min-width: 1200px) {
+  .tours-grid.view-all-cards {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  .booking-container {
+    width: 540px;
+  }
+
+  .side-profile {
+    width: 440px;
+  }
+
+  #reviews-section h2 {
+    font-size: 2.5rem;
+    padding-left: 5%;
+  }
+}
+
+/* ── 6. @1600px — Широкоформатные мониторы ───────────────── */
+@media (min-width: 1600px) {
+  header {
+    padding: 50px 12%;
+  }
+  .hero-content h1 {
+    font-size: 5rem;
+  }
+  .hero-content {
+    max-width: 750px;
+  }
+
+  .section-dark,
+  .section-about {
+    padding: 120px 12%;
+    gap: 80px;
+  }
+
+  .tours-section {
+    padding: 120px 7% 100px;
+  }
+
+  .tours-grid.view-all-cards {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  }
+
+  .nav-container {
+    left: 7%;
+    width: 86%;
+  }
+
+  #reviews-section {
+    padding: 110px 0 70px;
+  }
+  #reviews-section h2 {
+    padding-left: 7%;
+    font-size: 2.8rem;
+  }
+
+  .main-footer {
+    padding: 100px 7% 40px;
+  }
+
+  .review-card-item {
+    flex: 0 0 460px;
+    padding: 35px;
+  }
+}
+
+/* ── 7. TOUCH-УСТРОЙСТВА (pointer: coarse) ───────────────── */
+
+/*
+ * На сенсорных устройствах hover недоступен или ненадёжен.
+ * Карточки туров сразу показывают контент.
+ * Кнопки и чипы становятся крупнее.
+ */
+@media (pointer: coarse) {
+  /* Аккордеон туров: сразу видны детали */
+  .tours-grid:not(.view-all-cards) .tour-card .tour-hover-info {
+    opacity: 1;
+    pointer-events: auto;
+    transition: none;
+  }
+  .tours-grid:not(.view-all-cards) .tour-card .tour-static-title {
+    display: none;
+  }
+
+  /* Карточки туров не «схлопываются» на мобиле */
+  .tours-grid:not(.view-all-cards) .tour-card {
+    flex: none;
+    width: 100%;
+  }
+  .tours-grid:not(.view-all-cards) {
+    flex-direction: column;
+  }
+
+  /* Отключаем hover-эффект масштабирования изображения */
+  .tour-card:hover .tour-img-placeholder {
+    transform: none;
+  }
+
+  /* Чипы фильтрации — легче попасть */
+  .filter-chip {
+    padding: 10px 18px;
+    font-size: 0.82rem;
+    min-height: 44px;
+  }
+
+  /* Кнопки профиля шире */
+  .p-tab-btn {
+    padding: 12px 8px;
+    font-size: 0.9rem;
+  }
+
+  /* Аватар без overlay-ховера — нажатие само по себе */
+  .avatar-overlay {
+    opacity: 0.7;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  /* Марки-отзывы на touch: убираем hover transform */
+  .review-card-item:hover {
+    transform: none;
+  }
+
+  /* Паузируем marquee при касании для чтения */
+  #marquee-line:active {
+    animation-play-state: paused;
+  }
+
+  /* Более заметный active-state вместо hover */
+  .tour-btn:active,
+  .btn-book:active,
+  .btn-all-tours:active,
+  .auth-submit:active,
+  .booking-submit:active {
+    transform: scale(0.97);
+    opacity: 0.88;
+  }
+}
+
+/* ── 8. PREFER-REDUCED-MOTION ────────────────────────────── */
+
+/*
+ * Уважаем системные настройки доступности.
+ * Анимации либо мгновенные, либо отключены.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  #marquee-line {
+    animation: none;
+  }
+
+  .nav-bg-fluid {
+    transition: none;
+  }
+}
+
+/* ── 9. LANDSCAPE-ориентация смартфона ───────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  header {
+    min-height: auto;
+    padding: 80px 5% 40px;
+  }
+  .hero-content {
+    margin-top: 60px;
+    margin-bottom: 40px;
+  }
+  .hero-content h1 {
+    font-size: clamp(1.6rem, 5vw, 2.8rem);
+  }
+  .modal-auth,
+  .modal-booking {
+    align-items: flex-start;
+    padding-top: 10px;
+    overflow-y: auto;
+  }
+  .auth-container,
+  .booking-container {
+    max-height: 90svh;
+    overflow-y: auto;
+  }
+}
+
+/* ── 10. WEBKIT / SAFARI СПЕЦИФИЧНЫЕ ИСПРАВЛЕНИЯ ────────── */
+
+/* Корректное отображение backdrop-filter в старых Safari */
+@supports not (backdrop-filter: blur(1px)) {
+  .nav-container {
+    background: rgba(26, 34, 38, 0.92);
+  }
+  .side-profile {
+    background: rgba(26, 34, 38, 0.97);
+  }
+  .modal-auth,
+  .modal-booking {
+    background: rgba(15, 20, 22, 0.9);
+  }
+  .auth-container,
+  .booking-container {
+    background: rgba(26, 34, 38, 0.98);
+  }
+}
+
+/* Убираем дефолтный стиль select в Safari/iOS */
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.5)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 38px;
+}
+
+/* Корректный box-model у input type="search" в WebKit */
+input[type="search"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Убираем стрелку spin-buttons у number input в WebKit */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Корректные safe-area insets для устройств с notch (iPhone) */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .main-footer {
+    padding-bottom: calc(30px + env(safe-area-inset-bottom));
+  }
+  .side-profile {
+    padding-bottom: calc(40px + env(safe-area-inset-bottom));
+  }
+  .nav-container {
+    top: max(16px, env(safe-area-inset-top));
+  }
+}

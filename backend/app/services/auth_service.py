@@ -154,3 +154,46 @@ async def _fetch_google_userinfo(access_token: str) -> dict:
     if "email" not in data:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Не удалось получить email от Google")
     return data
+
+async def vk_auth(code: str, session: AsyncSession) -> TokenResponse:
+    # Обмен code на токен
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.post(
+            "https://id.vk.com/oauth2/auth",
+            data={
+                "grant_type": "authorization_code",
+                "code": code,
+                "client_id": settings.VK_CLIENT_ID,
+                "client_secret": settings.VK_CLIENT_SECRET,
+                "redirect_uri": f"{settings.FRONTEND_URL}/index.html",
+            },
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+    token_data = resp.json()
+
+    # Получаем профиль
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(
+            "https://id.vk.com/oauth2/user_info",
+            headers={"Authorization": f"Bearer {token_data['access_token']}"},
+        )
+    user_info = resp.json().get("user", {})
+
+    email = user_info.get("email", f"vk_{user_info['user_id']}@vk.local")
+    first_name = user_info.get("first_name", "")
+    avatar_url = user_info.get("avatar", "")
+
+    # Находим или создаём пользователя (та же логика, что у Google)
+    user = await _get_user_by_email(session, email)
+    if user is None:
+        username = await _generate_unique_username(session, first_name or f"vk_{user_info['user_id']}")
+        user = User(
+            username=username, email=email,
+            avatar_url=avatar_url, is_oauth=True,
+            hashed_password="", ref_code=secrets.token_urlsafe(8),
+        )
+        session.add(user)
+
+    await session.commit()
+    await session.refresh(user)
+    return TokenResponse(access_token=create_access_token(user.id), username=user.username)

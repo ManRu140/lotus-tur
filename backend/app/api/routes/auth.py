@@ -19,6 +19,15 @@ def _set_session_cookies(response: Response, token_response: TokenResponse) -> N
     csrf_token = secrets.token_hex(32)
     set_auth_cookies(response, token_response.access_token, csrf_token)
 
+@router.get("/vk/callback")
+async def vk_callback(
+    code: str,
+    response: Response,
+    session: AsyncSession = Depends(get_session),
+) -> TokenResponse:
+    result = await vk_auth(code, session)
+    _set_session_cookies(response, result)
+    return result
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
 async def register(

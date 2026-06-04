@@ -500,8 +500,15 @@ function handleProfileClick() {
   else toggleAuthModal();
 }
 
-function handleFakeSocialLogin() {
-  alert("OAuth пока не подключён. Используйте обычный вход.");
+function loginWithVK() {
+  const clientId = "51234567"; // твой VK App ID
+  const redirectUri = encodeURIComponent(window.location.origin + "/index.html");
+  const url = `https://id.vk.com/authorize`
+    + `?response_type=code`
+    + `&client_id=${clientId}`
+    + `&redirect_uri=${redirectUri}`
+    + `&scope=email`;
+  window.location.href = url;
 }
 
 // ── ЛИЧНЫЙ КАБИНЕТ ────────────────────────────────────────────────────────────

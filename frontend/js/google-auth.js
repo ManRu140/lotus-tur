@@ -1,37 +1,20 @@
-// =============================================
-// google-auth.js — Google OAuth для Лотос Тур
-// =============================================
-
-// BUG FIX #6: GOOGLE_CLIENT_ID убран из публичного JS-файла.
-// Client ID должен читаться с бэкенда через /api/auth/google/client-id
-// или встраиваться через шаблонизатор при деплое.
-// Временно: если нужен срочный фикс — передавайте через window.__ENV__ в index.html.
-// НИКОГДА не храните client_secret в браузере!
-
 const REDIRECT_URI = window.location.origin + "/index.html";
 const BACKEND_URL = "https://lotus-tur-production.up.railway.app";
 
 async function loginWithGoogle() {
-  // Получаем client_id с бэкенда (он не секретный, но лучше не в коде)
-  let clientId = window.__GOOGLE_CLIENT_ID__;
-  if (!clientId) {
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/auth/google/client-id`);
-      if (res.ok) {
-        const data = await res.json();
-        clientId = data.client_id;
-      }
-    } catch {
-      // fallback: если эндпоинт не реализован, покажем ошибку
-      alert("Вход через Google временно недоступен. Используйте обычный вход.");
-      return;
-    }
-  }
+  const res = await fetch("https:lotus-tur-production-23c6.up.railway.app");
+  const { client_id } = await res.json();
 
-  if (!clientId) {
-    alert("Вход через Google не настроен.");
-    return;
-  }
+  const redirectUri = encodeURIComponent(window.location.origin + "/index.html");
+  const scope = encodeURIComponent("email profile");
+  const url = `https://accounts.google.com/o/oauth2/v2/auth`
+    + `?client_id=${client_id}`
+    + `&redirect_uri=${redirectUri}`
+    + `&response_type=code`
+    + `&scope=${scope}`;
+
+  window.location.href = url;
+}
 
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.searchParams.set("client_id", clientId);
@@ -40,7 +23,6 @@ async function loginWithGoogle() {
   url.searchParams.set("scope", "openid email profile");
   url.searchParams.set("access_type", "online");
   window.location.href = url.toString();
-}
 
 async function handleGoogleCallback() {
   const params = new URLSearchParams(window.location.search);

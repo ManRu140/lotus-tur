@@ -1,14 +1,3 @@
-"""
-API роутер: авторизация с поддержкой HttpOnly Cookie.
-
-Изменения по сравнению с оригиналом:
-  - Все auth-эндпоинты возвращают токен ОДНОВРЕМЕННО:
-      a) в теле JSON (для мобильных клиентов / Swagger)
-      b) в HttpOnly Cookie (для браузерных клиентов)
-  - Добавлен POST /logout — очищает куки
-  - CSRF-токен генерируется при каждом входе/регистрации
-  - GET /me — возвращает текущего пользователя (для проверки сессии)
-"""
 import secrets
 
 from fastapi import APIRouter, Depends, Response
@@ -26,7 +15,7 @@ router = APIRouter()
 
 
 def _set_session_cookies(response: Response, token_response: TokenResponse) -> None:
-    """Хэлпер: генерирует CSRF и устанавливает обе куки."""
+    """Генерирует CSRF и устанавливает обе куки."""
     csrf_token = secrets.token_hex(32)
     set_auth_cookies(response, token_response.access_token, csrf_token)
 
@@ -53,17 +42,13 @@ async def login(
     return result
 
 
-@router.get(
-    "/google/callback",
-    response_model=TokenResponse,
-    summary="Google OAuth callback",
-)
+@router.get("/google/callback", response_model=TokenResponse, summary="Google OAuth callback")
 async def google_callback(
     code: str,
     response: Response,
     session: AsyncSession = Depends(get_session),
 ) -> TokenResponse:
-    """Принимает code от Google, возвращает JWT токен и устанавливает куки."""
+    """Принимает code от Google, возвращает JWT и устанавливает куки."""
     result = await google_auth(code, session)
     _set_session_cookies(response, result)
     return result
@@ -71,10 +56,7 @@ async def google_callback(
 
 @router.post("/logout", summary="Выход из системы")
 async def logout(response: Response) -> dict:
-    """
-    Очищает куки сессии.
-    Клиент также должен удалить JWT из localStorage (если хранится там).
-    """
+    """Очищает куки сессии. Клиент также удаляет JWT из localStorage."""
     clear_auth_cookies(response)
     return {"detail": "Вы вышли из системы"}
 
@@ -85,17 +67,9 @@ async def get_me(user: User = Depends(get_current_active_user)) -> ProfileOut:
     return user
 
 
-@router.get(
-    "/google/client-id",
-    summary="Публичный Google Client ID для OAuth",
-    include_in_schema=True,
-)
+@router.get("/google/client-id", summary="Публичный Google Client ID для OAuth")
 async def google_client_id() -> dict:
-    """
-    BUG FIX: возвращает Google Client ID для фронтенда.
-    Это НЕ секрет — client_id публичен по стандарту OAuth.
-    Выносим его с фронтенда на бэкенд для централизованной конфигурации.
-    """
+    """Возвращает Google Client ID для фронтенда (не секрет по стандарту OAuth)."""
     if not settings.GOOGLE_CLIENT_ID:
         from fastapi import HTTPException, status
         raise HTTPException(

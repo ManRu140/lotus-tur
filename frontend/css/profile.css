@@ -1,8 +1,4 @@
-/* ============================================================
-   ЛИЧНЫЙ КАБИНЕТ, МОДАЛЬНЫЕ ОКНА, АВТОРИЗАЦИЯ (profile.css)
-   ============================================================ */
-
-/* ── БОКОВАЯ ПАНЕЛЬ ПРОФИЛЯ ──────────────────────────────── */
+/* ── БОКОВАЯ ПАНЕЛЬ ПРОФИЛЯ ─────────────────────────────── */
 .side-profile {
   position: fixed;
   top: 0;
@@ -15,11 +11,12 @@
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.3);
   z-index: 2000;
   transition: right 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-  padding: 40px 30px;
+  padding: 40px 30px 24px;
   display: flex;
   flex-direction: column;
   color: var(--text-light-main);
   border-left: 1px solid var(--border-light);
+  overflow: hidden;
 }
 .side-profile.open {
   right: 0;
@@ -45,8 +42,9 @@
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .avatar-container {
@@ -109,6 +107,57 @@
   font-weight: 600;
 }
 
+/* ── ВКЛАДКИ ПРОФИЛЯ ─────────────────────────────────────── */
+.profile-tabs-nav {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  border: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+.p-tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px 5px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-light-muted);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+.p-tab-btn.active {
+  background: var(--text-light-main);
+  color: var(--bg-dark);
+}
+
+/* Скроллируемая область с контентом вкладок */
+.profile-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  padding-right: 4px;
+  margin-bottom: 16px;
+}
+.profile-scroll-area::-webkit-scrollbar {
+  width: 4px;
+}
+.profile-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.profile-tab-content {
+  display: none;
+}
+.profile-tab-content.active {
+  display: block;
+}
+
 /* ── ФИЛЬТРЫ ТУРОВ ───────────────────────────────────────── */
 .tour-filters {
   display: flex;
@@ -138,42 +187,6 @@
   background: var(--accent-liquid);
   color: var(--bg-dark);
   border-color: var(--accent-liquid);
-}
-
-/* ── ВКЛАДКИ ПРОФИЛЯ ─────────────────────────────────────── */
-.profile-tabs-nav {
-  background: rgba(255, 255, 255, 0.06);
-  padding: 4px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  display: flex;
-  border: 1px solid var(--border-light);
-}
-.p-tab-btn {
-  flex: 1;
-  background: none;
-  border: none;
-  padding: 10px 5px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-light-muted);
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.3s;
-}
-.p-tab-btn.active {
-  background: var(--text-light-main);
-  color: var(--bg-dark);
-}
-
-.profile-tab-content {
-  flex: 1;
-  overflow-y: auto;
-  display: none;
-  padding-right: 5px;
-}
-.profile-tab-content.active {
-  display: block;
 }
 
 /* ── КАРТОЧКИ ТУРОВ В ЛК ─────────────────────────────────── */
@@ -214,7 +227,6 @@
   background: rgba(67, 160, 71, 0.2);
   color: #81c784;
 }
-/* BUG FIX: статус cancelled ранее отображался как completed (зелёный) */
 .status-cancelled {
   background: rgba(229, 57, 53, 0.2);
   color: #ef9a9a;
@@ -336,7 +348,6 @@
   overflow-y: auto;
 }
 
-/* Заголовок модалки бронирования (вынесен из inline style) */
 .modal-title {
   font-size: 1.6rem;
   font-weight: 700;
@@ -481,22 +492,13 @@
   border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
 }
-
-/* Цвета кнопок соцсетей (вынесены из inline style) */
-.social-btn--vk {
-  color: #0077ff;
-}
-.social-btn--max {
-  color: #ff3333;
-}
-.social-btn--google {
-  color: #4285f4;
-}
+.social-btn--vk     { color: #0077ff; }
+.social-btn--max    { color: #ff3333; }
+.social-btn--google { color: #4285f4; }
 
 /* ── КНОПКА ВЫХОДА ───────────────────────────────────────── */
 .logout-btn {
-  margin-top: auto;
-  padding-top: 20px;
+  flex-shrink: 0;
   width: 100%;
   display: flex;
   align-items: center;

@@ -266,55 +266,54 @@
         </button>
       </nav>
 
-      <!-- Вкладка: Туры -->
-      <div class="profile-tab-content active" id="pTab1" role="tabpanel">
-        <div class="tour-filters">
-          <button class="filter-chip active" data-filter="all" id="fAll">
-            Все
-          </button>
-          <button class="filter-chip" data-filter="booked" id="fBooked">
-            Забронировано
-          </button>
-          <button class="filter-chip" data-filter="started" id="fStarted">
-            Начатые
-          </button>
-          <button class="filter-chip" data-filter="completed" id="fCompleted">
-            Завершенные
-          </button>
-        </div>
-        <div id="toursList"></div>
-      </div>
-
-      <!-- Вкладка: Достижения -->
-      <div class="profile-tab-content" id="pTab2" role="tabpanel">
-        <div class="achievements-grid" id="achGrid"></div>
-      </div>
-
-      <!-- Вкладка: Промокоды -->
-      <div class="profile-tab-content" id="pTab3" role="tabpanel">
-        <div class="promo-section">
-          <h4 id="refTitle">Твоя реферальная ссылка</h4>
-          <div class="copy-box">
-            <input
-              type="text"
-              value="https://poravpohod.ru/ref?id=43219"
-              id="refLink"
-              readonly
-              aria-label="Реферальная ссылка"
-            />
-            <button type="button" id="btnCopy">Копировать</button>
+      <div class="profile-scroll-area">
+        <div class="profile-tab-content active" id="pTab1" role="tabpanel">
+          <div class="tour-filters">
+            <button class="filter-chip active" data-filter="all" id="fAll">
+              Все
+            </button>
+            <button class="filter-chip" data-filter="booked" id="fBooked">
+              Забронировано
+            </button>
+            <button class="filter-chip" data-filter="started" id="fStarted">
+              Начатые
+            </button>
+            <button class="filter-chip" data-filter="completed" id="fCompleted">
+              Завершенные
+            </button>
           </div>
+          <div id="toursList"></div>
         </div>
-        <div class="promo-section">
-          <h4 id="promoTitle">Ввести промокод</h4>
-          <div class="input-box">
-            <input
-              type="text"
-              placeholder="PRIMORYE10"
-              id="promoInput"
-              aria-label="Промокод"
-            />
-            <button type="button" id="btnApply">Применить</button>
+
+        <div class="profile-tab-content" id="pTab2" role="tabpanel">
+          <div class="achievements-grid" id="achGrid"></div>
+        </div>
+
+        <div class="profile-tab-content" id="pTab3" role="tabpanel">
+          <div class="promo-section">
+            <h4 id="refTitle">Твоя реферальная ссылка</h4>
+            <div class="copy-box">
+              <input
+                type="text"
+                value="https://poravpohod.ru/ref?id=43219"
+                id="refLink"
+                readonly
+                aria-label="Реферальная ссылка"
+              />
+              <button type="button" id="btnCopy">Копировать</button>
+            </div>
+          </div>
+          <div class="promo-section">
+            <h4 id="promoTitle">Ввести промокод</h4>
+            <div class="input-box">
+              <input
+                type="text"
+                placeholder="PRIMORYE10"
+                id="promoInput"
+                aria-label="Промокод"
+              />
+              <button type="button" id="btnApply">Применить</button>
+            </div>
           </div>
         </div>
       </div>

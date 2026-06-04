@@ -1,10 +1,3 @@
-"""
-Конфигурация приложения через переменные окружения.
-
-Все секретные значения читаются из .env — никаких дефолтов
-для SECRET_KEY в продакшене. Если переменная не задана,
-приложение не запустится (field validator бросит исключение).
-"""
 from functools import lru_cache
 from typing import Literal
 
@@ -13,10 +6,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    # ── База данных ────────────────────────────────────────────
+    # База данных
     DATABASE_URL: str = "sqlite+aiosqlite:///./lotos_tour.db"
 
-    # ── JWT ────────────────────────────────────────────────────
+    # JWT
     SECRET_KEY: str = Field(
         default="CHANGE_ME_IN_PRODUCTION_use_openssl_rand_hex_32",
         min_length=32,
@@ -24,22 +17,14 @@ class Settings(BaseSettings):
     ALGORITHM: Literal["HS256", "HS512", "RS256"] = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60 * 24, gt=0)  # 24 часа
 
-    # ── Google OAuth ───────────────────────────────────────────
+    # Google OAuth
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
     FRONTEND_URL: str = "http://localhost:5173"
 
-    # ── CORS ───────────────────────────────────────────────────
-    # ИСПРАВЛЕНИЕ CORS-ОШИБКИ:
-    # В Railway добавьте переменную окружения:
-    #   CORS_ORIGINS=["https://thriving-entremet-a84a1b.netlify.app","https://ваш-домен.ru"]
-    #
-    # Значения по умолчанию включают Netlify-домен для деплоя.
-    # При смене домена — обновите CORS_ORIGINS в настройках Railway.
+    # CORS — в Railway задайте CORS_ORIGINS=[...] с нужными доменами
     CORS_ORIGINS: list[str] = [
-        # ── Production фронтенды ───────────────────────────────
-        "https://thriving-entremet-a84a1b.netlify.app",  # CORS FIX: Netlify production
-        # ── Локальная разработка ───────────────────────────────
+        "https://thriving-entremet-a84a1b.netlify.app",
         "http://localhost",
         "http://localhost:5500",
         "http://127.0.0.1:5500",
@@ -48,11 +33,11 @@ class Settings(BaseSettings):
         "http://127.0.0.1:5173",
     ]
 
-    # ── Rate limiting ──────────────────────────────────────────
+    # Rate limiting
     RATE_LIMIT_REQUESTS: int = 100
     RATE_LIMIT_WINDOW_SECONDS: int = 60
 
-    # ── Окружение ──────────────────────────────────────────────
+    # Окружение
     ENV: Literal["development", "production", "testing"] = "development"
 
     model_config = SettingsConfigDict(
@@ -74,7 +59,7 @@ class Settings(BaseSettings):
                 "SECRET_KEY не изменён — запуск в production запрещён. "
                 "Сгенерируйте ключ: openssl rand -hex 32"
             )
-        # "null" origin (file://) только в dev-режиме
+        # null origin (file://) разрешён только в dev
         if self.ENV == "development" and "null" not in self.CORS_ORIGINS:
             self.CORS_ORIGINS = list(self.CORS_ORIGINS) + ["null"]
         return self

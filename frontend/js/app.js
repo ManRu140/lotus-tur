@@ -1,31 +1,25 @@
-/* ============================================================
-   ОСНОВНАЯ ЛОГИКА САЙТА (app.js)
-   ============================================================ */
-
 const API_URL = "https://lotus-tur-production-23c6.up.railway.app";
 
-/* ── Токен из URL-параметра (после OAuth-редиректа) ─────── */
+// Токен из URL после OAuth-редиректа
 const _urlParams = new URLSearchParams(window.location.search);
 const _urlToken  = _urlParams.get("token");
 if (_urlToken) {
-  // BUG FIX #1: был "access_token", теперь единый ключ "token" во всём приложении
   localStorage.setItem("token", _urlToken);
   window.history.replaceState({}, "", window.location.pathname);
 }
 
-/* ── Состояние ──────────────────────────────────────────── */
+// Состояние приложения
 let isUserLoggedIn   = false;
 let currentLang      = "RU";
 let isGridViewActive = false;
 let currentAuthMode  = "login";
-// BUG FIX #1: единый ключ "token" (раньше были "token" и "access_token" одновременно)
 let authToken        = localStorage.getItem("token") || null;
 
 let calYear         = 2026;
-let calMonth        = 5;       // Июнь (0-indexed)
+let calMonth        = 5;
 let selectedDateStr = "";
 
-// BUG FIX #2: кэш туров с API чтобы календарь видел booked_dates из бэкенда
+// Кэш туров для доступа в календаре
 let cachedToursData = [];
 
 if (authToken) {
@@ -37,7 +31,7 @@ if (authToken) {
   }
 }
 
-/* ── API-хелпер ─────────────────────────────────────────── */
+// Универсальный API-хелпер с fallback на локальные данные
 async function apiFetch(path, options = {}) {
   const headers = { "Content-Type": "application/json", ...options.headers };
   if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
@@ -55,13 +49,12 @@ async function apiFetch(path, options = {}) {
   }
 }
 
-/* ── Локальный фоллбек ──────────────────────────────────── */
+// Локальный фоллбек для работы без сервера
 function mockApiFallback(path, options) {
   if (path === "/api/tours") {
     return Promise.resolve(toursData);
   }
   if (path === "/api/bookings" && options.method === "POST") {
-    // SECURITY FIX: бронирование требует реального сервера
     return Promise.reject(new Error("Сервер недоступен. Бронирование невозможно."));
   }
   if (path === "/api/bookings/my") {
@@ -79,7 +72,6 @@ function mockApiFallback(path, options) {
     return Promise.resolve(achievementsList);
   }
   if (path === "/api/auth/login" || path === "/api/auth/register") {
-    // SECURITY FIX: никогда не обходим авторизацию через mock
     return Promise.reject(new Error("Сервер недоступен. Попробуйте позже."));
   }
   if (path === "/api/promo/ref") {
@@ -91,9 +83,7 @@ function mockApiFallback(path, options) {
   return Promise.resolve({});
 }
 
-/* ════════════════════════════════════════════════════════════
-   ТУРЫ
-   ════════════════════════════════════════════════════════════ */
+// ── ТУРЫ ─────────────────────────────────────────────────────────────────────
 
 async function renderToursGrid() {
   const container = document.getElementById("toursContainer");
@@ -106,7 +96,6 @@ async function renderToursGrid() {
     tours = toursData;
   }
 
-  // BUG FIX #2: сохраняем загруженные туры в кэш для использования в календаре
   if (tours && tours.length) cachedToursData = tours;
 
   container.innerHTML = "";
@@ -122,9 +111,10 @@ async function renderToursGrid() {
         : tour.price
       : "";
 
+    // Создаём карточку через DOM API (XSS-безопасно)
     const card = document.createElement("div");
     card.className = "tour-card";
-    // BUG FIX: используем textContent там где нет разметки (XSS prevention)
+
     const imgDiv = document.createElement("div");
     imgDiv.className = "tour-img-placeholder";
     imgDiv.style.backgroundImage = `url('${img}')`;
@@ -217,9 +207,7 @@ function updateBtnAllText() {
     : currentLang === "RU" ? "Все туры" : "All tours";
 }
 
-/* ════════════════════════════════════════════════════════════
-   БРОНИРОВАНИЕ И КАЛЕНДАРЬ
-   ════════════════════════════════════════════════════════════ */
+// ── БРОНИРОВАНИЕ И КАЛЕНДАРЬ ─────────────────────────────────────────────────
 
 function toggleBookingModal() {
   document.getElementById("bookingModal").classList.toggle("open");
@@ -246,6 +234,7 @@ function openBookingWithTour(tourId) {
 function initCalendarForCurrentSelection() {
   const select = document.getElementById("bookTourSelect");
   if (!select) return;
+  // Вешаем обработчик один раз
   if (!select.dataset.listenerAdded) {
     select.addEventListener("change", () => {
       selectedDateStr = "";
@@ -265,12 +254,11 @@ function renderMiniCalendar(year, month) {
   const select = document.getElementById("bookTourSelect");
   const selectedTourId = select ? select.value : "";
 
-  // BUG FIX #2: используем данные из API (cachedToursData), а не только локальные
-  // Ищем сначала в кэше API, потом fallback в локальные данные
+  // Используем кэш API, иначе локальные данные
   const allTours = cachedToursData.length ? cachedToursData : toursData;
   const selectedTour = allTours.find((t) => t.id === selectedTourId);
 
-  // API отдаёт booked_dates (массив), локальные данные — bookedDates
+  // API возвращает booked_dates, локальные данные — bookedDates
   const tourBookedDates = selectedTour
     ? (selectedTour.booked_dates || selectedTour.bookedDates || [])
     : [];
@@ -360,7 +348,6 @@ function nextCalendarMonth() {
 }
 
 function selectCalendarDate(dateStr, isBookedOut, isPast) {
-  // BUG FIX: прошедшие даты тоже нельзя выбирать
   if (isPast) {
     alert(currentLang === "RU"
       ? "Нельзя бронировать прошедшую дату!"
@@ -398,7 +385,6 @@ async function handleBookingSubmit(e) {
     alert(currentLang === "RU" ? "Пожалуйста, выберите свободную дату на календаре!" : "Please select an available date!"); return;
   }
 
-  // BUG FIX #3: people_count теперь читается из поля формы, не захардкожен в 1
   const peopleCountEl = document.getElementById("bookPeopleCount");
   const peopleCount = peopleCountEl ? parseInt(peopleCountEl.value, 10) || 1 : 1;
 
@@ -432,9 +418,7 @@ async function handleBookingSubmit(e) {
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   АВТОРИЗАЦИЯ
-   ════════════════════════════════════════════════════════════ */
+// ── АВТОРИЗАЦИЯ ───────────────────────────────────────────────────────────────
 
 function toggleAuthModal() {
   document.getElementById("authModal").classList.toggle("open");
@@ -473,7 +457,6 @@ async function handleAuthSubmit(e) {
   const username = document.getElementById("authLoginInput").value.trim();
   const password = document.getElementById("authPasswordInput").value;
 
-  // BUG FIX: базовая клиентская валидация перед отправкой
   if (!username || !password) {
     alert(currentLang === "RU" ? "Заполните все поля." : "Please fill in all fields."); return;
   }
@@ -498,7 +481,6 @@ async function handleAuthSubmit(e) {
     }
 
     authToken = data.access_token;
-    // BUG FIX #1: единый ключ "token"
     localStorage.setItem("token",    authToken);
     localStorage.setItem("username", data.username);
 
@@ -522,9 +504,7 @@ function handleFakeSocialLogin() {
   alert("OAuth пока не подключён. Используйте обычный вход.");
 }
 
-/* ════════════════════════════════════════════════════════════
-   ЛИЧНЫЙ КАБИНЕТ
-   ════════════════════════════════════════════════════════════ */
+// ── ЛИЧНЫЙ КАБИНЕТ ────────────────────────────────────────────────────────────
 
 function toggleProfile() {
   const sideProfile = document.getElementById("sideProfile");
@@ -537,7 +517,7 @@ function toggleProfile() {
 }
 
 function handleLogout() {
-  // BUG FIX: вызываем logout на бэкенде (очищает HttpOnly cookie)
+  // Очищаем HttpOnly cookie на бэкенде
   apiFetch("/api/auth/logout", { method: "POST" }).catch(() => {});
 
   authToken      = null;
@@ -593,7 +573,6 @@ async function renderMyBookings() {
       booked:    { label: "Забронировано", cls: "status-booked"    },
       started:   { label: "В пути",        cls: "status-started"   },
       completed: { label: "Завершен",       cls: "status-completed" },
-      // BUG FIX #4: статус 'cancelled' имел класс "status-completed" — исправлено на отдельный
       cancelled: { label: "Отменен",        cls: "status-cancelled" },
     };
 
@@ -607,8 +586,7 @@ async function renderMyBookings() {
       h4.textContent = b.tour_name;
 
       const p = document.createElement("p");
-      // BUG FIX: new Date(dateString) может давать off-by-one из-за UTC
-      // Безопаснее парсить дату вручную
+      // Ручной парсинг даты — избегает off-by-one из-за UTC
       const [y, m, d] = b.tour_date.split("-").map(Number);
       const localDate = new Date(y, m - 1, d);
       p.textContent = `${localDate.toLocaleDateString("ru-RU")} · ${b.people_count} чел.`;
@@ -690,7 +668,7 @@ function enableInlineNicknameEdits() {
   input.addEventListener("blur", save);
 }
 
-// BUG FIX #5: аватар теперь загружается на API (не только превью в браузере)
+// Открывает диалог выбора файла для аватара
 function openAvatarExplorer() {
   document.getElementById("avatarFileInput").click();
 }
@@ -700,26 +678,26 @@ async function loadAvatarFromPC(input) {
 
   const file = input.files[0];
 
-  // SECURITY FIX: проверяем тип и размер файла
+  // Разрешённые типы и максимальный размер 5 МБ
   const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
   if (!allowedTypes.includes(file.type)) {
     alert("Допустимые форматы: JPEG, PNG, WEBP, GIF");
     return;
   }
-  const maxSize = 5 * 1024 * 1024; // 5MB
+  const maxSize = 5 * 1024 * 1024;
   if (file.size > maxSize) {
     alert("Файл слишком большой. Максимальный размер: 5MB");
     return;
   }
 
-  // Показываем превью немедленно
+  // Немедленное превью
   const reader = new FileReader();
   reader.onload = (e) => {
     document.getElementById("profileAvatar").src = e.target.result;
   };
   reader.readAsDataURL(file);
 
-  // Локально сохраняем base64 preview (API потребует cdn URL в production)
+  // Сохраняем base64 локально (API в production требует cdn URL)
   try {
     const dataUrl = await new Promise((res) => {
       const r = new FileReader();
@@ -732,9 +710,7 @@ async function loadAvatarFromPC(input) {
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   ПРОМОКОДЫ
-   ════════════════════════════════════════════════════════════ */
+// ── ПРОМОКОДЫ ─────────────────────────────────────────────────────────────────
 
 async function loadRefLink() {
   const link = document.getElementById("refLink");
@@ -769,9 +745,7 @@ async function applyPromo() {
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   ЯЗЫК
-   ════════════════════════════════════════════════════════════ */
+// ── ЯЗЫК ──────────────────────────────────────────────────────────────────────
 
 function toggleLanguage() {
   currentLang = currentLang === "RU" ? "EN" : "RU";
@@ -785,9 +759,7 @@ function toggleLanguage() {
   renderMiniCalendar(calYear, calMonth);
 }
 
-/* ════════════════════════════════════════════════════════════
-   НАВИГАЦИЯ: жидкий овал
-   ════════════════════════════════════════════════════════════ */
+// ── НАВИГАЦИЯ: жидкий овал ────────────────────────────────────────────────────
 
 function initNavFluidOval() {
   const oval    = document.getElementById("fluid-oval");
@@ -809,9 +781,7 @@ function initNavFluidOval() {
   mainNav.addEventListener("mouseleave", () => { oval.style.opacity = "0"; });
 }
 
-/* ════════════════════════════════════════════════════════════
-   СМЕНА ТЕМЫ НАВБАРА ПРИ СКРОЛЛЕ
-   ════════════════════════════════════════════════════════════ */
+// ── СМЕНА ТЕМЫ НАВБАРА ПРИ СКРОЛЛЕ ───────────────────────────────────────────
 
 function initNavThemeObserver() {
   const mainNav = document.getElementById("main-nav");
@@ -824,9 +794,7 @@ function initNavThemeObserver() {
   ).observe(trigger);
 }
 
-/* ════════════════════════════════════════════════════════════
-   БЕГУЩАЯ СТРОКА: пауза при наведении
-   ════════════════════════════════════════════════════════════ */
+// ── БЕГУЩАЯ СТРОКА: пауза при наведении ──────────────────────────────────────
 
 function initMarqueePause() {
   const wrapper = document.getElementById("marqueeWrapper");
@@ -836,9 +804,7 @@ function initMarqueePause() {
   wrapper.addEventListener("mouseleave", () => { line.style.animationPlayState = "running"; });
 }
 
-/* ════════════════════════════════════════════════════════════
-   ИНИЦИАЛИЗАЦИЯ
-   ════════════════════════════════════════════════════════════ */
+// ── ИНИЦИАЛИЗАЦИЯ ─────────────────────────────────────────────────────────────
 
 document.addEventListener("DOMContentLoaded", () => {
   renderToursGrid();
@@ -846,14 +812,14 @@ document.addEventListener("DOMContentLoaded", () => {
   initNavThemeObserver();
   initMarqueePause();
 
-  // BUG FIX: восстанавливаем превью аватара из localStorage если есть
+  // Восстанавливаем превью аватара из localStorage
   const savedAvatar = localStorage.getItem("avatar_preview");
   if (savedAvatar && isUserLoggedIn) {
     const avatarEl = document.getElementById("profileAvatar");
     if (avatarEl) avatarEl.src = savedAvatar;
   }
 
-  /* ── Модальные окна ─────────────────────────────────────── */
+  // Модальные окна
   document.getElementById("closeBookingBtn")
     ?.addEventListener("click", toggleBookingModal);
   document.getElementById("closeAuthBtn")
@@ -878,20 +844,18 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (sp?.classList.contains("open")) toggleProfile();
   });
 
-  /* ── Форма бронирования ─────────────────────────────────── */
+  // Формы
   document.getElementById("bookingForm")
     ?.addEventListener("submit", handleBookingSubmit);
-
-  /* ── Форма авторизации ──────────────────────────────────── */
   document.getElementById("authMainForm")
     ?.addEventListener("submit", handleAuthSubmit);
 
-  /* ── Вкладки авторизации ─────────────────────────────────── */
+  // Вкладки авторизации
   document.querySelectorAll(".auth-tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => switchAuthMode(btn.dataset.mode));
   });
 
-  /* ── Кнопки навбара и hero ──────────────────────────────── */
+  // Кнопки навбара
   document.getElementById("profileTrigger")
     ?.addEventListener("click", handleProfileClick);
   document.getElementById("langBtn")
@@ -904,7 +868,7 @@ document.addEventListener("DOMContentLoaded", () => {
     el.addEventListener("click", (e) => { e.preventDefault(); openBookingGeneral(); });
   });
 
-  /* ── Личный кабинет ─────────────────────────────────────── */
+  // Личный кабинет
   document.getElementById("logoutBtn")
     ?.addEventListener("click", handleLogout);
 
@@ -932,7 +896,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btnApply")
     ?.addEventListener("click", applyPromo);
 
-  /* ── Соцсети ─────────────────────────────────────────────── */
+  // Соцсети
   document.querySelectorAll(".social-btn[data-provider]").forEach((btn) => {
     btn.addEventListener("click", handleFakeSocialLogin);
   });

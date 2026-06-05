@@ -472,29 +472,55 @@
 }
 .social-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   width: 100%;
 }
 .social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 10px;
+  padding: 11px 16px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s;
   text-align: center;
+  color: #fff;
 }
 .social-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
-.social-btn--vk     { color: #0077ff; }
-.social-btn--max    { color: #ff3333; }
-.social-btn--google { color: #4285f4; }
+.social-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.social-btn--vk {
+  background: rgba(0, 119, 255, 0.15);
+  border-color: rgba(0, 119, 255, 0.35);
+  color: #4d9fff;
+}
+.social-btn--vk:hover {
+  background: rgba(0, 119, 255, 0.25);
+  border-color: rgba(0, 119, 255, 0.6);
+  box-shadow: 0 6px 20px rgba(0, 119, 255, 0.2);
+}
+.social-btn--google {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #e8e8e8;
+}
+.social-btn--google:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.08);
+}
 
 /* ── КНОПКА ВЫХОДА ───────────────────────────────────────── */
 .logout-btn {

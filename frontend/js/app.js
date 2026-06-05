@@ -905,7 +905,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Соцсети
   document.querySelectorAll(".social-btn[data-provider]").forEach((btn) => {
-    btn.addEventListener("click", handleFakeSocialLogin);
+    btn.addEventListener("click", () => {
+      const provider = btn.dataset.provider;
+      if (provider === "VK") loginWithVK();
+      else alert(`Вход через ${provider} пока недоступен.`);
+    });
   });
   document.getElementById("googleLoginBtn")
     ?.addEventListener("click", () => {

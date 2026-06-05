@@ -1,28 +1,27 @@
 const REDIRECT_URI = window.location.origin + "/index.html";
-const BACKEND_URL = "https://lotus-tur-production.up.railway.app";
+const BACKEND_URL = "https://lotus-tur-production-23c6.up.railway.app";
 
 async function loginWithGoogle() {
-  const res = await fetch("https:lotus-tur-production-23c6.up.railway.app");
-  const { client_id } = await res.json();
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/auth/google/client-id`);
+    if (!res.ok) {
+      alert("Google OAuth не настроен на сервере.");
+      return;
+    }
+    const { client_id } = await res.json();
 
-  const redirectUri = encodeURIComponent(window.location.origin + "/index.html");
-  const scope = encodeURIComponent("email profile");
-  const url = `https://accounts.google.com/o/oauth2/v2/auth`
-    + `?client_id=${client_id}`
-    + `&redirect_uri=${redirectUri}`
-    + `&response_type=code`
-    + `&scope=${scope}`;
-
-  window.location.href = url;
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.set("client_id", client_id);
+    url.searchParams.set("redirect_uri", REDIRECT_URI);
+    url.searchParams.set("response_type", "code");
+    url.searchParams.set("scope", "openid email profile");
+    url.searchParams.set("access_type", "online");
+    window.location.href = url.toString();
+  } catch (err) {
+    console.error("Ошибка Google OAuth:", err);
+    alert("Не удалось подключиться к серверу.");
+  }
 }
-
-  const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-  url.searchParams.set("client_id", clientId);
-  url.searchParams.set("redirect_uri", REDIRECT_URI);
-  url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", "openid email profile");
-  url.searchParams.set("access_type", "online");
-  window.location.href = url.toString();
 
 async function handleGoogleCallback() {
   const params = new URLSearchParams(window.location.search);
@@ -42,7 +41,7 @@ async function handleGoogleCallback() {
   try {
     const res = await fetch(
       `${BACKEND_URL}/api/auth/google/callback?code=${encodeURIComponent(code)}`,
-      { credentials: "include" }, // BUG FIX: нужно для получения HttpOnly cookies
+      { credentials: "include" },
     );
 
     if (!res.ok) {
@@ -53,8 +52,6 @@ async function handleGoogleCallback() {
 
     const data = await res.json();
 
-    // BUG FIX #1: единый ключ "token" (ранее использовался "token" в app.js,
-    // но google-auth.js устанавливал "token" — теперь синхронизированы)
     localStorage.setItem("token", data.access_token);
     localStorage.setItem("username", data.username);
 

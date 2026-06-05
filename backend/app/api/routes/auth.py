@@ -9,7 +9,7 @@ from app.db.session import get_session
 from app.models.user import User
 from app.core.config import settings
 from app.schemas.schemas import LoginRequest, ProfileOut, RegisterRequest, TokenResponse
-from app.services.auth_service import google_auth, login_user, register_user
+from app.services.auth_service import google_auth, login_user, register_user, vk_auth
 
 router = APIRouter()
 

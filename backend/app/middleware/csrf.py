@@ -14,6 +14,7 @@ _CSRF_EXEMPT_PATHS: set[str] = {
     "/api/auth/login",
     "/api/auth/register",
     "/api/auth/google/callback",
+    "/api/auth/vk/callback",
     "/api/health",
     "/",
 }

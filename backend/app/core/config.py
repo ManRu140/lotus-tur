@@ -20,11 +20,18 @@ class Settings(BaseSettings):
     # Google OAuth
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
+
+    # VK OAuth
+    VK_CLIENT_ID: str = ""
+    VK_CLIENT_SECRET: str = ""
+    VK_REDIRECT_URI: str = ""
+
     FRONTEND_URL: str = "http://localhost:5173"
 
     # CORS — в Railway задайте CORS_ORIGINS=[...] с нужными доменами
     CORS_ORIGINS: list[str] = [
         "https://thriving-entremet-a84a1b.netlify.app",
+        "https://lotus-tur-production-23c6.up.railway.app",
         "http://localhost",
         "http://localhost:5500",
         "http://127.0.0.1:5500",

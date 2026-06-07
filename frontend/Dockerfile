@@ -1,14 +1,7 @@
-FROM python:3.12-slim
-
-WORKDIR /app
-
-# Зависимости отдельным слоем для кэширования
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Исходный код
-COPY . .
-
-EXPOSE 8080
-
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+FROM nginx:alpine 
+ 
+COPY . /usr/share/nginx/html/ 
+ 
+COPY nginx.conf /etc/nginx/conf.d/default.conf 
+ 
+EXPOSE 80 

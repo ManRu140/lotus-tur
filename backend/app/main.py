@@ -1,3 +1,9 @@
+"""
+main.py — ИСПРАВЛЕННАЯ ВЕРСИЯ
+Изменения:
+  [FIX-1] TrustedHostMiddleware: allowed_hosts=["*"] заменён на реальные хосты
+  [FIX-2] /api/health: в production не раскрывает версию и окружение
+"""
 import logging
 from contextlib import asynccontextmanager
 
@@ -49,7 +55,13 @@ app = FastAPI(
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 if settings.ENV == "production":
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
+    # [FIX-1] allowed_hosts=["*"] не выполняет никакой защиты.
+    # Указываем реальные хосты. Задайте ALLOWED_HOSTS в Railway переменных окружения
+    # или хардкодьте production домен.
+    allowed_hosts = getattr(settings, "ALLOWED_HOSTS", None) or [
+        "lotus-tur-production-23c6.up.railway.app",
+    ]
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 # CORS до CSRF — чтобы preflight OPTIONS не блокировались
 app.add_middleware(
@@ -99,4 +111,12 @@ async def root():
 
 @app.get("/api/health", tags=["Health"], summary="Healthcheck")
 async def health_check():
-    return {"status": "ok", "service": "Лотос Тур API", "version": "1.1.0", "env": settings.ENV}
+    # [FIX-2] В production не раскрываем версию и окружение — разведывательная информация
+    if settings.ENV == "production":
+        return {"status": "ok"}
+    return {
+        "status": "ok",
+        "service": "Лотос Тур API",
+        "version": "1.1.0",
+        "env": settings.ENV,
+    }

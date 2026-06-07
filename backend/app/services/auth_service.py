@@ -1,3 +1,11 @@
+"""
+auth_service.py — ИСПРАВЛЕННАЯ ВЕРСИЯ
+Изменения:
+  [FIX-1] vk_auth: добавлена обработка KeyError / ошибок VK API при обмене кода
+  [FIX-2] vk_auth: добавлена проверка is_active перед выдачей токена (паритет с google_auth)
+  [FIX-3] vk_auth: добавлена обработка httpx.RequestError (паритет с google_auth)
+  [FIX-4] _generate_unique_username: ограничение числа итераций для защиты от DoS
+"""
 import secrets
 
 import httpx
@@ -9,6 +17,8 @@ from app.core.config import settings
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
 from app.schemas.schemas import LoginRequest, RegisterRequest, TokenResponse
+
+_MAX_USERNAME_SUFFIX = 9999  # [FIX-4] предотвращаем бесконечный цикл
 
 
 async def _get_user_by_username(session: AsyncSession, username: str) -> User | None:
@@ -22,23 +32,39 @@ async def _get_user_by_email(session: AsyncSession, email: str) -> User | None:
 
 
 async def _generate_unique_username(session: AsyncSession, base: str) -> str:
-    """Добавляет числовой суффикс при коллизии username."""
+    """Добавляет числовой суффикс при коллизии username.
+    [FIX-4] Ограничено _MAX_USERNAME_SUFFIX итерациями — защита от DoS.
+    """
     username = base
-    counter = 1
-    while True:
+    # Сначала пробуем без суффикса
+    exists = await session.execute(select(User.id).where(User.username == username))
+    if exists.scalar_one_or_none() is None:
+        return username
+
+    for counter in range(1, _MAX_USERNAME_SUFFIX + 1):
+        username = f"{base}{counter}"
         exists = await session.execute(select(User.id).where(User.username == username))
         if exists.scalar_one_or_none() is None:
             return username
-        username = f"{base}{counter}"
-        counter += 1
+
+    raise HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail="Не удалось сгенерировать уникальное имя пользователя",
+    )
 
 
 async def register_user(data: RegisterRequest, session: AsyncSession) -> TokenResponse:
     """Два отдельных запроса — каждый бьёт по своему индексу (username, email)."""
     if await _get_user_by_username(session, data.username):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Это имя пользователя уже занято")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Это имя пользователя уже занято",
+        )
     if await _get_user_by_email(session, data.email):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Пользователь с таким email уже зарегистрирован")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Пользователь с таким email уже зарегистрирован",
+        )
 
     user = User(
         username=data.username,
@@ -69,7 +95,10 @@ async def login_user(data: LoginRequest, session: AsyncSession) -> TokenResponse
         )
 
     if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Аккаунт деактивирован")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Аккаунт деактивирован",
+        )
 
     token = create_access_token(user.id)
     return TokenResponse(access_token=token, username=user.username)
@@ -110,7 +139,10 @@ async def google_auth(code: str, session: AsyncSession) -> TokenResponse:
     await session.refresh(user)
 
     if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Аккаунт деактивирован")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Аккаунт деактивирован",
+        )
 
     token = create_access_token(user.id)
     return TokenResponse(access_token=token, username=user.username)
@@ -131,11 +163,17 @@ async def _exchange_google_code(code: str) -> dict:
                 },
             )
     except httpx.RequestError as exc:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Ошибка соединения с Google: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Ошибка соединения с Google: {exc}",
+        )
 
     data = resp.json()
     if "error" in data:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Google OAuth ошибка: {data['error']}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Google OAuth ошибка: {data['error']}",
+        )
     return data
 
 
@@ -148,45 +186,83 @@ async def _fetch_google_userinfo(access_token: str) -> dict:
                 headers={"Authorization": f"Bearer {access_token}"},
             )
     except httpx.RequestError as exc:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Ошибка получения данных от Google: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Ошибка получения данных от Google: {exc}",
+        )
 
     data = resp.json()
     if "email" not in data:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Не удалось получить email от Google")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Не удалось получить email от Google",
+        )
     return data
 
+
 async def vk_auth(code: str, session: AsyncSession) -> TokenResponse:
+    """
+    VK OAuth: code → access_token → user_info → JWT.
+    [FIX-1] Добавлена обработка ошибок VK API (KeyError на access_token).
+    [FIX-2] Добавлена проверка is_active (паритет с google_auth).
+    [FIX-3] Добавлена обработка httpx.RequestError.
+    """
     # Обмен code на токен
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.post(
-            "https://id.vk.com/oauth2/auth",
-            data={
-                "grant_type": "authorization_code",
-                "code": code,
-                "client_id": settings.VK_CLIENT_ID,
-                "client_secret": settings.VK_CLIENT_SECRET,
-                "redirect_uri": f"{settings.FRONTEND_URL}/index.html",
-            },
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.post(
+                "https://id.vk.com/oauth2/auth",
+                data={
+                    "grant_type":    "authorization_code",
+                    "code":          code,
+                    "client_id":     settings.VK_CLIENT_ID,
+                    "client_secret": settings.VK_CLIENT_SECRET,
+                    "redirect_uri":  f"{settings.FRONTEND_URL}/index.html",
+                },
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+            )
+    except httpx.RequestError as exc:
+        # [FIX-3] Обработка сетевых ошибок
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Ошибка соединения с VK: {exc}",
         )
+
     token_data = resp.json()
 
-    # Получаем профиль
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.get(
-            "https://id.vk.com/oauth2/user_info",
-            headers={"Authorization": f"Bearer {token_data['access_token']}"},
+    # [FIX-1] Проверяем наличие access_token перед использованием
+    if "error" in token_data or "access_token" not in token_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"VK OAuth ошибка: {token_data.get('error', 'нет токена доступа')}",
         )
+
+    # Получаем профиль
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(
+                "https://id.vk.com/oauth2/user_info",
+                headers={"Authorization": f"Bearer {token_data['access_token']}"},
+            )
+    except httpx.RequestError as exc:
+        # [FIX-3] Обработка сетевых ошибок при получении профиля
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Ошибка получения данных от VK: {exc}",
+        )
+
     user_info = resp.json().get("user", {})
 
-    email = user_info.get("email", f"vk_{user_info['user_id']}@vk.local")
+    # Fallback email для VK-пользователей без email
+    email = user_info.get("email", f"vk_{user_info.get('user_id', 'unknown')}@vk.local")
     first_name = user_info.get("first_name", "")
     avatar_url = user_info.get("avatar", "")
 
     # Находим или создаём пользователя (та же логика, что у Google)
     user = await _get_user_by_email(session, email)
     if user is None:
-        username = await _generate_unique_username(session, first_name or f"vk_{user_info['user_id']}")
+        base = first_name or f"vk_{user_info.get('user_id', 'user')}"
+        username = await _generate_unique_username(session, base)
         user = User(
             username=username, email=email,
             avatar_url=avatar_url, is_oauth=True,
@@ -196,4 +272,15 @@ async def vk_auth(code: str, session: AsyncSession) -> TokenResponse:
 
     await session.commit()
     await session.refresh(user)
-    return TokenResponse(access_token=create_access_token(user.id), username=user.username)
+
+    # [FIX-2] Проверяем is_active ПОСЛЕ commit (паритет с google_auth)
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Аккаунт деактивирован",
+        )
+
+    return TokenResponse(
+        access_token=create_access_token(user.id),
+        username=user.username,
+    )

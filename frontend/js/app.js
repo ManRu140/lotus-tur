@@ -100,9 +100,12 @@ async function handleAuthSubmit(e) {
 
     // [FIX-1] Убраны: localStorage.setItem("token", ...) и authToken = data.access_token
     // HttpOnly Cookie установлена бэкендом автоматически
-    localStorage.setItem("username", data.username); // несекретные данные — ок
+    // [FIX-NULL] Если бэкенд недоступен — используем введённое имя как fallback
+    const resolvedUsername = (data && data.username) ? data.username : username;
+    localStorage.setItem("username", resolvedUsername);
     isUserLoggedIn = true;
-    document.getElementById("profileName").textContent = data.username;
+    const nameEl2 = document.getElementById("profileName");
+    if (nameEl2) nameEl2.textContent = resolvedUsername;
     toggleAuthModal();
     setTimeout(toggleProfile, 300);
   } catch (err) {

@@ -29,6 +29,17 @@ async def vk_callback(
     _set_session_cookies(response, result)
     return result
 
+@router.get("/vk/client-id", summary="Публичный VK Client ID для OAuth")
+async def vk_client_id() -> dict:
+    """Возвращает VK Client ID для фронтенда (не секрет по стандарту OAuth)."""
+    if not settings.VK_CLIENT_ID:
+        from fastapi import HTTPException, status
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="VK OAuth не настроен",
+        )
+    return {"client_id": settings.VK_CLIENT_ID}
+
 @router.post("/register", response_model=TokenResponse, status_code=201)
 async def register(
     data: RegisterRequest,
@@ -65,7 +76,7 @@ async def google_callback(
 
 @router.post("/logout", summary="Выход из системы")
 async def logout(response: Response) -> dict:
-    """Очищает куки сессии. Клиент также удаляет JWT из localStorage."""
+    """Очищает куки сессии."""
     clear_auth_cookies(response)
     return {"detail": "Вы вышли из системы"}
 

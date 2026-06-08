@@ -1,20 +1,16 @@
 /**
- * app.js — ИСПРАВЛЕННЫЕ ФРАГМЕНТЫ (критичные правки)
+ * app.js — Основная логика приложения
  *
- * [FIX-1] Убраны localStorage.setItem/getItem для JWT-токена — XSS-уязвимость.
- *         Аутентификация теперь только через HttpOnly Cookie (устанавливается бэкендом).
- * [FIX-2] Добавлен state параметр в OAuth-флоу (CSRF/OAuth hijacking защита).
- * [FIX-3] Исправлен двойной FileReader в loadAvatarFromPC.
- * [FIX-4] Убрано хранение base64-аватара в localStorage (квота ~5MB, QuotaExceededError).
- * [FIX-5] Объединены API_URL и BACKEND_URL в одну константу.
- * [FIX-6] Исправлен loginWithVK — Client ID получается с бэкенда, добавлен state.
+ * Исправления:
+ *  [FIX-1] Убран mock-логин: больше нельзя войти под любым именем/паролем.
+ *          При недоступности бэкенда — ошибка, не фантомный вход.
+ *  [FIX-2] Личный кабинет загружает реальные данные с API.
+ *  [FIX-3] VK OAuth использует /api/auth/vk/client-id (как Google).
+ *  [FIX-4] state проверка для обоих OAuth провайдеров.
  */
 
-// ─── [FIX-5] Единственная точка конфигурации URL бэкенда ────────────────────
 const API_BASE = "https://lotus-tur-production-23c6.up.railway.app";
 
-// Состояние приложения — БЕЗ authToken (токен хранится в HttpOnly Cookie)
-// [FIX-1] Убраны: const authToken = localStorage.getItem("token")
 let isUserLoggedIn   = false;
 let currentLang      = "RU";
 let isGridViewActive = false;
@@ -26,129 +22,210 @@ let selectedDateStr = "";
 
 let cachedToursData = [];
 
-// При загрузке проверяем сессию через /api/auth/me (Cookie отправляется автоматически)
+// ─── API-хелпер (HttpOnly Cookie, без localStorage токена) ──────────────────
+async function apiFetch(path, options = {}) {
+  const headers = { "Content-Type": "application/json", ...options.headers };
+  const res = await fetch(API_BASE + path, { ...options, headers, credentials: "include" });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Ошибка ${res.status}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+// ─── Проверка сессии при загрузке ───────────────────────────────────────────
 async function checkExistingSession() {
   try {
     const data = await apiFetch("/api/auth/me");
     if (data && data.username) {
       isUserLoggedIn = true;
+      localStorage.setItem("username", data.username);
       const el = document.getElementById("profileName");
       if (el) el.textContent = data.username;
-      // [FIX-1] Сохраняем только несекретное имя пользователя
-      localStorage.setItem("username", data.username);
+      // Загружаем полный профиль если панель открыта
+      loadProfileData();
     }
   } catch {
-    // Нет активной сессии — ок
+    // Нет сессии — норма
   }
 }
 
-// ─── [FIX-1] Универсальный API-хелпер БЕЗ Authorization header ──────────────
-// Cookie отправляется автоматически благодаря credentials: "include"
-async function apiFetch(path, options = {}) {
-  const headers = { "Content-Type": "application/json", ...options.headers };
-  // [FIX-1] Убрана строка: if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+// ─── Загрузка данных личного кабинета ───────────────────────────────────────
+async function loadProfileData() {
+  if (!isUserLoggedIn) return;
 
   try {
-    const res = await fetch(API_BASE + path, { ...options, headers, credentials: "include" });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.detail || `Ошибка ${res.status}`);
+    // Профиль
+    const profile = await apiFetch("/api/profile/me");
+    const nameEl = document.getElementById("profileName");
+    if (nameEl) nameEl.textContent = profile.username;
+    localStorage.setItem("username", profile.username);
+
+    const subEl = document.getElementById("profileSub");
+    if (subEl) subEl.textContent = profile.email || "Участник клуба";
+
+    if (profile.avatar_url) {
+      const avatarEl = document.getElementById("profileAvatar");
+      if (avatarEl) avatarEl.src = profile.avatar_url;
     }
-    return res.status === 204 ? null : res.json();
+
+    // Реферальная ссылка
+    try {
+      const refData = await apiFetch("/api/promo/ref");
+      const refInp = document.getElementById("refLink");
+      if (refInp && refData.link) refInp.value = refData.link;
+    } catch {}
+
   } catch (e) {
-    console.warn("API недоступен, используем локальные данные.", e);
-    return mockApiFallback(path, options);
+    console.warn("Не удалось загрузить профиль:", e.message);
+  }
+
+  // Бронирования пользователя
+  loadMyBookings();
+
+  // Достижения
+  loadMyAchievements();
+}
+
+// ─── Загрузка реальных бронирований ─────────────────────────────────────────
+async function loadMyBookings() {
+  try {
+    const bookings = await apiFetch("/api/bookings/my");
+    renderUserTours(bookings.map(b => ({
+      id: b.tour_id,
+      name: b.tour_name,
+      date: b.tour_date,
+      status: b.status,
+      price: "",
+      img: "",
+      booking_id: b.id,
+    })));
+  } catch (e) {
+    console.warn("Не удалось загрузить бронирования:", e.message);
+    if (typeof mockUserTours !== "undefined") renderUserTours(mockUserTours);
   }
 }
 
-// ─── [FIX-1] handleAuthSubmit — убрано сохранение токена в localStorage ─────
+// ─── Загрузка реальных достижений ───────────────────────────────────────────
+async function loadMyAchievements() {
+  try {
+    const achievements = await apiFetch("/api/profile/achievements");
+    renderAchievements(achievements.map(a => ({
+      icon: a.icon,
+      titleRu: a.title,
+      descRu: a.description,
+      unlocked: a.unlocked,
+    })));
+  } catch (e) {
+    console.warn("Не удалось загрузить достижения:", e.message);
+    if (typeof achievementsList !== "undefined") renderAchievements(achievementsList);
+  }
+}
+
+// ─── Авторизация (ТОЛЬКО через бэкенд, без mock-fallback) ───────────────────
+// [FIX-1] Убран mockApiFallback для auth — больше нельзя войти под любым логином
 async function handleAuthSubmit(e) {
   e.preventDefault();
   const username = document.getElementById("authLoginInput").value.trim();
   const password = document.getElementById("authPasswordInput").value;
 
   if (!username || !password) {
-    alert(currentLang === "RU" ? "Заполните все поля." : "Please fill in all fields.");
+    showToast(currentLang === "RU" ? "Заполните все поля." : "Please fill in all fields.");
     return;
   }
 
   if (currentAuthMode === "register") {
     const passConfirm = document.getElementById("authPasswordConfirmInput").value;
     if (password !== passConfirm) {
-      alert(currentLang === "RU" ? "Пароли не совпадают!" : "Passwords do not match!");
+      showToast(currentLang === "RU" ? "Пароли не совпадают!" : "Passwords do not match!");
       return;
     }
   }
 
   const btn = document.getElementById("authSubmitBtn");
-  if (btn) btn.disabled = true;
+  const originalText = btn ? btn.textContent : "";
+  if (btn) { btn.disabled = true; btn.textContent = "..."; }
 
   try {
     let data;
     if (currentAuthMode === "login") {
-      data = await apiFetch("/api/auth/login", {
+      // [FIX-1] Прямой fetch без mockApiFallback — реальный бэкенд
+      const res = await fetch(API_BASE + "/api/auth/login", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ username, password }),
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Неверное имя пользователя или пароль");
+      }
+      data = await res.json();
     } else {
       const email = document.getElementById("authEmailInput").value.trim();
-      data = await apiFetch("/api/auth/register", {
+      if (!email) {
+        showToast("Введите email.");
+        return;
+      }
+      const res = await fetch(API_BASE + "/api/auth/register", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ username, email, password }),
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Ошибка регистрации");
+      }
+      data = await res.json();
     }
 
-    // [FIX-1] Убраны: localStorage.setItem("token", ...) и authToken = data.access_token
-    // HttpOnly Cookie установлена бэкендом автоматически
-    // [FIX-NULL] Если бэкенд недоступен — используем введённое имя как fallback
-    const resolvedUsername = (data && data.username) ? data.username : username;
-    localStorage.setItem("username", resolvedUsername);
+    localStorage.setItem("username", data.username);
     isUserLoggedIn = true;
-    const nameEl2 = document.getElementById("profileName");
-    if (nameEl2) nameEl2.textContent = resolvedUsername;
+    const nameEl = document.getElementById("profileName");
+    if (nameEl) nameEl.textContent = data.username;
     toggleAuthModal();
-    setTimeout(toggleProfile, 300);
+    setTimeout(() => {
+      toggleProfile();
+      loadProfileData();
+    }, 300);
+
   } catch (err) {
-    alert(err.message);
+    showToast(err.message);
   } finally {
-    if (btn) btn.disabled = false;
+    if (btn) { btn.disabled = false; btn.textContent = originalText; }
   }
 }
 
-// ─── [FIX-1] handleLogout — убрано удаление токена из localStorage ───────────
+// ─── Выход ───────────────────────────────────────────────────────────────────
 function handleLogout() {
-  // Очищаем HttpOnly Cookie на бэкенде
-  apiFetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+  fetch(API_BASE + "/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
 
-  // [FIX-1] Убраны: authToken = null; localStorage.removeItem("token");
   isUserLoggedIn = false;
   localStorage.removeItem("username");
-  localStorage.removeItem("my_bookings");
 
   const nameEl = document.getElementById("profileName");
-  if (nameEl) nameEl.textContent = "Приморский_Странник";
+  if (nameEl) nameEl.textContent = "Войти";
 
   const avatarEl = document.getElementById("profileAvatar");
   if (avatarEl) {
     avatarEl.src = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80";
   }
 
-  document.getElementById("sideProfile").classList.remove("open");
-  alert(currentLang === "RU" ? "Вы вышли из аккаунта." : "You have been logged out.");
+  document.getElementById("sideProfile")?.classList.remove("open");
+  showToast(currentLang === "RU" ? "Вы вышли из аккаунта." : "You have been logged out.");
 }
 
-// ─── [FIX-2] loginWithVK — state параметр + Client ID с бэкенда ─────────────
+// ─── VK OAuth [FIX-3] — Client ID с бэкенда + state ─────────────────────────
 async function loginWithVK() {
   try {
-    // Получаем VK Client ID с бэкенда (аналогично Google)
     const res = await fetch(`${API_BASE}/api/auth/vk/client-id`);
     if (!res.ok) {
-      alert("VK OAuth не настроен на сервере.");
+      showToast("VK OAuth не настроен на сервере.");
       return;
     }
     const { client_id } = await res.json();
 
-    // [FIX-2] Генерируем случайный state для защиты от CSRF/OAuth hijacking
     const state = crypto.randomUUID();
     sessionStorage.setItem("oauth_state", state);
     sessionStorage.setItem("oauth_provider", "vk");
@@ -159,26 +236,25 @@ async function loginWithVK() {
       + `&client_id=${client_id}`
       + `&redirect_uri=${redirectUri}`
       + `&scope=email`
-      + `&state=${encodeURIComponent(state)}`;  // [FIX-2] state обязателен
+      + `&state=${encodeURIComponent(state)}`;
 
     window.location.href = url;
   } catch (err) {
     console.error("Ошибка VK OAuth:", err);
-    alert("Не удалось подключиться к серверу.");
+    showToast("Не удалось подключиться к серверу.");
   }
 }
 
-// ─── [FIX-2] loginWithGoogle — добавлен state параметр ──────────────────────
+// ─── Google OAuth ─────────────────────────────────────────────────────────────
 async function loginWithGoogle() {
   try {
     const res = await fetch(`${API_BASE}/api/auth/google/client-id`);
     if (!res.ok) {
-      alert("Google OAuth не настроен на сервере.");
+      showToast("Google OAuth не настроен на сервере.");
       return;
     }
     const { client_id } = await res.json();
 
-    // [FIX-2] Генерируем state для защиты от CSRF/OAuth hijacking
     const state = crypto.randomUUID();
     sessionStorage.setItem("oauth_state", state);
     sessionStorage.setItem("oauth_provider", "google");
@@ -190,59 +266,56 @@ async function loginWithGoogle() {
     url.searchParams.set("response_type", "code");
     url.searchParams.set("scope", "openid email profile");
     url.searchParams.set("access_type", "online");
-    url.searchParams.set("state", state);  // [FIX-2] state обязателен
+    url.searchParams.set("state", state);
 
     window.location.href = url.toString();
   } catch (err) {
     console.error("Ошибка Google OAuth:", err);
-    alert("Не удалось подключиться к серверу.");
+    showToast("Не удалось подключиться к серверу.");
   }
 }
 
-// ─── [FIX-2] handleGoogleCallback — проверка state ──────────────────────────
+// ─── Google OAuth callback (с проверкой state) ───────────────────────────────
 async function handleGoogleCallback() {
   const params = new URLSearchParams(window.location.search);
   const code   = params.get("code");
   const state  = params.get("state");
   const error  = params.get("error");
+  const provider = sessionStorage.getItem("oauth_provider") || "google";
+
+  if (!code && !error) return;
 
   window.history.replaceState({}, "", window.location.pathname);
 
   if (error) {
-    console.error("Google ошибка:", error);
-    alert("Ошибка входа через Google: " + error);
+    showToast("Ошибка входа: " + error);
     return;
   }
 
-  if (!code) return;
-
-  // [FIX-2] Проверяем state — защита от CSRF
+  // [FIX-4] Проверка state
   const savedState = sessionStorage.getItem("oauth_state");
   sessionStorage.removeItem("oauth_state");
   sessionStorage.removeItem("oauth_provider");
 
   if (!state || state !== savedState) {
-    alert("Ошибка безопасности OAuth: недействительный state. Попробуйте снова.");
+    showToast("Ошибка безопасности OAuth. Попробуйте снова.");
     return;
   }
 
-  try {
-    const res = await fetch(
-      `${API_BASE}/api/auth/google/callback?code=${encodeURIComponent(code)}`,
-      { credentials: "include" },
-    );
+  const endpoint = provider === "vk"
+    ? `/api/auth/vk/callback?code=${encodeURIComponent(code)}`
+    : `/api/auth/google/callback?code=${encodeURIComponent(code)}`;
 
+  try {
+    const res = await fetch(API_BASE + endpoint, { credentials: "include" });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      alert("Ошибка авторизации: " + (err.detail || "неизвестная ошибка"));
+      showToast("Ошибка авторизации: " + (err.detail || "неизвестная ошибка"));
       return;
     }
 
     const data = await res.json();
-
-    // [FIX-1] Убраны: localStorage.setItem("token", ...) и authToken = ...
     localStorage.setItem("username", data.username);
-
     isUserLoggedIn = true;
 
     const nameEl = document.getElementById("profileName");
@@ -253,43 +326,54 @@ async function handleGoogleCallback() {
 
     setTimeout(() => {
       if (typeof toggleProfile === "function") toggleProfile();
+      loadProfileData();
     }, 300);
+
   } catch (err) {
-    console.error("Ошибка запроса:", err);
-    alert("Не удалось подключиться к серверу.");
+    console.error("OAuth callback error:", err);
+    showToast("Не удалось подключиться к серверу.");
   }
 }
 
-// ─── [FIX-3, FIX-4] loadAvatarFromPC — один FileReader, нет localStorage ────
+// ─── Аватар с компьютера ─────────────────────────────────────────────────────
 async function loadAvatarFromPC(input) {
   if (!input.files || !input.files[0]) return;
-
   const file = input.files[0];
 
   const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
   if (!allowedTypes.includes(file.type)) {
-    alert("Допустимые форматы: JPEG, PNG, WEBP, GIF");
+    showToast("Допустимые форматы: JPEG, PNG, WEBP, GIF");
     return;
   }
-  const maxSize = 5 * 1024 * 1024;
-  if (file.size > maxSize) {
-    alert("Файл слишком большой. Максимальный размер: 5MB");
+  if (file.size > 5 * 1024 * 1024) {
+    showToast("Файл слишком большой. Максимум: 5MB");
     return;
   }
 
-  // [FIX-3] Один FileReader для обоих задач (превью и сохранение)
   const reader = new FileReader();
   reader.onload = (e) => {
     const dataUrl = e.target.result;
-
-    // Немедленное превью
     const avatarEl = document.getElementById("profileAvatar");
     if (avatarEl) avatarEl.src = dataUrl;
-
-    // [FIX-4] НЕ сохраняем base64 в localStorage — это вызывает QuotaExceededError
-    // В production: загружать файл на CDN через presigned URL
-    // Для dev: хранить только в памяти (avatarDataUrl переменная)
-    // localStorage.setItem("avatar_preview", dataUrl); // ← УБРАНО
+    // В продакшне: загружать на CDN и отправлять URL на /api/profile/avatar
   };
   reader.readAsDataURL(file);
+}
+
+// ─── Обновление никнейма через API ──────────────────────────────────────────
+async function saveNicknameToAPI(newUsername) {
+  try {
+    const data = await apiFetch("/api/profile/username", {
+      method: "PATCH",
+      body: JSON.stringify({ username: newUsername }),
+    });
+    localStorage.setItem("username", data.username);
+    showToast("Никнейм обновлён!");
+  } catch (e) {
+    showToast("Ошибка: " + e.message);
+    // Откатить UI
+    const nameEl = document.getElementById("profileName");
+    const saved = localStorage.getItem("username");
+    if (nameEl && saved) nameEl.textContent = saved;
+  }
 }

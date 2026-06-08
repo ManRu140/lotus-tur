@@ -85,15 +85,8 @@ function mockApiFallback(path, options = {}) {
   if (path === "/api/user/tours") return Promise.resolve(mockUserTours);
   if (path === "/api/user/achievements") return Promise.resolve(achievementsList);
 
-  // Mock auth: извлекаем username из тела запроса
-  if (path === "/api/auth/login" || path === "/api/auth/register") {
-    try {
-      const body = JSON.parse(options.body || "{}");
-      return Promise.resolve({ username: body.username || "Пользователь", id: 0 });
-    } catch {
-      return Promise.resolve({ username: "Пользователь", id: 0 });
-    }
-  }
+  // [FIX-1] Mock auth УДАЛЁН — вход только через реальный бэкенд.
+  // Если бэкенд недоступен — пользователь видит ошибку, а не фантомный вход.
 
   if (path === "/api/auth/me") return Promise.resolve(null);
   if (path === "/api/bookings") return Promise.resolve({ ok: true });
@@ -442,7 +435,7 @@ function initTourFilters() {
       filterBtns.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       currentFilter = btn.dataset.filter;
-      renderUserTours(mockUserTours);
+      if (typeof loadMyBookings === 'function') loadMyBookings(); else renderUserTours([]);
     });
   });
 }
@@ -555,10 +548,15 @@ function initNicknameEdit() {
     input.select();
 
     const save = () => {
-      const val = input.value.trim() || "Приморский_Странник";
+      const val = input.value.trim() || localStorage.getItem("username") || "Пользователь";
       nameEl.textContent = val;
       wrapper.replaceChild(nameEl, input);
-      localStorage.setItem("username", val);
+      // [FIX-1] Сохраняем через API если авторизован
+      if (isUserLoggedIn && typeof saveNicknameToAPI === "function") {
+        saveNicknameToAPI(val);
+      } else {
+        localStorage.setItem("username", val);
+      }
     };
     input.addEventListener("blur", save);
     input.addEventListener("keydown", (e) => {
@@ -606,8 +604,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Рендер туров
   renderTours(toursData);
-  renderUserTours(mockUserTours);
-  renderAchievements(achievementsList);
+  // Данные профиля загружаются через loadProfileData() в app.js после проверки сессии
   populateTourSelect();
 
   // Профиль-вкладки и фильтры

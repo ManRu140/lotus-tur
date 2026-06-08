@@ -14,7 +14,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from app.api.routes import auth, bookings, notifications, profile, promo, tours
+from app.api.routes import admin, auth, bookings, notifications, profile, promo, tours
 from app.core.config import settings
 from app.db.session import init_db
 from app.middleware.csrf import CSRFMiddleware
@@ -102,6 +102,7 @@ app.include_router(bookings.router,      prefix="/api/bookings",      tags=["Boo
 app.include_router(profile.router,       prefix="/api/profile",       tags=["Profile"])
 app.include_router(promo.router,         prefix="/api/promo",         tags=["Promo"])
 app.include_router(notifications.router, prefix="/api/notifications", tags=["Notifications"])
+app.include_router(admin.router,         prefix="/api/admin",         tags=["Admin"])
 
 
 @app.get("/", tags=["Health"], include_in_schema=False)

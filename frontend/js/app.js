@@ -22,9 +22,16 @@ let selectedDateStr = "";
 
 let cachedToursData = [];
 
-// ─── API-хелпер (HttpOnly Cookie, без localStorage токена) ──────────────────
+// ─── API-хелпер ───────────────────────────────────────────────────────────────
+// Токен хранится в localStorage и передаётся как Authorization: Bearer.
+// Это позволяет сессии переживать перезагрузку страницы при cross-origin запросах.
 async function apiFetch(path, options = {}) {
-  const headers = { "Content-Type": "application/json", ...options.headers };
+  const token = localStorage.getItem("access_token");
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
   const res = await fetch(API_BASE + path, { ...options, headers, credentials: "include" });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -35,18 +42,49 @@ async function apiFetch(path, options = {}) {
 
 // ─── Проверка сессии при загрузке ───────────────────────────────────────────
 async function checkExistingSession() {
+  // Мгновенно восстанавливаем UI из localStorage (аватар + имя — нет мигания)
+  const savedToken  = localStorage.getItem("access_token");
+  const savedName   = localStorage.getItem("username");
+  const savedAvatar = localStorage.getItem("avatar_url");
+  const savedFull   = localStorage.getItem("full_name");
+
+  if (savedToken && savedName) {
+    isUserLoggedIn = true;
+    const nameEl = document.getElementById("profileName");
+    if (nameEl) nameEl.textContent = savedFull || savedName;
+    const subEl = document.getElementById("profileSub");
+    if (subEl) subEl.textContent = savedName;
+    const avatarEl = document.getElementById("profileAvatar");
+    if (avatarEl && savedAvatar) avatarEl.src = savedAvatar;
+  }
+
+  if (!savedToken) return; // нет токена — проверять не нужно
+
+  // Верифицируем токен у бэкенда
   try {
     const data = await apiFetch("/api/auth/me");
     if (data && data.username) {
       isUserLoggedIn = true;
       localStorage.setItem("username", data.username);
-      const el = document.getElementById("profileName");
-      if (el) el.textContent = data.username;
-      // Загружаем полный профиль если панель открыта
+      if (data.avatar_url) localStorage.setItem("avatar_url", data.avatar_url);
+      if (data.full_name)  localStorage.setItem("full_name",  data.full_name);
+
+      const nameEl = document.getElementById("profileName");
+      if (nameEl) nameEl.textContent = data.full_name || data.username;
+      const subEl = document.getElementById("profileSub");
+      if (subEl) subEl.textContent = data.username;
+      const avatarEl = document.getElementById("profileAvatar");
+      if (avatarEl && data.avatar_url) avatarEl.src = data.avatar_url;
+
       loadProfileData();
     }
   } catch {
-    // Нет сессии — норма
+    // Токен истёк — чистим
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("avatar_url");
+    localStorage.removeItem("full_name");
+    isUserLoggedIn = false;
   }
 }
 
@@ -55,19 +93,24 @@ async function loadProfileData() {
   if (!isUserLoggedIn) return;
 
   try {
-    // Профиль
     const profile = await apiFetch("/api/profile/me");
+
+    // Обновляем localStorage
+    localStorage.setItem("username",   profile.username);
+    if (profile.avatar_url) localStorage.setItem("avatar_url", profile.avatar_url);
+    if (profile.full_name)  localStorage.setItem("full_name",  profile.full_name);
+
+    // Имя: показываем full_name (из Google/VK) или username
     const nameEl = document.getElementById("profileName");
-    if (nameEl) nameEl.textContent = profile.username;
-    localStorage.setItem("username", profile.username);
+    if (nameEl) nameEl.textContent = profile.full_name || profile.username;
 
+    // Подзаголовок: username + email
     const subEl = document.getElementById("profileSub");
-    if (subEl) subEl.textContent = profile.email || "Участник клуба";
+    if (subEl) subEl.textContent = profile.email || profile.username;
 
-    if (profile.avatar_url) {
-      const avatarEl = document.getElementById("profileAvatar");
-      if (avatarEl) avatarEl.src = profile.avatar_url;
-    }
+    // Аватар
+    const avatarEl = document.getElementById("profileAvatar");
+    if (avatarEl && profile.avatar_url) avatarEl.src = profile.avatar_url;
 
     // Реферальная ссылка
     try {
@@ -80,10 +123,7 @@ async function loadProfileData() {
     console.warn("Не удалось загрузить профиль:", e.message);
   }
 
-  // Бронирования пользователя
   loadMyBookings();
-
-  // Достижения
   loadMyAchievements();
 }
 
@@ -110,12 +150,7 @@ async function loadMyBookings() {
 async function loadMyAchievements() {
   try {
     const achievements = await apiFetch("/api/profile/achievements");
-    renderAchievements(achievements.map(a => ({
-      icon: a.icon,
-      titleRu: a.title,
-      descRu: a.description,
-      unlocked: a.unlocked,
-    })));
+    renderAchievements(achievements); // renderAchievements handles both title/titleRu keys
   } catch (e) {
     console.warn("Не удалось загрузить достижения:", e.message);
     if (typeof achievementsList !== "undefined") renderAchievements(achievementsList);
@@ -180,10 +215,7 @@ async function handleAuthSubmit(e) {
       data = await res.json();
     }
 
-    localStorage.setItem("username", data.username);
-    isUserLoggedIn = true;
-    const nameEl = document.getElementById("profileName");
-    if (nameEl) nameEl.textContent = data.username;
+    _applyLoginData(data);
     toggleAuthModal();
     setTimeout(() => {
       toggleProfile();
@@ -197,12 +229,34 @@ async function handleAuthSubmit(e) {
   }
 }
 
+// ─── Применяет данные после любого входа (пароль, Google, VK) ────────────────
+function _applyLoginData(data) {
+  localStorage.setItem("access_token", data.access_token);
+  localStorage.setItem("username", data.username);
+  if (data.avatar_url) localStorage.setItem("avatar_url", data.avatar_url);
+  if (data.full_name)  localStorage.setItem("full_name",  data.full_name);
+
+  isUserLoggedIn = true;
+
+  const nameEl = document.getElementById("profileName");
+  if (nameEl) nameEl.textContent = data.full_name || data.username;
+
+  const subEl = document.getElementById("profileSub");
+  if (subEl) subEl.textContent = data.username;
+
+  const avatarEl = document.getElementById("profileAvatar");
+  if (avatarEl && data.avatar_url) avatarEl.src = data.avatar_url;
+}
+
 // ─── Выход ───────────────────────────────────────────────────────────────────
 function handleLogout() {
   fetch(API_BASE + "/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
 
   isUserLoggedIn = false;
+  localStorage.removeItem("access_token");
   localStorage.removeItem("username");
+  localStorage.removeItem("avatar_url");
+  localStorage.removeItem("full_name");
 
   const nameEl = document.getElementById("profileName");
   if (nameEl) nameEl.textContent = "Войти";
@@ -325,11 +379,7 @@ async function handleGoogleCallback() {
     }
 
     const data = await res.json();
-    localStorage.setItem("username", data.username);
-    isUserLoggedIn = true;
-
-    const nameEl = document.getElementById("profileName");
-    if (nameEl) nameEl.textContent = data.username;
+    _applyLoginData(data);
 
     const authModal = document.getElementById("authModal");
     if (authModal) authModal.classList.remove("open");

@@ -443,6 +443,12 @@
   background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
 }
+/* Фикс: цвет текста в option выпадающего списка */
+.booking-form select option,
+.booking-form select optgroup {
+  background: #1a2226;
+  color: #ffffff;
+}
 .booking-form textarea {
   resize: none;
   height: 100px;

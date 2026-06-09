@@ -77,7 +77,12 @@ async def register_user(data: RegisterRequest, session: AsyncSession) -> TokenRe
     await session.refresh(user)
 
     token = create_access_token(user.id)
-    return TokenResponse(access_token=token, username=user.username)
+    return TokenResponse(
+        access_token=token,
+        username=user.username,
+        avatar_url=user.avatar_url,
+        full_name=user.full_name,
+    )
 
 
 async def login_user(data: LoginRequest, session: AsyncSession) -> TokenResponse:
@@ -101,7 +106,12 @@ async def login_user(data: LoginRequest, session: AsyncSession) -> TokenResponse
         )
 
     token = create_access_token(user.id)
-    return TokenResponse(access_token=token, username=user.username)
+    return TokenResponse(
+        access_token=token,
+        username=user.username,
+        avatar_url=user.avatar_url,
+        full_name=user.full_name,
+    )
 
 
 async def google_auth(
@@ -153,7 +163,12 @@ async def google_auth(
         )
 
     token = create_access_token(user.id)
-    return TokenResponse(access_token=token, username=user.username)
+    return TokenResponse(
+        access_token=token,
+        username=user.username,
+        avatar_url=user.avatar_url,
+        full_name=user.full_name,
+    )
 
 
 async def _exchange_google_code(
@@ -299,4 +314,6 @@ async def vk_auth(code: str, session: AsyncSession) -> TokenResponse:
     return TokenResponse(
         access_token=create_access_token(user.id),
         username=user.username,
+        avatar_url=user.avatar_url,
+        full_name=user.full_name,
     )

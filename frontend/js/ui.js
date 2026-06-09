@@ -504,13 +504,17 @@ function renderUserTours(tours) {
 function renderAchievements(list) {
   const grid = document.getElementById("achGrid");
   if (!grid) return;
-  grid.innerHTML = list.map((a) => `
-    <div class="ach-item${a.unlocked ? "" : " locked"}" title="${a.descRu}">
+  grid.innerHTML = list.map((a) => {
+    const title = a.titleRu || a.title || "";
+    const desc  = a.descRu  || a.description || "";
+    return `
+    <div class="ach-item${a.unlocked ? "" : " locked"}" title="${desc}">
       <div class="ach-icon">${a.icon}</div>
-      <p class="ach-title">${a.titleRu}</p>
+      <p class="ach-title">${title}</p>
       ${!a.unlocked ? `<div class="ach-lock">🔒</div>` : ""}
     </div>
-  `).join("");
+  `;
+  }).join("");
 }
 
 // ── ЗАПОЛНИТЬ ВЫПАДАЮЩИЙ СПИСОК ТУРОВ В ФОРМЕ БРОНИРОВАНИЯ ───────────────────
@@ -595,11 +599,19 @@ function applyTranslations(lang) {
 // ── ОСНОВНАЯ ИНИЦИАЛИЗАЦИЯ ───────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
 
-  // Восстановить имя из localStorage
-  const savedName = localStorage.getItem("username");
+  // Восстановить имя и аватар из localStorage (до ответа сервера — без мигания)
+  const savedFull   = localStorage.getItem("full_name");
+  const savedName   = localStorage.getItem("username");
+  const savedAvatar = localStorage.getItem("avatar_url");
   if (savedName) {
     const nameEl = document.getElementById("profileName");
-    if (nameEl) nameEl.textContent = savedName;
+    if (nameEl) nameEl.textContent = savedFull || savedName;
+    const subEl = document.getElementById("profileSub");
+    if (subEl) subEl.textContent = savedName;
+  }
+  if (savedAvatar) {
+    const avatarEl = document.getElementById("profileAvatar");
+    if (avatarEl) avatarEl.src = savedAvatar;
   }
 
   // Рендер туров

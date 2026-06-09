@@ -26,14 +26,15 @@ class Settings(BaseSettings):
     VK_CLIENT_SECRET: str = ""
     VK_REDIRECT_URI: str = ""
 
-    FRONTEND_URL: str = "http://localhost:5173"
+    # URL фронтенда — используется как fallback для redirect_uri в Google OAuth.
+    # В Railway обязательно задайте: FRONTEND_URL=https://agile-intuition-production.up.railway.app
+    FRONTEND_URL: str = "https://agile-intuition-production.up.railway.app"
 
-    # CORS — в Railway задайте CORS_ORIGINS=[...] с нужными доменами
+    # CORS — перечислите все домены, с которых браузер шлёт запросы к бэкенду.
+    # В Railway можно переопределить переменной CORS_ORIGINS=[...]
     CORS_ORIGINS: list[str] = [
-        "https://thriving-entremet-a84a1b.netlify.app",
-        "https://lotus-tur-production-23c6.up.railway.app",
-        "https://agile-intuition-production.up.railway.app",
-        "http://localhost",
+        "https://agile-intuition-production.up.railway.app",  # фронтенд (Railway)
+        "https://lotus-tur-production-23c6.up.railway.app",   # бэкенд (для прямых тестов)
         "http://localhost:5500",
         "http://127.0.0.1:5500",
         "http://localhost:3000",

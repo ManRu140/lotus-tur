@@ -256,10 +256,13 @@ async function loginWithGoogle() {
     const { client_id } = await res.json();
 
     const state = crypto.randomUUID();
+    const REDIRECT_URI = window.location.origin + "/index.html";
+
     sessionStorage.setItem("oauth_state", state);
     sessionStorage.setItem("oauth_provider", "google");
+    // Сохраняем redirect_uri — он нужен бэкенду при обмене code→token
+    sessionStorage.setItem("oauth_redirect_uri", REDIRECT_URI);
 
-    const REDIRECT_URI = window.location.origin + "/index.html";
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     url.searchParams.set("client_id", client_id);
     url.searchParams.set("redirect_uri", REDIRECT_URI);
@@ -292,19 +295,26 @@ async function handleGoogleCallback() {
     return;
   }
 
-  // [FIX-4] Проверка state
+  // Проверка state — защита от CSRF
   const savedState = sessionStorage.getItem("oauth_state");
+  const redirectUri = sessionStorage.getItem("oauth_redirect_uri");
   sessionStorage.removeItem("oauth_state");
   sessionStorage.removeItem("oauth_provider");
+  sessionStorage.removeItem("oauth_redirect_uri");
 
   if (!state || state !== savedState) {
     showToast("Ошибка безопасности OAuth. Попробуйте снова.");
     return;
   }
 
-  const endpoint = provider === "vk"
-    ? `/api/auth/vk/callback?code=${encodeURIComponent(code)}`
-    : `/api/auth/google/callback?code=${encodeURIComponent(code)}`;
+  let endpoint;
+  if (provider === "vk") {
+    endpoint = `/api/auth/vk/callback?code=${encodeURIComponent(code)}`;
+  } else {
+    // Передаём redirect_uri бэкенду — Google требует тот же URI при обмене code→token
+    const uriParam = redirectUri ? `&redirect_uri=${encodeURIComponent(redirectUri)}` : "";
+    endpoint = `/api/auth/google/callback?code=${encodeURIComponent(code)}${uriParam}`;
+  }
 
   try {
     const res = await fetch(API_BASE + endpoint, { credentials: "include" });

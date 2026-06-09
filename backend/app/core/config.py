@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = [
         "https://thriving-entremet-a84a1b.netlify.app",
         "https://lotus-tur-production-23c6.up.railway.app",
+        "https://agile-intuition-production.up.railway.app",
         "http://localhost",
         "http://localhost:5500",
         "http://127.0.0.1:5500",

@@ -67,9 +67,16 @@ async def google_callback(
     code: str,
     response: Response,
     session: AsyncSession = Depends(get_session),
+    redirect_uri: str | None = None,
 ) -> TokenResponse:
-    """Принимает code от Google, возвращает JWT и устанавливает куки."""
-    result = await google_auth(code, session)
+    """Принимает code от Google, возвращает JWT и устанавливает куки.
+    
+    redirect_uri — необязательный параметр. Фронтенд передаёт его, чтобы
+    бэкенд использовал тот же URI, который был отправлен в Google при старте
+    OAuth (обязательное условие Google — оба URI должны совпадать).
+    Если не передан — используется FRONTEND_URL из настроек.
+    """
+    result = await google_auth(code, session, redirect_uri=redirect_uri)
     _set_session_cookies(response, result)
     return result
 

@@ -104,12 +104,20 @@ async def login_user(data: LoginRequest, session: AsyncSession) -> TokenResponse
     return TokenResponse(access_token=token, username=user.username)
 
 
-async def google_auth(code: str, session: AsyncSession) -> TokenResponse:
+async def google_auth(
+    code: str,
+    session: AsyncSession,
+    redirect_uri: str | None = None,
+) -> TokenResponse:
     """
     Google OAuth: code → access_token → userinfo → JWT.
     При первом входе создаёт пользователя, при повторном — обновляет аватар.
+
+    redirect_uri — URI, который фронтенд передал Google при старте OAuth.
+    Google требует, чтобы при обмене code→token был тот же URI.
+    Если не передан — используется settings.FRONTEND_URL + '/index.html'.
     """
-    token_data  = await _exchange_google_code(code)
+    token_data  = await _exchange_google_code(code, redirect_uri=redirect_uri)
     google_user = await _fetch_google_userinfo(token_data["access_token"])
 
     email:      str = google_user["email"]
@@ -148,8 +156,16 @@ async def google_auth(code: str, session: AsyncSession) -> TokenResponse:
     return TokenResponse(access_token=token, username=user.username)
 
 
-async def _exchange_google_code(code: str) -> dict:
-    """Обменивает authorization code на Google access_token."""
+async def _exchange_google_code(
+    code: str,
+    redirect_uri: str | None = None,
+) -> dict:
+    """Обменивает authorization code на Google access_token.
+    
+    redirect_uri должен совпадать с тем, что фронтенд передал Google.
+    Если не задан — берём из settings.FRONTEND_URL.
+    """
+    effective_redirect_uri = redirect_uri or f"{settings.FRONTEND_URL}/index.html"
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.post(
@@ -158,7 +174,7 @@ async def _exchange_google_code(code: str) -> dict:
                     "code": code,
                     "client_id":     settings.GOOGLE_CLIENT_ID,
                     "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                    "redirect_uri":  f"{settings.FRONTEND_URL}/index.html",
+                    "redirect_uri":  effective_redirect_uri,
                     "grant_type":    "authorization_code",
                 },
             )

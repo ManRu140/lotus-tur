@@ -327,42 +327,9 @@
    Тонкая горизонтальная линия с gradient-glow между секциями.
    Добавляется как ::after на секцию-источник.
    ─────────────────────────────────────────────────────────── */
-.section-dark::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 8%;
-  width: 84%;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(0, 242, 254, 0.15) 25%,
-    rgba(0, 242, 254, 0.35) 50%,
-    rgba(0, 242, 254, 0.15) 75%,
-    transparent 100%
-  );
-  pointer-events: none;
-  z-index: 3;
-}
+/* .section-dark::after — синяя линия-разделитель убрана */
 
-.section-about-wrap::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 8%;
-  width: 84%;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(0, 242, 254, 0.12) 25%,
-    rgba(0, 242, 254, 0.28) 50%,
-    rgba(0, 242, 254, 0.12) 75%,
-    transparent 100%
-  );
-  pointer-events: none;
-}
+/* .section-about-wrap::after — синяя линия убрана */
 
 /* ── АНИМАЦИИ ─────────────────────────────────────────────── */
 @keyframes globalMarquee {

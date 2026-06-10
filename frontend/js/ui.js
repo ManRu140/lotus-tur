@@ -684,6 +684,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Мобильная кнопка профиля
+  document.getElementById("mobileProfileTrigger")?.addEventListener("click", () => {
+    if (isUserLoggedIn) {
+      toggleProfile();
+    } else {
+      toggleAuthModal();
+    }
+  });
+
   // Закрытие профиля
   document.getElementById("closeProfileBtn")?.addEventListener("click", () => {
     document.getElementById("sideProfile").classList.remove("open");

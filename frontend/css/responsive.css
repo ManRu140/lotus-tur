@@ -113,6 +113,11 @@ nav,
   display: none;
 }
 
+/* Мобильная кнопка профиля — показываем вместо .right-block */
+.mobile-profile-btn {
+  display: flex;
+}
+
 /* Hero */
 .hero-content {
   margin-top: 20vh;
@@ -325,6 +330,11 @@ nav,
   /* Показываем правый блок (язык + профиль) */
   .right-block {
     display: flex;
+  }
+
+  /* Скрываем мобильную кнопку профиля */
+  .mobile-profile-btn {
+    display: none;
   }
 
   /* Туры — 2 колонки в режиме «все» */

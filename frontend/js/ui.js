@@ -40,7 +40,6 @@ const mockUserTours = [
   },
 ];
 
-// Слайды для каждого тура (id → массив URL)
 const tourSlides = {
   askold: [
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
@@ -52,30 +51,70 @@ const tourSlides = {
     "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
   ],
+  okunevaya: [
+    "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
+  ],
+  "sea-cruise": [
+    "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=900&q=80",
+  ],
   safari: [
     "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80",
+  ],
+  ocean: [
+    "https://images.unsplash.com/photo-1497449493050-aad1e7cad165?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
+  ],
+  livadia: [
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=900&q=80",
   ],
   sestra: [
     "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=900&q=80",
   ],
-  okunevaya: [
+  putyatin: [
     "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
   ],
-  petrova: [
-    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80",
+  lotus: [
     "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=900&q=80",
-  ],
-  ocean: [
-    "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80",
+  ],
+  vladivostok1: [
+    "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
+  ],
+  botsad: [
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=900&q=80",
+  ],
+  vladivostok2: [
+    "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
+  ],
+  waterfall: [
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
+  ],
+  individual: [
+    "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
   ],
 };
 
@@ -140,6 +179,9 @@ function renderTours(tours) {
     card.className = "tour-card";
     card.dataset.id = tour.id;
 
+    const scheduleHtml = tour.schedule
+      ? `<div style="font-size:0.7rem;color:rgba(255,255,255,0.5);margin-bottom:6px;letter-spacing:0.3px">${tour.schedule}${tour.departure ? " · " + tour.departure : ""}${tour.duration ? " · " + tour.duration : ""}</div>`
+      : "";
     card.innerHTML = `
       <div class="tour-img-placeholder" style="background-image:url('${tour.img}')"></div>
       <div class="tour-static-title">
@@ -149,6 +191,7 @@ function renderTours(tours) {
       <div class="tour-hover-info">
         <span class="tour-tag" style="color:var(--accent-liquid)">${tour.tag}</span>
         <h3 class="tour-name">${tour.name}</h3>
+        ${scheduleHtml}
         <p class="tour-desc">${tour.desc}</p>
         <div class="tour-meta">
           <span class="tour-price">${tour.price} <span>₽/чел</span></span>
@@ -614,8 +657,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (avatarEl) avatarEl.src = savedAvatar;
   }
 
-  // Рендер туров
-  renderTours(toursData);
+  // Рендер туров — только 7 самых популярных
+  renderTours(toursData.slice(0, 7));
   // Данные профиля загружаются через loadProfileData() в app.js после проверки сессии
   populateTourSelect();
 
@@ -810,7 +853,14 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTranslations(currentLang);
   });
 
-  // Инициализация мини-календаря в форме бронирования
+  document.getElementById("heroBtn")?.addEventListener("click", (e) => {
+    const toursAnchor = document.getElementById("tours-anchor");
+    if (toursAnchor) {
+      e.stopPropagation();
+      toursAnchor.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+
   buildCalendar("miniCalendarPlaceholder", []);
 
   // Маркии отзывов: пауза при наведении

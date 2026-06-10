@@ -4,8 +4,28 @@ section:not(.hero-section) {
 }
 
 .tours-section {
+  position: relative;
   background-color: var(--bg-dark);
   color: var(--text-light-main);
+}
+
+/* Светящаяся линия-разделитель после секции туров */
+.tours-section::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 242, 254, 0.25) 30%,
+    rgba(0, 242, 254, 0.45) 50%,
+    rgba(0, 242, 254, 0.25) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
 }
 
 .section-head {

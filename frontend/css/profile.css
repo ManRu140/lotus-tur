@@ -1,77 +1,75 @@
 /* ============================================================
    ПРОФИЛЬ (profile.css)
-   Встроен в дизайн-систему сайта: тёмная тема, --accent-liquid
    ============================================================ */
 
 /* ── БОКОВАЯ ПАНЕЛЬ ─────────────────────────────────────── */
 .side-profile {
   position: fixed;
   top: 0;
-  right: -450px;
-  width: 440px;
+  right: -480px;
+  width: 460px;
   height: 100%;
-  background: var(--bg-dark);
-  border-left: 1px solid var(--border-light);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: #131c22;
+  border-left: 1px solid rgba(255,255,255,0.1);
   z-index: 2000;
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding: 40px 30px;
+  padding: 0;
   transition: right 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(165,177,184,.3) transparent;
-  color: var(--text-light-main);
+  overflow: hidden;
+  color: #fff;
   box-sizing: border-box;
 }
 .side-profile.open {
   right: 0;
 }
 
-/* ── КНОПКА ЗАКРЫТЬ (×) ──────────────────────────────────── */
+/* ── КНОПКА × ────────────────────────────────────────────── */
 .close-profile {
   position: absolute;
-  top: 18px;
-  right: 20px;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid var(--border-light);
-  color: var(--text-light-main);
-  font-size: 1.4rem;
-  width: 38px;
-  height: 38px;
+  top: 16px;
+  right: 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 1.2rem;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.2s;
-  flex-shrink: 0;
+  z-index: 10;
+  padding: 0;
+  line-height: 1;
 }
 .close-profile:hover {
   background: rgba(255,255,255,0.18);
 }
 
-/* ── ХЕДЕР ПРОФИЛЯ (аватар + имя) ───────────────────────── */
+/* ── ШАПКА: аватар + имя ─────────────────────────────────── */
 .profile-header {
   display: flex;
   align-items: center;
-  gap: 18px;
-  margin-bottom: 28px;
-  padding-top: 8px;
+  gap: 16px;
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
   flex-shrink: 0;
 }
 
 .avatar-container {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
-  flex-shrink: 0;
-  border: 2px solid var(--border-light);
+  border: 2px solid rgba(0,242,254,0.35);
 }
 .avatar-container img {
   width: 100%;
@@ -86,7 +84,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
   color: #fff;
   opacity: 0;
@@ -99,17 +97,19 @@
 .profile-name-container {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
+  flex: 1;
 }
 #profileName {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--text-light-main);
+  color: #fff;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin: 0;
   transition: color 0.2s;
 }
 #profileName:hover {
@@ -117,49 +117,60 @@
 }
 .profile-sub {
   font-size: 0.72rem;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.4);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* ── ВКЛАДКИ ПРОФИЛЯ ─────────────────────────────────────── */
+/* ── ВКЛАДКИ ─────────────────────────────────────────────── */
 .profile-tabs-nav {
   display: flex;
-  gap: 4px;
-  margin-bottom: 22px;
+  gap: 0;
+  padding: 14px 24px 0;
   flex-shrink: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
 }
 .p-tab-btn {
   flex: 1;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border-light);
-  color: rgba(255,255,255,0.6);
-  border-radius: 30px;
-  font-size: 0.78rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 8px 6px;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  padding: 10px 4px 12px;
+  transition: color 0.2s, border-color 0.2s;
   text-align: center;
+  min-height: unset;
+  white-space: nowrap;
 }
-.p-tab-btn.active,
-.p-tab-btn:hover {
-  background: rgba(0,242,254,0.12);
+.p-tab-btn.active {
   color: var(--accent-liquid);
-  border-color: rgba(0,242,254,0.4);
+  border-bottom-color: var(--accent-liquid);
+}
+.p-tab-btn:hover:not(.active) {
+  color: rgba(255,255,255,0.75);
 }
 
 /* ── СКРОЛЛ-ОБЛАСТЬ ──────────────────────────────────────── */
 .profile-scroll-area {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 24px 24px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(165,177,184,.2) transparent;
-  padding-bottom: 16px;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.profile-scroll-area::-webkit-scrollbar { width: 4px; }
+.profile-scroll-area::-webkit-scrollbar-track { background: transparent; }
+.profile-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+  border-radius: 4px;
 }
 
-/* ── КОНТЕНТ ВКЛАДКИ ─────────────────────────────────────── */
+/* ── КОНТЕНТ ВКЛАДОК ─────────────────────────────────────── */
 .profile-tab-content {
   display: none;
 }
@@ -176,20 +187,29 @@
 }
 .filter-chip {
   background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border-light);
-  color: rgba(255,255,255,0.55);
-  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.5);
+  border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 6px 14px;
+  padding: 5px 12px;
+  min-height: unset;
+  min-width: unset;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
+  white-space: nowrap;
 }
 .filter-chip.active,
 .filter-chip:hover {
   background: rgba(0,242,254,0.1);
   color: var(--accent-liquid);
   border-color: rgba(0,242,254,0.35);
+}
+
+/* ── СПИСОК ТУРОВ В ПРОФИЛЕ ──────────────────────────────── */
+#toursList {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.85);
 }
 
 /* ── СЕТКА ДОСТИЖЕНИЙ ────────────────────────────────────── */
@@ -201,9 +221,9 @@
 .ach-item {
   position: relative;
   background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border-light);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 12px;
-  padding: 14px 8px 12px;
+  padding: 14px 6px 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -218,57 +238,60 @@
   transform: translateY(-2px);
 }
 .ach-item.locked {
-  opacity: 0.45;
-  filter: grayscale(0.6);
+  opacity: 0.4;
+  filter: grayscale(0.5);
 }
 .ach-icon {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   line-height: 1;
+  display: block;
 }
 .ach-title {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255,255,255,0.7);
   line-height: 1.3;
   margin: 0;
+  word-break: break-word;
 }
 .ach-lock {
   position: absolute;
-  top: 6px;
-  right: 7px;
-  font-size: 0.6rem;
-  opacity: 0.6;
+  top: 5px;
+  right: 6px;
+  font-size: 0.55rem;
+  opacity: 0.5;
 }
 
-/* ── СЕКЦИЯ ПРОМОКОДОВ / РЕФЕРАЛ ─────────────────────────── */
+/* ── ПРОМОКОДЫ / РЕФЕРАЛ ─────────────────────────────────── */
 .promo-section {
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
 .promo-section h4 {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--accent-liquid);
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 10px;
+  margin: 0 0 10px 0;
 }
 .copy-box,
 .input-box {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 .copy-box input,
 .input-box input {
   flex: 1;
+  min-width: 0;
   background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border-light);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 10px;
-  color: var(--text-light-main);
-  padding: 10px 14px;
+  color: #fff;
+  padding: 9px 12px;
   font-size: 0.82rem;
   outline: none;
   transition: border-color 0.2s;
-  min-width: 0;
 }
 .copy-box input:focus,
 .input-box input:focus {
@@ -276,21 +299,23 @@
 }
 .copy-box input::placeholder,
 .input-box input::placeholder {
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.25);
 }
 #btnCopy,
 #btnApply {
+  flex-shrink: 0;
   background: var(--accent-liquid);
   border: none;
   color: #050b14;
-  padding: 10px 16px;
+  padding: 9px 14px;
   border-radius: 10px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 800;
   cursor: pointer;
+  min-height: unset;
+  min-width: unset;
   white-space: nowrap;
   transition: background 0.2s, transform 0.15s;
-  flex-shrink: 0;
 }
 #btnCopy:hover,
 #btnApply:hover {
@@ -303,68 +328,75 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(233,75,75,0.12);
-  border: 1px solid rgba(233,75,75,0.35);
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
   color: #f87171;
-  padding: 12px 20px;
+  padding: 11px 18px;
   border-radius: 12px;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
   width: 100%;
-  margin-top: 24px;
+  min-height: unset;
+  margin-top: 20px;
+  transition: background 0.2s, border-color 0.2s;
+  text-align: left;
 }
 .logout-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   flex-shrink: 0;
 }
 .logout-btn:hover {
-  background: rgba(233,75,75,0.22);
-  border-color: rgba(233,75,75,0.6);
+  background: rgba(239,68,68,0.2);
+  border-color: rgba(239,68,68,0.55);
 }
 
-/* ── AUTH / BOOKING CONTAINERS ───────────────────────────── */
+/* ── AUTH МОДАЛКА ────────────────────────────────────────── */
 .auth-container,
 .booking-container {
-  background: #1a2226;
-  border: 1px solid var(--border-light);
+  background: #131c22;
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 20px;
-  padding: 36px 32px;
+  padding: 32px 28px;
   width: 420px;
   max-width: 92vw;
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
-  color: var(--text-light-main);
+  color: #fff;
+  box-sizing: border-box;
+}
+.booking-container {
+  width: 520px;
 }
 
 .modal-title {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  margin-bottom: 24px;
-  color: var(--text-light-main);
+  margin: 0 0 22px 0;
+  color: #fff;
 }
 
 .auth-tabs {
   display: flex;
-  gap: 4px;
   background: rgba(255,255,255,0.05);
   border-radius: 30px;
   padding: 4px;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
+  gap: 4px;
 }
 .auth-tab-btn {
   flex: 1;
   background: transparent;
   border: none;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255,255,255,0.5);
   border-radius: 26px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 8px 10px;
+  min-height: unset;
   transition: background 0.2s, color 0.2s;
 }
 .auth-tab-btn.active {
@@ -375,36 +407,40 @@
 .auth-form-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 11px;
 }
 .auth-form-wrapper input {
   background: rgba(255,255,255,0.07);
-  border: 1px solid var(--border-light);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: 10px;
-  color: var(--text-light-main);
-  padding: 12px 16px;
+  color: #fff;
+  padding: 11px 14px;
   font-size: 0.9rem;
   outline: none;
   width: 100%;
+  box-sizing: border-box;
   transition: border-color 0.2s;
 }
 .auth-form-wrapper input:focus {
   border-color: var(--accent-liquid);
 }
 .auth-form-wrapper input::placeholder {
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.25);
 }
+
 .auth-submit {
   background: var(--accent-liquid);
   border: none;
   color: #050b14;
-  padding: 13px 24px;
+  padding: 12px 24px;
   border-radius: 30px;
   font-size: 0.9rem;
   font-weight: 800;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
+  width: 100%;
+  min-height: unset;
   margin-top: 4px;
+  transition: background 0.2s, transform 0.15s;
 }
 .auth-submit:hover {
   background: #fff;
@@ -412,48 +448,45 @@
 }
 
 .social-title {
-  font-size: 0.78rem;
-  color: rgba(255,255,255,0.4);
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.35);
   text-align: center;
-  margin: 18px 0 12px;
+  margin: 16px 0 10px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 .social-grid {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 .social-btn {
   flex: 1;
   background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border-light);
-  color: var(--text-light-main);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
   border-radius: 10px;
-  padding: 11px 8px;
-  font-size: 0.85rem;
+  padding: 10px 8px;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
+  min-height: unset;
   transition: background 0.2s, border-color 0.2s;
 }
 .social-btn:hover {
   background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.3);
 }
 .social-icon {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   flex-shrink: 0;
 }
 
 /* ── ФОРМА БРОНИРОВАНИЯ ──────────────────────────────────── */
-.booking-container {
-  width: 540px;
-}
 .booking-form {
   display: flex;
   flex-direction: column;
@@ -462,12 +495,12 @@
 .form-group-block {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 .form-group-block label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.45);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -475,13 +508,14 @@
 .form-group-block select,
 .form-group-block textarea {
   background: rgba(255,255,255,0.07);
-  border: 1px solid var(--border-light);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: 10px;
-  color: var(--text-light-main);
-  padding: 11px 14px;
-  font-size: 0.9rem;
+  color: #fff;
+  padding: 10px 13px;
+  font-size: 0.88rem;
   outline: none;
   width: 100%;
+  box-sizing: border-box;
   transition: border-color 0.2s;
 }
 .form-group-block input:focus,
@@ -491,45 +525,52 @@
 }
 .form-group-block input::placeholder,
 .form-group-block textarea::placeholder {
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.22);
 }
 .form-group-block select option {
-  background: #1a2226;
+  background: #131c22;
 }
 .form-group-block textarea {
-  min-height: 80px;
+  min-height: 75px;
   resize: vertical;
 }
 .form-row-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 12px;
 }
 .booking-submit {
   background: var(--accent-liquid);
   border: none;
   color: #050b14;
-  padding: 14px 28px;
+  padding: 13px 24px;
   border-radius: 30px;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 800;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
+  width: 100%;
+  min-height: unset;
   margin-top: 4px;
+  transition: background 0.2s, transform 0.15s;
 }
 .booking-submit:hover {
   background: #fff;
   transform: translateY(-2px);
 }
 
-/* ── НАВИГАЦИЯ ПО ПРОФИЛЮ: скроллбар ────────────────────── */
-.profile-scroll-area::-webkit-scrollbar {
-  width: 4px;
-}
-.profile-scroll-area::-webkit-scrollbar-track {
-  background: transparent;
-}
-.profile-scroll-area::-webkit-scrollbar-thumb {
-  background: rgba(165,177,184,0.2);
-  border-radius: 4px;
+/* ── МОБИЛЬНАЯ ВЕРСИЯ ────────────────────────────────────── */
+@media (max-width: 500px) {
+  .side-profile {
+    width: 100%;
+    right: -100%;
+  }
+  .side-profile.open {
+    right: 0;
+  }
+  .achievements-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .form-row-grid {
+    grid-template-columns: 1fr;
+  }
 }

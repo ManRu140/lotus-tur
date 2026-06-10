@@ -7,7 +7,7 @@ header {
   min-height: 100vh;
   background:
     linear-gradient(rgba(26, 34, 38, 0.45), rgba(26, 34, 38, 0.35)),
-    url("/img/tours/fon.JPG")
+    url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80")
       no-repeat center center / cover;
   color: var(--text-light-main);
   display: flex;

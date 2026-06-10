@@ -77,45 +77,115 @@ TOURS_SEED = [
 
 ACHIEVEMENTS_SEED = [
     {
-        "icon": "🦅",
-        "title": "Покоритель Тобизина",
-        "description": "Посетить знаменитый мыс Тобизина на острове Русский.",
-    },
-    {
-        "icon": "🌅",
-        "title": "Край Земли",
-        "description": "Встретить рассвет на маяке Басаргина.",
-    },
-    {
-        "icon": "🦌",
-        "title": "Друг оленей",
-        "description": "Совершить тур на Остров Аскольд.",
+        "icon": "🌱",
+        "title": "Первый шаг",
+        "description": "Совершил первое путешествие с Лотос-тур.",
     },
     {
         "icon": "⛵",
-        "title": "Морской волк",
-        "description": "Пройти 3 морских тура.",
+        "title": "Морская душа",
+        "description": "Побывал на морской прогулке на катере.",
     },
     {
-        "icon": "🏔️",
+        "icon": "🏝️",
+        "title": "Исследователь островов",
+        "description": "Посетил остров Аскольд или Путятин.",
+    },
+    {
+        "icon": "⛰️",
         "title": "Покоритель вершин",
-        "description": "Взойти на Гору Сестра.",
+        "description": "Поднялся на сопку Сестра.",
+    },
+    {
+        "icon": "🐅",
+        "title": "Друг природы",
+        "description": "Побывал в Сафари Парке.",
+    },
+    {
+        "icon": "🐬",
+        "title": "Житель глубин",
+        "description": "Посетил Приморский океанариум.",
+    },
+    {
+        "icon": "🏙️",
+        "title": "Знаток Владивостока",
+        "description": "Прошёл пешеходную экскурсию по Владивостоку.",
+    },
+    {
+        "icon": "🌸",
+        "title": "Хранитель лотоса",
+        "description": "Увидел цветение лотосов на острове Путятин.",
+    },
+    {
+        "icon": "💧",
+        "title": "Охотник за водопадами",
+        "description": "Посетил водопад Стеклянуха.",
+    },
+    {
+        "icon": "🌅",
+        "title": "Ранняя пташка",
+        "description": "Забронировал тур за 7 и более дней до начала.",
+    },
+    {
+        "icon": "🌟",
+        "title": "Социальная звезда",
+        "description": "Привёл друга по реферальной ссылке.",
+    },
+    {
+        "icon": "🏖️",
+        "title": "Пляжный маньяк",
+        "description": "Посетил три разных пляжа и бухты.",
+    },
+    {
+        "icon": "📸",
+        "title": "Фотоохотник",
+        "description": "Побывал на пяти различных турах.",
+    },
+    {
+        "icon": "🧭",
+        "title": "Штурман",
+        "description": "Побывал и на морской, и на наземной экскурсии.",
+    },
+    {
+        "icon": "🌿",
+        "title": "Ботаник",
+        "description": "Посетил ботанический сад во Владивостоке.",
+    },
+    {
+        "icon": "🔦",
+        "title": "Маяк",
+        "description": "Увидел маяк Токаревский или Лихачёва.",
+    },
+    {
+        "icon": "🏆",
+        "title": "Преданный путешественник",
+        "description": "Совершил десять путешествий с Лотос-тур.",
+    },
+    {
+        "icon": "💎",
+        "title": "Жемчужина Ливадии",
+        "description": "Побывал в бухте Рифовая.",
     },
 ]
 
 
 async def seed_initial_data(session: AsyncSession) -> None:
-    """Добавляет туры и достижения, если таблицы пустые."""
+    """Добавляет туры и достижения, если таблицы пустые.
+
+    Достижения досеиваются по названию: если в БД уже есть часть из них
+    (например, старые 5), недостающие добавятся при следующем старте.
+    """
     # Туры
     existing = await session.execute(select(Tour).limit(1))
     if not existing.scalar_one_or_none():
         for data in TOURS_SEED:
             session.add(Tour(**data))
 
-    # Достижения
-    existing_ach = await session.execute(select(Achievement).limit(1))
-    if not existing_ach.scalar_one_or_none():
-        for data in ACHIEVEMENTS_SEED:
+    # Достижения — добавляем недостающие по title
+    existing_titles_result = await session.execute(select(Achievement.title))
+    existing_titles = {row[0] for row in existing_titles_result.all()}
+    for data in ACHIEVEMENTS_SEED:
+        if data["title"] not in existing_titles:
             session.add(Achievement(**data))
 
     await session.commit()

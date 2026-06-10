@@ -503,6 +503,12 @@ function renderUserTours(tours) {
     started: tours.filter(t => t.status === "started").length,
     completed: tours.filter(t => t.status === "completed").length,
   };
+
+  // Обновляем статистику в шапке профиля
+  const statTours = document.getElementById("statTours");
+  if (statTours) statTours.textContent = tours.length;
+  const statCompleted = document.getElementById("statCompleted");
+  if (statCompleted) statCompleted.textContent = counts.completed;
   const statsHtml = `
     <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
       <div style="flex:1;min-width:70px;background:rgba(0,242,254,.08);border:1px solid rgba(0,242,254,.2);border-radius:10px;padding:10px 12px;text-align:center">
@@ -521,7 +527,12 @@ function renderUserTours(tours) {
   `;
 
   if (!filtered.length) {
-    list.innerHTML = statsHtml + `<p style="color:rgba(255,255,255,0.4);font-size:.85rem;margin-top:8px;text-align:center">Туров в этой категории нет</p>`;
+    list.innerHTML = statsHtml + `
+      <div style="text-align:center;padding:28px 10px;color:rgba(255,255,255,0.4)">
+        <div style="font-size:2rem;margin-bottom:8px">🥾</div>
+        <p style="font-size:.85rem;line-height:1.5">Туров в этой категории пока нет.<br>
+        <a href="#tours-anchor" style="color:var(--accent-liquid);font-weight:700;text-decoration:none" onclick="document.getElementById('sideProfile').classList.remove('open')">Выбрать маршрут →</a></p>
+      </div>`;
     return;
   }
 
@@ -554,10 +565,20 @@ function renderAchievements(list) {
     <div class="ach-item${a.unlocked ? "" : " locked"}" title="${desc}">
       <div class="ach-icon">${a.icon}</div>
       <p class="ach-title">${title}</p>
-      ${!a.unlocked ? `<div class="ach-lock">🔒</div>` : ""}
+      ${a.unlocked ? `<div class="ach-check">✓</div>` : `<div class="ach-lock">🔒</div>`}
     </div>
   `;
   }).join("");
+
+  // Прогресс + счётчик в шапке
+  const unlocked = list.filter((a) => a.unlocked).length;
+  const total = list.length;
+  const label = document.getElementById("achProgressLabel");
+  if (label) label.textContent = `Открыто ${unlocked} из ${total}`;
+  const fill = document.getElementById("achProgressFill");
+  if (fill) fill.style.width = total ? `${Math.round((unlocked / total) * 100)}%` : "0%";
+  const statAch = document.getElementById("statAch");
+  if (statAch) statAch.textContent = unlocked;
 }
 
 // ── ЗАПОЛНИТЬ ВЫПАДАЮЩИЙ СПИСОК ТУРОВ В ФОРМЕ БРОНИРОВАНИЯ ───────────────────

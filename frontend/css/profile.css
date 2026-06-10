@@ -47,25 +47,29 @@
 }
 .close-profile:hover { background: rgba(255,255,255,0.18); }
 
-/* ── ШАПКА: аватар + имя ─────────────────────────────────── */
+/* ── ШАПКА: аватар + имя + статистика ────────────────────── */
 .profile-header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 24px 20px 18px;
+  gap: 10px;
+  padding: 34px 20px 18px;
   border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: linear-gradient(180deg, rgba(0,242,254,0.07), transparent);
   flex-shrink: 0;
+  text-align: center;
 }
 
 .avatar-container {
   position: relative;
-  width: 52px;
-  height: 52px;
-  min-width: 52px;
+  width: 84px;
+  height: 84px;
+  min-width: 84px;
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid rgba(0,242,254,0.4);
+  border: 2px solid rgba(0,242,254,0.55);
+  box-shadow: 0 0 22px rgba(0,242,254,0.18);
   flex-shrink: 0;
 }
 .avatar-container img {
@@ -92,28 +96,54 @@
 .profile-name-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 3px;
   min-width: 0;
-  flex: 1;
+  max-width: 100%;
 }
 #profileName {
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 800;
   color: #fff;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
   margin: 0;
   transition: color 0.2s;
 }
 #profileName:hover { color: var(--accent-liquid); }
 .profile-sub {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: rgba(255,255,255,0.38);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* статистика в шапке */
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  margin-top: 8px;
+}
+.p-stat { text-align: center; }
+.p-stat b {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--accent-liquid);
+  line-height: 1.2;
+}
+.p-stat span {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
 }
 
 /* ── ВКЛАДКИ ─────────────────────────────────────────────── */
@@ -209,6 +239,32 @@
 }
 
 /* ── ДОСТИЖЕНИЯ ──────────────────────────────────────────── */
+.ach-progress {
+  margin-bottom: 14px;
+}
+.ach-progress-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-liquid);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 7px;
+}
+.ach-progress-bar {
+  height: 6px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.07);
+  overflow: hidden;
+}
+.ach-progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(0,242,254,0.6), var(--accent-liquid));
+  box-shadow: 0 0 10px rgba(0,242,254,0.45);
+  transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
 .achievements-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -228,9 +284,13 @@
   cursor: default;
   transition: background 0.2s, border-color 0.2s, transform 0.15s;
 }
+.ach-item:not(.locked) {
+  background: rgba(0,242,254,0.06);
+  border-color: rgba(0,242,254,0.3);
+}
 .ach-item:not(.locked):hover {
-  background: rgba(0,242,254,0.07);
-  border-color: rgba(0,242,254,0.28);
+  background: rgba(0,242,254,0.1);
+  border-color: rgba(0,242,254,0.45);
   transform: translateY(-2px);
 }
 .ach-item.locked {
@@ -250,12 +310,29 @@
   margin: 0;
   word-break: break-word;
 }
+.ach-item:not(.locked) .ach-title { color: rgba(255,255,255,0.9); }
 .ach-lock {
   position: absolute;
   top: 4px;
   right: 5px;
   font-size: 0.5rem;
   opacity: 0.5;
+}
+.ach-check {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-liquid);
+  color: #050b14;
+  font-size: 0.55rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 /* ── ПРОМОКОДЫ / РЕФЕРАЛ ─────────────────────────────────── */
@@ -310,22 +387,28 @@
 }
 #btnCopy:hover, #btnApply:hover { background: #fff; }
 
-/* ── КНОПКА ВЫЙТИ ────────────────────────────────────────── */
+/* ── ФУТЕР ПАНЕЛИ: КНОПКА ВЫЙТИ ──────────────────────────── */
+.profile-footer {
+  flex-shrink: 0;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  background: rgba(0,0,0,0.15);
+}
 .logout-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 9px;
   background: rgba(239,68,68,0.09);
   border: 1px solid rgba(239,68,68,0.28);
   color: #f87171;
-  padding: 10px 16px;
+  padding: 11px 16px;
   border-radius: 10px;
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
   width: 100%;
   min-height: unset !important;
-  margin-top: 18px;
   transition: background 0.2s, border-color 0.2s;
   box-sizing: border-box;
 }

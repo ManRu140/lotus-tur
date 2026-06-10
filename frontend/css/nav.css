@@ -64,13 +64,13 @@ header {
   border-radius: 50%;
 }
 
-nav {
+.nav-container nav {
   position: relative;
   display: flex;
   align-items: center;
   height: 100%;
 }
-nav ul {
+.nav-container nav ul {
   display: flex;
   list-style: none;
   gap: 4px;
@@ -80,7 +80,7 @@ nav ul {
   z-index: 2;
 }
 
-nav a,
+.nav-container nav a,
 .lang-switch,
 .profile-btn {
   color: inherit;

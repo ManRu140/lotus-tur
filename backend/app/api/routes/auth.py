@@ -1,14 +1,3 @@
-"""
-API роутер: авторизация с поддержкой HttpOnly Cookie.
-
-Изменения по сравнению с оригиналом:
-  - Все auth-эндпоинты возвращают токен ОДНОВРЕМЕННО:
-      a) в теле JSON (для мобильных клиентов / Swagger)
-      b) в HttpOnly Cookie (для браузерных клиентов)
-  - Добавлен POST /logout — очищает куки
-  - CSRF-токен генерируется при каждом входе/регистрации
-  - GET /me — возвращает текущего пользователя (для проверки сессии)
-"""
 import secrets
 
 from fastapi import APIRouter, Depends, Response
@@ -20,16 +9,36 @@ from app.db.session import get_session
 from app.models.user import User
 from app.core.config import settings
 from app.schemas.schemas import LoginRequest, ProfileOut, RegisterRequest, TokenResponse
-from app.services.auth_service import google_auth, login_user, register_user
+from app.services.auth_service import google_auth, login_user, register_user, vk_auth
 
 router = APIRouter()
 
 
 def _set_session_cookies(response: Response, token_response: TokenResponse) -> None:
-    """Хэлпер: генерирует CSRF и устанавливает обе куки."""
+    """Генерирует CSRF и устанавливает обе куки."""
     csrf_token = secrets.token_hex(32)
     set_auth_cookies(response, token_response.access_token, csrf_token)
 
+@router.get("/vk/callback")
+async def vk_callback(
+    code: str,
+    response: Response,
+    session: AsyncSession = Depends(get_session),
+) -> TokenResponse:
+    result = await vk_auth(code, session)
+    _set_session_cookies(response, result)
+    return result
+
+@router.get("/vk/client-id", summary="Публичный VK Client ID для OAuth")
+async def vk_client_id() -> dict:
+    """Возвращает VK Client ID для фронтенда (не секрет по стандарту OAuth)."""
+    if not settings.VK_CLIENT_ID:
+        from fastapi import HTTPException, status
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="VK OAuth не настроен",
+        )
+    return {"client_id": settings.VK_CLIENT_ID}
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
 async def register(
@@ -53,28 +62,28 @@ async def login(
     return result
 
 
-@router.get(
-    "/google/callback",
-    response_model=TokenResponse,
-    summary="Google OAuth callback",
-)
+@router.get("/google/callback", response_model=TokenResponse, summary="Google OAuth callback")
 async def google_callback(
     code: str,
     response: Response,
     session: AsyncSession = Depends(get_session),
+    redirect_uri: str | None = None,
 ) -> TokenResponse:
-    """Принимает code от Google, возвращает JWT токен и устанавливает куки."""
-    result = await google_auth(code, session)
+    """Принимает code от Google, возвращает JWT и устанавливает куки.
+    
+    redirect_uri — необязательный параметр. Фронтенд передаёт его, чтобы
+    бэкенд использовал тот же URI, который был отправлен в Google при старте
+    OAuth (обязательное условие Google — оба URI должны совпадать).
+    Если не передан — используется FRONTEND_URL из настроек.
+    """
+    result = await google_auth(code, session, redirect_uri=redirect_uri)
     _set_session_cookies(response, result)
     return result
 
 
 @router.post("/logout", summary="Выход из системы")
 async def logout(response: Response) -> dict:
-    """
-    Очищает куки сессии.
-    Клиент также должен удалить JWT из localStorage (если хранится там).
-    """
+    """Очищает куки сессии."""
     clear_auth_cookies(response)
     return {"detail": "Вы вышли из системы"}
 
@@ -85,17 +94,9 @@ async def get_me(user: User = Depends(get_current_active_user)) -> ProfileOut:
     return user
 
 
-@router.get(
-    "/google/client-id",
-    summary="Публичный Google Client ID для OAuth",
-    include_in_schema=True,
-)
+@router.get("/google/client-id", summary="Публичный Google Client ID для OAuth")
 async def google_client_id() -> dict:
-    """
-    BUG FIX: возвращает Google Client ID для фронтенда.
-    Это НЕ секрет — client_id публичен по стандарту OAuth.
-    Выносим его с фронтенда на бэкенд для централизованной конфигурации.
-    """
+    """Возвращает Google Client ID для фронтенда (не секрет по стандарту OAuth)."""
     if not settings.GOOGLE_CLIENT_ID:
         from fastapi import HTTPException, status
         raise HTTPException(

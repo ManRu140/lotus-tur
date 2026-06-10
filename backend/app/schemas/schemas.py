@@ -70,6 +70,8 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     username: str
+    avatar_url: str | None = None
+    full_name: str | None = None
 
 
 # ── Tours ──────────────────────────────────────────────────────────────────────

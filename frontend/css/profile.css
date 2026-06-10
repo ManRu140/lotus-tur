@@ -1,25 +1,23 @@
-/* ============================================================
-   ЛИЧНЫЙ КАБИНЕТ, МОДАЛЬНЫЕ ОКНА, АВТОРИЗАЦИЯ (profile.css)
-   ============================================================ */
-
-/* ── БОКОВАЯ ПАНЕЛЬ ПРОФИЛЯ ──────────────────────────────── */
+/* ── БОКОВАЯ ПАНЕЛЬ ПРОФИЛЯ ─────────────────────────────── */
 .side-profile {
   position: fixed;
   top: 0;
   right: -450px;
   width: 420px;
+  max-width: 100vw;
   height: 100vh;
-  background: rgba(26, 34, 38, 0.82);
+  background: rgba(26, 34, 38, 0.92);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.3);
   z-index: 2000;
   transition: right 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-  padding: 40px 30px;
+  padding: 20px 24px 16px;
   display: flex;
   flex-direction: column;
   color: var(--text-light-main);
   border-left: 1px solid var(--border-light);
+  overflow: hidden;
 }
 .side-profile.open {
   right: 0;
@@ -42,22 +40,25 @@
 
 .profile-header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 30px;
-  text-align: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  text-align: left;
+  flex-shrink: 0;
+  padding-top: 8px;
 }
 
 .avatar-container {
   position: relative;
-  width: 90px;
-  height: 90px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   border: 2px solid var(--border-light);
+  flex-shrink: 0;
 }
 .avatar-container img {
   width: 100%;
@@ -83,9 +84,11 @@
 
 .profile-name-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   min-height: 35px;
 }
 .profile-name-container h3 {
@@ -107,6 +110,57 @@
   width: 80%;
   outline: none;
   font-weight: 600;
+}
+
+/* ── ВКЛАДКИ ПРОФИЛЯ ─────────────────────────────────────── */
+.profile-tabs-nav {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  border: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+.p-tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px 5px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-light-muted);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+.p-tab-btn.active {
+  background: var(--text-light-main);
+  color: var(--bg-dark);
+}
+
+/* Скроллируемая область с контентом вкладок */
+.profile-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  padding-right: 4px;
+  margin-bottom: 16px;
+}
+.profile-scroll-area::-webkit-scrollbar {
+  width: 4px;
+}
+.profile-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.profile-tab-content {
+  display: none;
+}
+.profile-tab-content.active {
+  display: block;
 }
 
 /* ── ФИЛЬТРЫ ТУРОВ ───────────────────────────────────────── */
@@ -138,42 +192,6 @@
   background: var(--accent-liquid);
   color: var(--bg-dark);
   border-color: var(--accent-liquid);
-}
-
-/* ── ВКЛАДКИ ПРОФИЛЯ ─────────────────────────────────────── */
-.profile-tabs-nav {
-  background: rgba(255, 255, 255, 0.06);
-  padding: 4px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  display: flex;
-  border: 1px solid var(--border-light);
-}
-.p-tab-btn {
-  flex: 1;
-  background: none;
-  border: none;
-  padding: 10px 5px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-light-muted);
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.3s;
-}
-.p-tab-btn.active {
-  background: var(--text-light-main);
-  color: var(--bg-dark);
-}
-
-.profile-tab-content {
-  flex: 1;
-  overflow-y: auto;
-  display: none;
-  padding-right: 5px;
-}
-.profile-tab-content.active {
-  display: block;
 }
 
 /* ── КАРТОЧКИ ТУРОВ В ЛК ─────────────────────────────────── */
@@ -214,7 +232,6 @@
   background: rgba(67, 160, 71, 0.2);
   color: #81c784;
 }
-/* BUG FIX: статус cancelled ранее отображался как completed (зелёный) */
 .status-cancelled {
   background: rgba(229, 57, 53, 0.2);
   color: #ef9a9a;
@@ -336,7 +353,6 @@
   overflow-y: auto;
 }
 
-/* Заголовок модалки бронирования (вынесен из inline style) */
 .modal-title {
   font-size: 1.6rem;
   font-weight: 700;
@@ -427,6 +443,12 @@
   background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
 }
+/* Фикс: цвет текста в option выпадающего списка */
+.booking-form select option,
+.booking-form select optgroup {
+  background: #1a2226;
+  color: #ffffff;
+}
 .booking-form textarea {
   resize: none;
   height: 100px;
@@ -461,42 +483,59 @@
 }
 .social-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   width: 100%;
 }
 .social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 10px;
+  padding: 11px 16px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s;
   text-align: center;
+  color: #fff;
 }
 .social-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
-
-/* Цвета кнопок соцсетей (вынесены из inline style) */
+.social-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
 .social-btn--vk {
-  color: #0077ff;
+  background: rgba(0, 119, 255, 0.15);
+  border-color: rgba(0, 119, 255, 0.35);
+  color: #4d9fff;
 }
-.social-btn--max {
-  color: #ff3333;
+.social-btn--vk:hover {
+  background: rgba(0, 119, 255, 0.25);
+  border-color: rgba(0, 119, 255, 0.6);
+  box-shadow: 0 6px 20px rgba(0, 119, 255, 0.2);
 }
 .social-btn--google {
-  color: #4285f4;
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #e8e8e8;
+}
+.social-btn--google:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.08);
 }
 
 /* ── КНОПКА ВЫХОДА ───────────────────────────────────────── */
 .logout-btn {
-  margin-top: auto;
-  padding-top: 20px;
+  flex-shrink: 0;
   width: 100%;
   display: flex;
   align-items: center;
@@ -523,4 +562,127 @@
   border-color: rgba(239, 68, 68, 0.5);
   color: #fff;
   transform: translateY(-1px);
+}
+
+/* ── ДОСТИЖЕНИЯ ─────────────────────────────────────────── */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding: 4px 0;
+}
+.ach-item {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 18px 14px;
+  text-align: center;
+  position: relative;
+  transition: border-color 0.25s, transform 0.25s;
+  cursor: default;
+}
+.ach-item:not(.locked):hover {
+  border-color: var(--accent-liquid);
+  transform: translateY(-2px);
+}
+.ach-item.locked {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+.ach-icon {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+.ach-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-light-main);
+  line-height: 1.3;
+}
+.ach-lock {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 0.85rem;
+}
+
+/* ── ФИЛЬТРЫ ТУРОВ ПРОФИЛЯ ──────────────────────────────── */
+.tour-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.filter-chip {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.65);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-chip.active,
+.filter-chip:hover {
+  background: var(--accent-liquid);
+  border-color: var(--accent-liquid);
+  color: #050b14;
+}
+
+/* ── ПРОМО / РЕФЕРАЛ ────────────────────────────────────── */
+.promo-section { margin-bottom: 24px; }
+.promo-section h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-light-muted);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.copy-box, .input-box {
+  display: flex;
+  gap: 8px;
+}
+.copy-box input, .input-box input {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  color: #fff;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  outline: none;
+}
+.copy-box button, .input-box button {
+  background: var(--accent-liquid);
+  border: none;
+  color: #050b14;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.copy-box button:hover, .input-box button:hover { background: #fff; }
+
+/* Подзаголовок в профиле (роль / email) */
+.profile-sub {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+/* close-profile position fix для компактного хедера */
+.side-profile .close-profile {
+  top: 16px;
+  right: 16px;
 }

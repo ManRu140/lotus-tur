@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Лотос Тур — Админ-панель</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #0f1519;
+      --surface:  #1a2226;
+      --surface2: #1f2d33;
+      --border:   rgba(255,255,255,.08);
+      --accent:   #00f2fe;
+      --accent2:  #4facfe;
+      --text:     #e8edf0;
+      --muted:    rgba(232,237,240,.45);
+      --danger:   #ef4444;
+      --success:  #10b981;
+      --warn:     #f59e0b;
+      --info:     #6366f1;
+      --radius:   12px;
+      --sidebar-w: 240px;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; overflow-x: hidden; }
+
+    /* ── Auth overlay ── */
+    #authOverlay {
+      position: fixed; inset: 0; background: var(--bg); z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .auth-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: 40px; width: 360px; text-align: center;
+    }
+    .auth-card h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; }
+    .auth-card p  { color: var(--muted); font-size: .875rem; margin-bottom: 28px; }
+    .auth-card input {
+      width: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 16px; color: var(--text); font-size: .9rem;
+      outline: none; margin-bottom: 14px; transition: border-color .2s;
+    }
+    .auth-card input:focus { border-color: var(--accent); }
+    .auth-card button {
+      width: 100%; padding: 13px; background: linear-gradient(135deg,#00f2fe,#4facfe);
+      border: none; border-radius: 10px; color: #0f1519; font-weight: 800;
+      font-size: .95rem; cursor: pointer; transition: opacity .2s;
+    }
+    .auth-card button:hover { opacity: .85; }
+    .auth-error { color: var(--danger); font-size: .8rem; margin-top: 10px; min-height: 18px; }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: var(--sidebar-w); min-height: 100vh; background: var(--surface);
+      border-right: 1px solid var(--border); display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 24px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar-logo .logo-icon {
+      width: 36px; height: 36px; background: linear-gradient(135deg,#00f2fe,#4facfe);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .sidebar-logo span { font-weight: 800; font-size: .95rem; }
+    .sidebar-logo small { display: block; color: var(--muted); font-size: .7rem; font-weight: 400; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+      border-radius: 10px; cursor: pointer; font-size: .875rem; font-weight: 500;
+      color: var(--muted); transition: all .18s; margin-bottom: 4px; border: none;
+      background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.05); color: var(--text); }
+    .nav-item.active { background: rgba(0,242,254,.1); color: var(--accent); font-weight: 600; }
+    .nav-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid var(--border); }
+    .admin-badge {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      background: rgba(0,242,254,.06); border-radius: 10px; border: 1px solid rgba(0,242,254,.15);
+    }
+    .admin-badge .avatar {
+      width: 32px; height: 32px; background: linear-gradient(135deg,#00f2fe,#4facfe);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 800; color: #0f1519; flex-shrink: 0;
+    }
+    .admin-badge .info { flex: 1; min-width: 0; }
+    .admin-badge .name { font-size: .8rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .admin-badge .role { font-size: .68rem; color: var(--accent); }
+    .btn-logout {
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: .85rem; padding: 4px; border-radius: 6px; transition: color .18s;
+    }
+    .btn-logout:hover { color: var(--danger); }
+
+    /* ── Main content ── */
+    #main { margin-left: var(--sidebar-w); flex: 1; padding: 28px 32px; min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; gap: 16px;
+    }
+    .topbar h2 { font-size: 1.4rem; font-weight: 800; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .badge-pill {
+      background: rgba(0,242,254,.12); color: var(--accent); border: 1px solid rgba(0,242,254,.25);
+      border-radius: 20px; padding: 4px 12px; font-size: .75rem; font-weight: 700;
+    }
+
+    /* ── Tabs ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Stats cards ── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 16px; margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px 18px;
+    }
+    .stat-card .label { font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .stat-card .value { font-size: 2rem; font-weight: 800; line-height: 1; }
+    .stat-card.accent  .value { color: var(--accent); }
+    .stat-card.success .value { color: var(--success); }
+    .stat-card.warn    .value { color: var(--warn); }
+    .stat-card.danger  .value { color: var(--danger); }
+    .stat-card.info    .value { color: var(--info); }
+
+    /* ── Table ── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin-bottom: 24px;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 22px; border-bottom: 1px solid var(--border);
+    }
+    .card-header h3 { font-size: 1rem; font-weight: 700; }
+    .card-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .search-input {
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 14px; color: var(--text); font-size: .85rem;
+      outline: none; width: 220px; transition: border-color .2s;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .filter-select {
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 12px; color: var(--text); font-size: .85rem;
+      outline: none; cursor: pointer;
+    }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    thead th {
+      padding: 10px 18px; text-align: left; font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px; color: var(--muted);
+      background: rgba(255,255,255,.025); white-space: nowrap;
+    }
+    tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
+    tbody tr:hover { background: rgba(255,255,255,.025); }
+    td { padding: 12px 18px; font-size: .85rem; vertical-align: middle; }
+    .td-muted { color: var(--muted); font-size: .78rem; }
+
+    /* ── Badges ── */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px; font-size: .72rem; font-weight: 700;
+    }
+    .status-badge.booked    { background: rgba(99,102,241,.15); color: #818cf8; border: 1px solid rgba(99,102,241,.3); }
+    .status-badge.started   { background: rgba(245,158,11,.15); color: var(--warn); border: 1px solid rgba(245,158,11,.3); }
+    .status-badge.completed { background: rgba(16,185,129,.15); color: var(--success); border: 1px solid rgba(16,185,129,.3); }
+    .status-badge.cancelled { background: rgba(239,68,68,.15);  color: var(--danger); border: 1px solid rgba(239,68,68,.3); }
+    .status-badge.active    { background: rgba(16,185,129,.12); color: var(--success); border: 1px solid rgba(16,185,129,.25); }
+    .status-badge.inactive  { background: rgba(239,68,68,.12);  color: var(--danger); border: 1px solid rgba(239,68,68,.25); }
+    .status-badge.admin     { background: rgba(0,242,254,.1);   color: var(--accent); border: 1px solid rgba(0,242,254,.25); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+      border-radius: 8px; font-size: .8rem; font-weight: 600; cursor: pointer;
+      border: none; transition: all .18s; white-space: nowrap;
+    }
+    .btn-primary { background: linear-gradient(135deg,#00f2fe,#4facfe); color: #0f1519; }
+    .btn-primary:hover { opacity: .85; }
+    .btn-ghost   { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: rgba(255,255,255,.12); }
+    .btn-danger  { background: rgba(239,68,68,.12); color: var(--danger); border: 1px solid rgba(239,68,68,.25); }
+    .btn-danger:hover { background: rgba(239,68,68,.22); }
+    .btn-success { background: rgba(16,185,129,.12); color: var(--success); border: 1px solid rgba(16,185,129,.25); }
+    .btn-success:hover { background: rgba(16,185,129,.22); }
+    .btn-sm { padding: 4px 10px; font-size: .75rem; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      backdrop-filter: blur(4px); z-index: 500;
+      display: none; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: 32px; width: 500px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+      position: relative;
+    }
+    .modal h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px; background: none; border: none;
+      color: var(--muted); font-size: 1.3rem; cursor: pointer; line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: .8rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: .875rem;
+      outline: none; transition: border-color .2s; font-family: inherit;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+    /* ── Toast ── */
+    #adminToast {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9000;
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px 20px; font-size: .875rem; font-weight: 500; max-width: 340px;
+      transform: translateY(20px); opacity: 0; transition: all .25s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    #adminToast.show { opacity: 1; transform: translateY(0); }
+    #adminToast.success { border-color: var(--success); }
+    #adminToast.error   { border-color: var(--danger); }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center; padding: 60px 20px; color: var(--muted);
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 14px; }
+    .empty-state p { font-size: .9rem; }
+
+    /* ── Loading ── */
+    .loading { text-align: center; padding: 40px; color: var(--muted); }
+    .spinner {
+      width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin .7s linear infinite; margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      :root { --sidebar-w: 200px; }
+      #main { padding: 16px; }
+    }
+    @media (max-width: 640px) {
+      #sidebar { width: 200px; transform: translateX(-200px); transition: transform .3s; }
+      #sidebar.open { transform: translateX(0); }
+      #main { margin-left: 0; padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div id="authOverlay">
+  <div class="auth-card">
+    <div style="font-size:2.5rem;margin-bottom:12px">🛡️</div>
+    <h1>Вход в админ-панель</h1>
+    <p>Доступ только для администраторов</p>
+    <input type="text" id="adminLogin" placeholder="Имя пользователя" autocomplete="username" />
+    <input type="password" id="adminPassword" placeholder="Пароль" autocomplete="current-password" />
+    <button id="adminLoginBtn">Войти</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🌿</div>
+    <div>
+      <span>Лотос Тур</span>
+      <small>Администрирование</small>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <button class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard')">
+      <span class="icon">📊</span> Дашборд
+    </button>
+    <button class="nav-item" data-page="users" onclick="switchPage('users')">
+      <span class="icon">👥</span> Пользователи
+    </button>
+    <button class="nav-item" data-page="bookings" onclick="switchPage('bookings')">
+      <span class="icon">📅</span> Бронирования
+    </button>
+    <button class="nav-item" data-page="tours" onclick="switchPage('tours')">
+      <span class="icon">🏔️</span> Туры
+    </button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="admin-badge">
+      <div class="avatar" id="adminAvatarInitial">А</div>
+      <div class="info">
+        <div class="name" id="adminNameDisplay">—</div>
+        <div class="role">Администратор</div>
+      </div>
+      <button class="btn-logout" onclick="adminLogout()" title="Выйти">⏻</button>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="topbar">
+      <h2>📊 Дашборд</h2>
+      <div class="topbar-right">
+        <span class="badge-pill">Лотос Тур</span>
+        <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">↻ Обновить</button>
+      </div>
+    </div>
+    <div class="stats-grid" id="statsGrid">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" id="dashCharts">
+      <!-- Recent bookings & users -->
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div id="page-users" class="page">
+    <div class="topbar">
+      <h2>👥 Пользователи</h2>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm" onclick="loadUsers()">↻ Обновить</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3>Все пользователи</h3>
+        <div class="card-actions">
+          <input type="text" class="search-input" id="userSearch" placeholder="Поиск по имени или email…" oninput="filterUsers()" />
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Пользователь</th>
+              <th>Email</th>
+              <th>Регистрация</th>
+              <th>Бронирований</th>
+              <th>Статус</th>
+              <th>Роль</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody"><tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKINGS -->
+  <div id="page-bookings" class="page">
+    <div class="topbar">
+      <h2>📅 Бронирования</h2>
+      <div class="topbar-right">
+        <select class="filter-select" id="bookingStatusFilter" onchange="loadBookings()">
+          <option value="">Все статусы</option>
+          <option value="booked">Предстоящие</option>
+          <option value="started">В процессе</option>
+          <option value="completed">Завершённые</option>
+          <option value="cancelled">Отменённые</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="loadBookings()">↻ Обновить</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Все бронирования</h3></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Пользователь</th>
+              <th>Тур</th>
+              <th>Дата тура</th>
+              <th>Чел.</th>
+              <th>Контакт</th>
+              <th>Статус</th>
+              <th>Создано</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsTableBody"><tr><td colspan="9"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOURS -->
+  <div id="page-tours" class="page">
+    <div class="topbar">
+      <h2>🏔️ Туры</h2>
+      <div class="topbar-right">
+        <button class="btn btn-primary" onclick="openTourModal()">+ Добавить тур</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadTours()">↻ Обновить</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Все туры</h3></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Название</th>
+              <th>Тег</th>
+              <th>Цена</th>
+              <th>Бронирований</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="toursTableBody"><tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL: Tour create/edit -->
+<div class="modal-overlay" id="tourModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeTourModal()">✕</button>
+    <h3 id="tourModalTitle">Добавить тур</h3>
+    <div class="form-group">
+      <label>ID (slug, например: askold)</label>
+      <input type="text" id="tourId" placeholder="askold" />
+    </div>
+    <div class="form-group">
+      <label>Название</label>
+      <input type="text" id="tourName" placeholder="Остров Аскольд" />
+    </div>
+    <div class="form-group">
+      <label>Тег</label>
+      <input type="text" id="tourTag" placeholder="Острова" />
+    </div>
+    <div class="form-group">
+      <label>Цена (₽/чел)</label>
+      <input type="number" id="tourPrice" placeholder="7500" min="0" />
+    </div>
+    <div class="form-group">
+      <label>URL изображения</label>
+      <input type="text" id="tourImg" placeholder="https://..." />
+    </div>
+    <div class="form-group">
+      <label>Описание</label>
+      <textarea id="tourDesc" placeholder="Описание тура..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeTourModal()">Отмена</button>
+      <button class="btn btn-primary" id="tourSaveBtn" onclick="saveTour()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Booking status -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal" style="width:340px">
+    <button class="modal-close" onclick="closeBookingModal()">✕</button>
+    <h3>Изменить статус</h3>
+    <div class="form-group">
+      <label>Бронирование #<span id="editBookingId">—</span></label>
+      <select id="editBookingStatus" class="filter-select" style="width:100%;margin-top:4px">
+        <option value="booked">Предстоящий</option>
+        <option value="started">В процессе</option>
+        <option value="completed">Завершён</option>
+        <option value="cancelled">Отменён</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeBookingModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="saveBookingStatus()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="adminToast"></div>
+
+<script>
+const API_BASE = "https://lotus-tur-production-23c6.up.railway.app";
+let currentAdminUser = null;
+let editingTourId = null;
+let allUsers = [];
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+async function api(path, opts = {}) {
+  const headers = { "Content-Type": "application/json", ...opts.headers };
+  const res = await fetch(API_BASE + path, { ...opts, headers, credentials: "include" });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Ошибка ${res.status}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+function toast(msg, type = "success") {
+  const el = document.getElementById("adminToast");
+  el.textContent = (type === "success" ? "✓ " : "✕ ") + msg;
+  el.className = `show ${type}`;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove("show"), 3500);
+}
+
+function fmtDate(iso) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "2-digit" });
+}
+
+function statusBadge(s) {
+  const map = {
+    booked:    ["booked",    "Предстоящий"],
+    started:   ["started",   "В процессе"],
+    completed: ["completed", "Завершён"],
+    cancelled: ["cancelled", "Отменён"],
+  };
+  const [cls, label] = map[s] || ["", s];
+  return `<span class="status-badge ${cls}">${label}</span>`;
+}
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+async function checkAdminAuth() {
+  try {
+    const me = await api("/api/auth/me");
+    if (!me || !me.id) throw new Error("Not logged in");
+
+    // Проверяем что это adminpanel — грузим stats (только admin может)
+    await api("/api/admin/stats");
+
+    currentAdminUser = me;
+    hideAuthOverlay();
+    setAdminInfo(me);
+    loadDashboard();
+  } catch {
+    showAuthOverlay();
+  }
+}
+
+function showAuthOverlay() { document.getElementById("authOverlay").style.display = "flex"; }
+function hideAuthOverlay() { document.getElementById("authOverlay").style.display = "none"; }
+
+function setAdminInfo(user) {
+  document.getElementById("adminNameDisplay").textContent = user.username;
+  document.getElementById("adminAvatarInitial").textContent = user.username.charAt(0).toUpperCase();
+}
+
+document.getElementById("adminLoginBtn").addEventListener("click", async () => {
+  const username = document.getElementById("adminLogin").value.trim();
+  const password = document.getElementById("adminPassword").value;
+  const errEl = document.getElementById("authError");
+  errEl.textContent = "";
+
+  if (!username || !password) { errEl.textContent = "Заполните все поля."; return; }
+
+  const btn = document.getElementById("adminLoginBtn");
+  btn.disabled = true; btn.textContent = "Входим...";
+
+  try {
+    const data = await api("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    });
+
+    // Проверяем admin-доступ
+    try {
+      await api("/api/admin/stats");
+    } catch {
+      // Разлогиниваем — нет прав
+      await api("/api/auth/logout", { method: "POST" });
+      throw new Error("У вас нет прав администратора.");
+    }
+
+    const me = await api("/api/auth/me");
+    currentAdminUser = me;
+    hideAuthOverlay();
+    setAdminInfo(me);
+    loadDashboard();
+
+  } catch (e) {
+    errEl.textContent = e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = "Войти";
+  }
+});
+
+document.getElementById("adminLogin").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("adminLoginBtn").click(); });
+document.getElementById("adminPassword").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("adminLoginBtn").click(); });
+
+async function adminLogout() {
+  await api("/api/auth/logout", { method: "POST" }).catch(() => {});
+  currentAdminUser = null;
+  showAuthOverlay();
+}
+
+// ─── Page switching ──────────────────────────────────────────────────────────
+function switchPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById(`page-${name}`).classList.add("active");
+  document.querySelector(`[data-page="${name}"]`).classList.add("active");
+
+  if (name === "dashboard") loadDashboard();
+  if (name === "users")     loadUsers();
+  if (name === "bookings")  loadBookings();
+  if (name === "tours")     loadTours();
+}
+
+// ─── Dashboard ───────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const grid = document.getElementById("statsGrid");
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div><p>Загрузка статистики…</p></div>';
+
+  try {
+    const s = await api("/api/admin/stats");
+    grid.innerHTML = `
+      <div class="stat-card accent">
+        <div class="label">Пользователей</div>
+        <div class="value">${s.total_users}</div>
+      </div>
+      <div class="stat-card success">
+        <div class="label">Активных</div>
+        <div class="value">${s.active_users}</div>
+      </div>
+      <div class="stat-card info">
+        <div class="label">Бронирований</div>
+        <div class="value">${s.total_bookings}</div>
+      </div>
+      <div class="stat-card warn">
+        <div class="label">Активных броней</div>
+        <div class="value">${s.active_bookings}</div>
+      </div>
+      <div class="stat-card danger">
+        <div class="label">Отменено</div>
+        <div class="value">${s.cancelled_bookings}</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="label">Туров</div>
+        <div class="value">${s.total_tours}</div>
+      </div>
+      <div class="stat-card success" style="grid-column: span 2">
+        <div class="label">Выручка (оценка)</div>
+        <div class="value">${s.revenue_estimate.toLocaleString("ru-RU")} ₽</div>
+      </div>
+    `;
+
+    // Загружаем последние бронирования
+    const recentBookings = await api("/api/admin/bookings?limit=5");
+    const recentUsers    = await api("/api/admin/users?limit=5");
+
+    document.getElementById("dashCharts").innerHTML = `
+      <div class="card">
+        <div class="card-header"><h3>Последние бронирования</h3></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Пользователь</th><th>Тур</th><th>Дата</th><th>Статус</th></tr></thead>
+            <tbody>
+              ${recentBookings.length ? recentBookings.map(b => `
+                <tr>
+                  <td class="td-muted">${b.id}</td>
+                  <td>${b.username}</td>
+                  <td>${b.tour_name}</td>
+                  <td>${b.tour_date}</td>
+                  <td>${statusBadge(b.status)}</td>
+                </tr>
+              `).join("") : `<tr><td colspan="5"><div class="empty-state"><p>Нет бронирований</p></div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Новые пользователи</h3></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Имя</th><th>Email</th><th>Дата</th></tr></thead>
+            <tbody>
+              ${recentUsers.length ? recentUsers.map(u => `
+                <tr>
+                  <td class="td-muted">${u.id}</td>
+                  <td>${u.username}${u.is_admin ? ' <span class="status-badge admin">admin</span>':''}</td>
+                  <td class="td-muted">${u.email}</td>
+                  <td class="td-muted">${fmtDate(u.created_at)}</td>
+                </tr>
+              `).join("") : `<tr><td colspan="4"><div class="empty-state"><p>Нет пользователей</p></div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Ошибка загрузки: ${e.message}</p></div>`;
+  }
+}
+
+// ─── Users ───────────────────────────────────────────────────────────────────
+async function loadUsers() {
+  const tbody = document.getElementById("usersTableBody");
+  tbody.innerHTML = '<tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr>';
+  try {
+    allUsers = await api("/api/admin/users?limit=200");
+    renderUsers(allUsers);
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">⚠️</div><p>${e.message}</p></div></td></tr>`;
+  }
+}
+
+function filterUsers() {
+  const q = document.getElementById("userSearch").value.toLowerCase();
+  const filtered = allUsers.filter(u =>
+    u.username.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+  );
+  renderUsers(filtered);
+}
+
+function renderUsers(users) {
+  const tbody = document.getElementById("usersTableBody");
+  if (!users.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="icon">👤</div><p>Пользователи не найдены</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = users.map(u => `
+    <tr>
+      <td class="td-muted">${u.id}</td>
+      <td>
+        <div style="font-weight:600">${u.username}</div>
+        ${u.full_name ? `<div class="td-muted">${u.full_name}</div>` : ""}
+        ${u.is_oauth ? `<span style="font-size:.68rem;color:var(--accent)">OAuth</span>` : ""}
+      </td>
+      <td class="td-muted">${u.email}</td>
+      <td class="td-muted">${fmtDate(u.created_at)}</td>
+      <td style="text-align:center;font-weight:700">${u.bookings_count}</td>
+      <td>${u.is_active
+        ? '<span class="status-badge active">Активен</span>'
+        : '<span class="status-badge inactive">Заблокирован</span>'
+      }</td>
+      <td>${u.is_admin ? '<span class="status-badge admin">Админ</span>' : '<span class="td-muted">Пользователь</span>'}</td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-sm ${u.is_active ? 'btn-danger' : 'btn-success'}"
+            onclick="toggleUserActive(${u.id}, ${!u.is_active})">
+            ${u.is_active ? "Блок." : "Разблок."}
+          </button>
+          <button class="btn btn-sm btn-ghost"
+            onclick="toggleUserAdmin(${u.id}, ${!u.is_admin})"
+            ${u.id === currentAdminUser?.id ? 'disabled' : ''}>
+            ${u.is_admin ? "Снять admin" : "Дать admin"}
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+async function toggleUserActive(userId, newState) {
+  try {
+    await api(`/api/admin/users/${userId}/toggle-active`, {
+      method: "PATCH",
+      body: JSON.stringify({ is_active: newState }),
+    });
+    toast(newState ? "Пользователь разблокирован" : "Пользователь заблокирован");
+    await loadUsers();
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+async function toggleUserAdmin(userId, newState) {
+  try {
+    await api(`/api/admin/users/${userId}/toggle-admin`, {
+      method: "PATCH",
+      body: JSON.stringify({ is_admin: newState }),
+    });
+    toast(newState ? "Права администратора выданы" : "Права администратора сняты");
+    await loadUsers();
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+// ─── Bookings ────────────────────────────────────────────────────────────────
+async function loadBookings() {
+  const tbody = document.getElementById("bookingsTableBody");
+  tbody.innerHTML = '<tr><td colspan="9"><div class="loading"><div class="spinner"></div></div></td></tr>';
+  const statusFilter = document.getElementById("bookingStatusFilter").value;
+  const query = statusFilter ? `?status=${statusFilter}` : "?limit=100";
+  try {
+    const bookings = await api(`/api/admin/bookings${query}`);
+    if (!bookings.length) {
+      tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="icon">📅</div><p>Бронирования не найдены</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = bookings.map(b => `
+      <tr>
+        <td class="td-muted">#${b.id}</td>
+        <td>
+          <div style="font-weight:600">${b.username}</div>
+          <div class="td-muted">id:${b.user_id}</div>
+        </td>
+        <td>${b.tour_name}</td>
+        <td style="font-weight:600">${b.tour_date}</td>
+        <td style="text-align:center">${b.people_count}</td>
+        <td>
+          <div>${b.first_name}</div>
+          <div class="td-muted">${b.phone}</div>
+        </td>
+        <td>${statusBadge(b.status)}</td>
+        <td class="td-muted">${fmtDate(b.created_at)}</td>
+        <td>
+          <button class="btn btn-sm btn-ghost" onclick="openBookingModal(${b.id}, '${b.status}')">Изменить</button>
+        </td>
+      </tr>
+    `).join("");
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="icon">⚠️</div><p>${e.message}</p></div></td></tr>`;
+  }
+}
+
+function openBookingModal(id, status) {
+  document.getElementById("editBookingId").textContent = id;
+  document.getElementById("editBookingStatus").value = status;
+  document.getElementById("bookingModal").dataset.bookingId = id;
+  document.getElementById("bookingModal").classList.add("open");
+}
+function closeBookingModal() { document.getElementById("bookingModal").classList.remove("open"); }
+
+async function saveBookingStatus() {
+  const id = document.getElementById("bookingModal").dataset.bookingId;
+  const status = document.getElementById("editBookingStatus").value;
+  try {
+    await api(`/api/admin/bookings/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
+    toast("Статус обновлён");
+    closeBookingModal();
+    loadBookings();
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+// ─── Tours ───────────────────────────────────────────────────────────────────
+async function loadTours() {
+  const tbody = document.getElementById("toursTableBody");
+  tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr>';
+  try {
+    const tours = await api("/api/admin/tours");
+    if (!tours.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">🏔️</div><p>Туры не добавлены</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = tours.map(t => `
+      <tr>
+        <td class="td-muted">${t.id}</td>
+        <td style="font-weight:600">${t.name}</td>
+        <td><span class="status-badge booked">${t.tag}</span></td>
+        <td style="font-weight:700;color:var(--accent)">${t.price.toLocaleString("ru-RU")} ₽</td>
+        <td style="text-align:center;font-weight:700">${t.bookings_count}</td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-ghost" onclick="openTourModal('${t.id}', ${JSON.stringify(t).replace(/'/g,"\\'")} )">✏️ Редакт.</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteTour('${t.id}', '${t.name}')">🗑 Удалить</button>
+          </div>
+        </td>
+      </tr>
+    `).join("");
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">⚠️</div><p>${e.message}</p></div></td></tr>`;
+  }
+}
+
+function openTourModal(tourId = null, tourData = null) {
+  editingTourId = tourId;
+  const isEdit = !!tourId;
+  document.getElementById("tourModalTitle").textContent = isEdit ? "Редактировать тур" : "Добавить тур";
+  document.getElementById("tourId").value = tourData?.id || "";
+  document.getElementById("tourId").readOnly = isEdit;
+  document.getElementById("tourName").value = tourData?.name || "";
+  document.getElementById("tourTag").value = tourData?.tag || "";
+  document.getElementById("tourPrice").value = tourData?.price || "";
+  document.getElementById("tourImg").value = tourData?.img_url || "";
+  document.getElementById("tourDesc").value = tourData?.description || "";
+  document.getElementById("tourModal").classList.add("open");
+}
+
+function closeTourModal() {
+  document.getElementById("tourModal").classList.remove("open");
+  editingTourId = null;
+}
+
+async function saveTour() {
+  const btn = document.getElementById("tourSaveBtn");
+  btn.disabled = true;
+  try {
+    const payload = {
+      id: document.getElementById("tourId").value.trim(),
+      name: document.getElementById("tourName").value.trim(),
+      tag: document.getElementById("tourTag").value.trim(),
+      price: parseInt(document.getElementById("tourPrice").value),
+      img_url: document.getElementById("tourImg").value.trim(),
+      description: document.getElementById("tourDesc").value.trim(),
+    };
+    if (!payload.name || !payload.tag || !payload.price || !payload.id) {
+      toast("Заполните все обязательные поля", "error"); return;
+    }
+
+    if (editingTourId) {
+      const { id, ...updatePayload } = payload;
+      await api(`/api/admin/tours/${editingTourId}`, {
+        method: "PATCH",
+        body: JSON.stringify(updatePayload),
+      });
+      toast("Тур обновлён");
+    } else {
+      await api("/api/admin/tours", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      toast("Тур добавлен");
+    }
+    closeTourModal();
+    loadTours();
+  } catch (e) {
+    toast(e.message, "error");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function deleteTour(tourId, tourName) {
+  if (!confirm(`Удалить тур «${tourName}»? Это действие необратимо.`)) return;
+  try {
+    await api(`/api/admin/tours/${tourId}`, { method: "DELETE" });
+    toast("Тур удалён");
+    loadTours();
+  } catch (e) {
+    toast(e.message, "error");
+  }
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+checkAdminAuth();
+</script>
+</body>
+</html>

@@ -11,12 +11,11 @@
       rel="stylesheet"
     />
     <!-- CSS подключается в правильном порядке: переменные первыми -->
-     <!-- BUG FIX: путь был /frontend/css/style.css (абсолютный, не работает при file://).
+    <!-- BUG FIX: путь был /frontend/css/style.css (абсолютный, не работает при file://).
           Исправлено на относительный путь css/style.css -->
-     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-
     <!-- Скрытый input для загрузки аватара (display:none перенесён в CSS) -->
     <input
       type="file"
@@ -28,7 +27,13 @@
     <!-- ══════════════════════════════════════════════
          МОДАЛЬНОЕ ОКНО БРОНИРОВАНИЯ
          ══════════════════════════════════════════════ -->
-    <div class="modal-booking" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookModalTitle">
+    <div
+      class="modal-booking"
+      id="bookingModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="bookModalTitle"
+    >
       <div class="booking-container">
         <button class="close-profile" id="closeBookingBtn" aria-label="Закрыть">
           &times;
@@ -115,7 +120,13 @@
     <!-- ══════════════════════════════════════════════
          МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ
          ══════════════════════════════════════════════ -->
-    <div class="modal-auth" id="authModal" role="dialog" aria-modal="true" aria-label="Авторизация">
+    <div
+      class="modal-auth"
+      id="authModal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Авторизация"
+    >
       <div class="auth-container">
         <button class="close-profile" id="closeAuthBtn" aria-label="Закрыть">
           &times;
@@ -175,11 +186,23 @@
           </div>
         </form>
 
-        <p class="social-title">Или войти через сервисы</p>
+        <p class="social-title">Или войти через</p>
         <div class="social-grid">
-          <button class="social-btn social-btn--vk" data-provider="VK">VK</button>
-          <button class="social-btn social-btn--max" data-provider="MAX">MAX</button>
-          <button class="social-btn social-btn--google" id="googleLoginBtn">Google</button>
+          <button class="social-btn social-btn--vk" data-provider="VK" aria-label="Войти через VK">
+            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.862-.525-2.049-1.714-1.032-1.01-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.566c0 .424-.135.678-1.253.678-1.846 0-3.896-1.118-5.335-3.202C4.624 10.857 4 8.408 4 7.932c0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.863 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.203.17-.407.44-.407h2.744c.373 0 .508.203.508.643v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.253-1.406 2.151-3.574 2.151-3.574.119-.254.322-.491.763-.491h1.744c.525 0 .643.271.525.643-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.779 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.745-.576.745z"/>
+            </svg>
+            <span>VK</span>
+          </button>
+          <button class="social-btn social-btn--google" id="googleLoginBtn" aria-label="Войти через Google">
+            <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <span>Google</span>
+          </button>
         </div>
       </div>
     </div>
@@ -188,10 +211,18 @@
          ВЫЕЗЖАЮЩИЙ ЛИЧНЫЙ КАБИНЕТ
          ══════════════════════════════════════════════ -->
     <aside class="side-profile" id="sideProfile" aria-label="Личный кабинет">
-      <button class="close-profile" id="closeProfileBtn" aria-label="Закрыть">&times;</button>
+      <button class="close-profile" id="closeProfileBtn" aria-label="Закрыть">
+        &times;
+      </button>
 
       <div class="profile-header">
-        <div class="avatar-container" id="avatarTrigger" role="button" tabindex="0" aria-label="Обновить аватар">
+        <div
+          class="avatar-container"
+          id="avatarTrigger"
+          role="button"
+          tabindex="0"
+          aria-label="Обновить аватар"
+        >
           <img
             id="profileAvatar"
             src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
@@ -200,60 +231,109 @@
           <div class="avatar-overlay" aria-hidden="true">Обновить</div>
         </div>
         <div class="profile-name-container" id="nicknameWrapper">
-          <h3 id="profileName" role="button" tabindex="0" aria-label="Нажмите для изменения имени">
+          <h3
+            id="profileName"
+            role="button"
+            tabindex="0"
+            aria-label="Нажмите для изменения имени"
+          >
             Приморский_Странник
           </h3>
         </div>
       </div>
 
       <nav class="profile-tabs-nav" role="tablist" aria-label="Вкладки профиля">
-        <button class="p-tab-btn active" role="tab" aria-selected="true" id="tabBtn1" data-tab="0">Туры</button>
-        <button class="p-tab-btn" role="tab" aria-selected="false" id="tabBtn2" data-tab="1">Достижения</button>
-        <button class="p-tab-btn" role="tab" aria-selected="false" id="tabBtn3" data-tab="2">Промокоды</button>
+        <button
+          class="p-tab-btn active"
+          role="tab"
+          aria-selected="true"
+          id="tabBtn1"
+          data-tab="0"
+        >
+          Туры
+        </button>
+        <button
+          class="p-tab-btn"
+          role="tab"
+          aria-selected="false"
+          id="tabBtn2"
+          data-tab="1"
+        >
+          Достижения
+        </button>
+        <button
+          class="p-tab-btn"
+          role="tab"
+          aria-selected="false"
+          id="tabBtn3"
+          data-tab="2"
+        >
+          Промокоды
+        </button>
       </nav>
 
-      <!-- Вкладка: Туры -->
-      <div class="profile-tab-content active" id="pTab1" role="tabpanel">
-        <div class="tour-filters">
-          <button class="filter-chip active" data-filter="all" id="fAll">Все</button>
-          <button class="filter-chip" data-filter="booked" id="fBooked">Забронировано</button>
-          <button class="filter-chip" data-filter="started" id="fStarted">Начатые</button>
-          <button class="filter-chip" data-filter="completed" id="fCompleted">Завершенные</button>
-        </div>
-        <div id="toursList"></div>
-      </div>
-
-      <!-- Вкладка: Достижения -->
-      <div class="profile-tab-content" id="pTab2" role="tabpanel">
-        <div class="achievements-grid" id="achGrid"></div>
-      </div>
-
-      <!-- Вкладка: Промокоды -->
-      <div class="profile-tab-content" id="pTab3" role="tabpanel">
-        <div class="promo-section">
-          <h4 id="refTitle">Твоя реферальная ссылка</h4>
-          <div class="copy-box">
-            <input
-              type="text"
-              value="https://poravpohod.ru/ref?id=43219"
-              id="refLink"
-              readonly
-              aria-label="Реферальная ссылка"
-            />
-            <button type="button" id="btnCopy">Копировать</button>
+      <div class="profile-scroll-area">
+        <div class="profile-tab-content active" id="pTab1" role="tabpanel">
+          <div class="tour-filters">
+            <button class="filter-chip active" data-filter="all" id="fAll">
+              Все
+            </button>
+            <button class="filter-chip" data-filter="booked" id="fBooked">
+              Забронировано
+            </button>
+            <button class="filter-chip" data-filter="started" id="fStarted">
+              Начатые
+            </button>
+            <button class="filter-chip" data-filter="completed" id="fCompleted">
+              Завершенные
+            </button>
           </div>
+          <div id="toursList"></div>
         </div>
-        <div class="promo-section">
-          <h4 id="promoTitle">Ввести промокод</h4>
-          <div class="input-box">
-            <input type="text" placeholder="PRIMORYE10" id="promoInput" aria-label="Промокод" />
-            <button type="button" id="btnApply">Применить</button>
+
+        <div class="profile-tab-content" id="pTab2" role="tabpanel">
+          <div class="achievements-grid" id="achGrid"></div>
+        </div>
+
+        <div class="profile-tab-content" id="pTab3" role="tabpanel">
+          <div class="promo-section">
+            <h4 id="refTitle">Твоя реферальная ссылка</h4>
+            <div class="copy-box">
+              <input
+                type="text"
+                value="https://poravpohod.ru/ref?id=43219"
+                id="refLink"
+                readonly
+                aria-label="Реферальная ссылка"
+              />
+              <button type="button" id="btnCopy">Копировать</button>
+            </div>
+          </div>
+          <div class="promo-section">
+            <h4 id="promoTitle">Ввести промокод</h4>
+            <div class="input-box">
+              <input
+                type="text"
+                placeholder="PRIMORYE10"
+                id="promoInput"
+                aria-label="Промокод"
+              />
+              <button type="button" id="btnApply">Применить</button>
+            </div>
           </div>
         </div>
       </div>
 
       <button class="logout-btn" id="logoutBtn" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
           <polyline points="16 17 21 12 16 7" />
           <line x1="21" y1="12" x2="9" y2="12" />
@@ -281,15 +361,41 @@
 
         <nav aria-label="Основное меню">
           <ul>
-            <li><a href="#about" class="nav-link nav-target" id="m1">О нас</a></li>
-            <li><a href="#tours-anchor" class="nav-link nav-target" id="m2">Туры</a></li>
-            <li><a href="#" class="nav-link nav-target" id="m4" data-action="openBookingGeneral">Забронировать</a></li>
+            <li>
+              <a href="#about" class="nav-link nav-target" id="m1">О нас</a>
+            </li>
+            <li>
+              <a href="#tours-anchor" class="nav-link nav-target" id="m2"
+                >Туры</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="nav-link nav-target"
+                id="m4"
+                data-action="openBookingGeneral"
+                >Забронировать</a
+              >
+            </li>
           </ul>
         </nav>
 
         <div class="right-block">
-          <button class="lang-switch nav-target" id="langBtn" type="button" aria-label="Сменить язык">RU</button>
-          <button class="profile-btn nav-target" id="profileTrigger" type="button" aria-label="Профиль">
+          <button
+            class="lang-switch nav-target"
+            id="langBtn"
+            type="button"
+            aria-label="Сменить язык"
+          >
+            RU
+          </button>
+          <button
+            class="profile-btn nav-target"
+            id="profileTrigger"
+            type="button"
+            aria-label="Профиль"
+          >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
@@ -305,7 +411,12 @@
           бирюзовые бухты океана, таинственные острова и величественные вершины
           ждут вас.
         </p>
-        <button class="btn-book" id="heroBtn" type="button" data-action="openBookingGeneral">
+        <button
+          class="btn-book"
+          id="heroBtn"
+          type="button"
+          data-action="openBookingGeneral"
+        >
           В путь &rarr;
         </button>
       </div>
@@ -319,12 +430,26 @@
       <section class="tours-section" aria-labelledby="txtToursTitle">
         <div class="section-head">
           <div class="section-title-block">
-            <span class="tour-card-tag-inline" id="txtToursSub">Наши направления</span>
-            <h2 class="section-main-title" id="txtToursTitle">Популярные туры</h2>
+            <span class="tour-card-tag-inline" id="txtToursSub"
+              >Наши направления</span
+            >
+            <h2 class="section-main-title" id="txtToursTitle">
+              Популярные туры
+            </h2>
           </div>
           <button class="btn-all-tours" id="toggleGridBtn" type="button">
             <span id="txtBtnAll">Все туры</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
@@ -380,7 +505,6 @@
       <h2>Отзывы</h2>
       <div class="marquee-fix-wrapper" id="marqueeWrapper">
         <div id="marquee-line">
-
           <article class="review-card-item">
             <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
             <p class="review-text">
@@ -561,7 +685,6 @@
               </div>
             </div>
           </article>
-
         </div>
       </div>
     </section>
@@ -618,6 +741,6 @@
     <script src="js/data.js"></script>
     <script src="js/translations.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/google-auth.js"></script>
+    <script src="js/ui.js"></script>
   </body>
 </html>

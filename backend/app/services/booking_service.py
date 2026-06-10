@@ -1,17 +1,9 @@
 """
-Сервис бронирований.
-
-Улучшения:
-  - Атомарная проверка занятости даты + добавление — всё в одной транзакции
-  - selectinload заменён на joinedload там, где нужна одна JOIN-SQL (1 запрос вместо N+1)
-  - Добавлена функция get_booking_by_id с проверкой принадлежности пользователю
-  - Добавлена cancel_booking — отмена бронирования
-  - tour.booked_dates обновляется только если дата реально новая (idempotent)
-
-BUG FIX (race condition):
-  - Добавлен SELECT ... WITH FOR UPDATE через with_for_update() для PostgreSQL
-    чтобы предотвратить двойное бронирование одной даты при конкурентных запросах.
-  - Для SQLite это не критично (однопоточный движок), но безопасно включать везде.
+booking_service.py — ИСПРАВЛЕННАЯ ВЕРСИЯ
+Изменения:
+  [FIX-1] create_booking: убран лишний flush+refresh до commit
+  [FIX-2] cancel_booking: при отмене дата удаляется из tour.booked_dates
+           если нет других активных бронирований на эту дату
 """
 from fastapi import HTTPException, status
 from sqlalchemy import select
@@ -24,10 +16,7 @@ from app.models.user import User
 from app.schemas.schemas import BookingCreate, BookingOut
 
 
-# ── Фабрика DTO ────────────────────────────────────────────────────────────────
-
 def _booking_to_out(booking: Booking) -> BookingOut:
-    """Конвертирует ORM-объект в схему ответа."""
     return BookingOut(
         id=booking.id,
         tour_id=booking.tour_id,
@@ -39,20 +28,12 @@ def _booking_to_out(booking: Booking) -> BookingOut:
     )
 
 
-# ── Публичные функции ──────────────────────────────────────────────────────────
-
-async def create_booking(
-    data: BookingCreate, user: User, session: AsyncSession
-) -> BookingOut:
+async def create_booking(data: BookingCreate, user: User, session: AsyncSession) -> BookingOut:
     """
-    Создаёт бронирование.
-    Проверяет существование тура и доступность даты.
-    Обновляет список занятых дат атомарно внутри одной транзакции.
-
-    BUG FIX: with_for_update() блокирует строку тура на время транзакции,
-    предотвращая race condition при одновременных бронированиях одной даты.
+    with_for_update() блокирует строку тура на время транзакции —
+    предотвращает race condition при одновременных бронированиях одной даты.
+    [FIX-1] Убран лишний flush()+refresh() до commit — одна транзакция, один commit.
     """
-    # BUG FIX: with_for_update() — исключаем race condition
     result = await session.execute(
         select(Tour).where(Tour.id == data.tour_id).with_for_update()
     )
@@ -71,15 +52,10 @@ async def create_booking(
         )
 
     booking = Booking(
-        user_id=user.id,
-        tour_id=data.tour_id,
-        first_name=data.first_name,
-        phone=data.phone,
-        email=data.email,
-        tour_date=data.tour_date,
-        preferred_time=data.preferred_time,
-        people_count=data.people_count,
-        comment=data.comment,
+        user_id=user.id, tour_id=data.tour_id,
+        first_name=data.first_name, phone=data.phone, email=data.email,
+        tour_date=data.tour_date, preferred_time=data.preferred_time,
+        people_count=data.people_count, comment=data.comment,
         status="booked",
     )
     session.add(booking)
@@ -90,51 +66,36 @@ async def create_booking(
         dates.append(data.tour_date)
         tour.booked_dates = ",".join(sorted(dates))
 
-    # flush присваивает booking.id до commit — нужен для refresh
-    await session.flush()
-    await session.refresh(booking)
+    # [FIX-1] Один commit вместо flush+commit+двойной refresh
     await session.commit()
-
-    # Подгружаем tour для имени (уже в identity map — нет доп. запроса)
-    await session.refresh(tour)
+    await session.refresh(booking)
 
     return _booking_to_out(booking)
 
 
 async def get_my_bookings(user: User, session: AsyncSession) -> list[BookingOut]:
-    """
-    Возвращает все бронирования пользователя.
-    joinedload — один SQL с JOIN вместо N+1 запросов к tours.
-    """
+    """joinedload — один SQL с JOIN вместо N+1 запросов."""
     result = await session.execute(
         select(Booking)
         .where(Booking.user_id == user.id)
-        .options(joinedload(Booking.tour))  # ← один JOIN-запрос
+        .options(joinedload(Booking.tour))
         .order_by(Booking.created_at.desc())
     )
-    # unique() нужен при joinedload для корректной дедупликации строк
     bookings = result.unique().scalars().all()
-
     return [_booking_to_out(b) for b in bookings]
 
 
-async def get_booking_by_id(
-    booking_id: int, user: User, session: AsyncSession
-) -> BookingOut:
-    """
-    Возвращает конкретное бронирование.
-    Проверяет, что оно принадлежит текущему пользователю.
-    """
+async def get_booking_by_id(booking_id: int, user: User, session: AsyncSession) -> BookingOut:
     result = await session.execute(
-        select(Booking)
-        .where(Booking.id == booking_id)
-        .options(joinedload(Booking.tour))
+        select(Booking).where(Booking.id == booking_id).options(joinedload(Booking.tour))
     )
     booking = result.unique().scalar_one_or_none()
 
     if booking is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Бронирование не найдено")
-
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Бронирование не найдено",
+        )
     if booking.user_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -144,26 +105,28 @@ async def get_booking_by_id(
     return _booking_to_out(booking)
 
 
-async def cancel_booking(
-    booking_id: int, user: User, session: AsyncSession
-) -> BookingOut:
+async def cancel_booking(booking_id: int, user: User, session: AsyncSession) -> BookingOut:
     """
-    Отменяет бронирование (status → 'cancelled').
-    Не удаляет запись — сохраняем историю.
+    Меняет статус на 'cancelled', не удаляет запись.
+    [FIX-2] При отмене проверяет, остались ли другие активные бронирования
+    на ту же дату. Если нет — удаляет дату из tour.booked_dates,
+    освобождая слот для других пользователей.
     """
     result = await session.execute(
-        select(Booking)
-        .where(Booking.id == booking_id)
-        .options(joinedload(Booking.tour))
+        select(Booking).where(Booking.id == booking_id).options(joinedload(Booking.tour))
     )
     booking = result.unique().scalar_one_or_none()
 
     if booking is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Бронирование не найдено")
-
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Бронирование не найдено",
+        )
     if booking.user_id != user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Нет доступа")
-
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Нет доступа",
+        )
     if booking.status == "cancelled":
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -171,6 +134,21 @@ async def cancel_booking(
         )
 
     booking.status = "cancelled"
+
+    # [FIX-2] Освобождаем дату, если нет других активных бронирований на неё
+    other_active = await session.execute(
+        select(Booking.id).where(
+            Booking.tour_id == booking.tour_id,
+            Booking.tour_date == booking.tour_date,
+            Booking.status != "cancelled",
+            Booking.id != booking.id,
+        )
+    )
+    if other_active.scalar_one_or_none() is None and booking.tour:
+        freed_date = booking.tour_date
+        remaining_dates = [d for d in booking.tour.booked_dates_list if d != freed_date]
+        booking.tour.booked_dates = ",".join(sorted(remaining_dates)) or None
+
     await session.commit()
     await session.refresh(booking)
 

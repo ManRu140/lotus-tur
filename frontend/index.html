@@ -243,94 +243,62 @@
       </div>
 
       <nav class="profile-tabs-nav" role="tablist" aria-label="Вкладки профиля">
-        <button
-          class="p-tab-btn active"
-          role="tab"
-          aria-selected="true"
-          id="tabBtn1"
-          data-tab="0"
-        >
-          Туры
-        </button>
-        <button
-          class="p-tab-btn"
-          role="tab"
-          aria-selected="false"
-          id="tabBtn2"
-          data-tab="1"
-        >
-          Достижения
-        </button>
-        <button
-          class="p-tab-btn"
-          role="tab"
-          aria-selected="false"
-          id="tabBtn3"
-          data-tab="2"
-        >
-          Промокоды
-        </button>
+        <button class="p-tab-btn active" role="tab" aria-selected="true" id="tabBtn1" data-tab="0">Туры</button>
+        <button class="p-tab-btn" role="tab" aria-selected="false" id="tabBtn2" data-tab="1">Достижения</button>
+        <button class="p-tab-btn" role="tab" aria-selected="false" id="tabBtn3" data-tab="2">Промокоды</button>
       </nav>
 
       <div class="profile-scroll-area">
         <div class="profile-tab-content active" id="pTab1" role="tabpanel">
           <div class="tour-filters">
-            <button class="filter-chip active" data-filter="all" id="fAll">
-              Все
-            </button>
-            <button class="filter-chip" data-filter="booked" id="fBooked">
-              Забронировано
-            </button>
-            <button class="filter-chip" data-filter="started" id="fStarted">
-              Начатые
-            </button>
-            <button class="filter-chip" data-filter="completed" id="fCompleted">
-              Завершенные
-            </button>
+            <button class="filter-chip active" data-filter="all" id="fAll">Все</button>
+            <button class="filter-chip" data-filter="booked" id="fBooked">Забронировано</button>
+            <button class="filter-chip" data-filter="started" id="fStarted">Начатые</button>
+            <button class="filter-chip" data-filter="completed" id="fCompleted">Завершенные</button>
           </div>
           <div id="toursList"></div>
         </div>
 
         <div class="profile-tab-content" id="pTab2" role="tabpanel">
-          <div class="achievements-grid" id="achGrid"></div>
+          <div class="achievements-grid" id="achGrid">
+            <div class="ach-item locked" title="Совершил первое путешествие с Лотос-тур"><div class="ach-icon">🌱</div><p class="ach-title">Первый шаг</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Побывал на морской прогулке на катере"><div class="ach-icon">⛵</div><p class="ach-title">Морская душа</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Посетил остров Аскольд или Путятин"><div class="ach-icon">🏝️</div><p class="ach-title">Исследователь островов</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Поднялся на сопку Сестра"><div class="ach-icon">⛰️</div><p class="ach-title">Покоритель вершин</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Побывал в Сафари Парке"><div class="ach-icon">🐅</div><p class="ach-title">Друг природы</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Посетил Приморский океанариум"><div class="ach-icon">🐬</div><p class="ach-title">Житель глубин</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Прошёл пешеходную экскурсию по Владивостоку"><div class="ach-icon">🏙️</div><p class="ach-title">Знаток Владивостока</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Увидел цветение лотосов на острове Путятин"><div class="ach-icon">🌸</div><p class="ach-title">Хранитель лотоса</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Посетил водопад Стеклянуха"><div class="ach-icon">💧</div><p class="ach-title">Охотник за водопадами</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Забронировал тур за 7 и более дней до начала"><div class="ach-icon">🌅</div><p class="ach-title">Ранняя пташка</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Привёл друга по реферальной ссылке"><div class="ach-icon">🌟</div><p class="ach-title">Социальная звезда</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Посетил три разных пляжа и бухты"><div class="ach-icon">🏖️</div><p class="ach-title">Пляжный маньяк</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Побывал на пяти различных турах"><div class="ach-icon">📸</div><p class="ach-title">Фотоохотник</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Побывал и на морской, и на наземной экскурсии"><div class="ach-icon">🧭</div><p class="ach-title">Штурман</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Посетил ботанический сад во Владивостоке"><div class="ach-icon">🌿</div><p class="ach-title">Ботаник</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Увидел маяк Токаревский или Лихачёва"><div class="ach-icon">🔦</div><p class="ach-title">Маяк</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Совершил десять путешествий с Лотос-тур"><div class="ach-icon">🏆</div><p class="ach-title">Преданный путешественник</p><div class="ach-lock">🔒</div></div>
+            <div class="ach-item locked" title="Побывал в бухте Рифовая"><div class="ach-icon">💎</div><p class="ach-title">Жемчужина Ливадии</p><div class="ach-lock">🔒</div></div>
+          </div>
         </div>
 
         <div class="profile-tab-content" id="pTab3" role="tabpanel">
           <div class="promo-section">
             <h4 id="refTitle">Твоя реферальная ссылка</h4>
             <div class="copy-box">
-              <input
-                type="text"
-                value="https://poravpohod.ru/ref?id=43219"
-                id="refLink"
-                readonly
-                aria-label="Реферальная ссылка"
-              />
+              <input type="text" value="https://poravpohod.ru/ref?id=43219" id="refLink" readonly aria-label="Реферальная ссылка" />
               <button type="button" id="btnCopy">Копировать</button>
             </div>
           </div>
           <div class="promo-section">
             <h4 id="promoTitle">Ввести промокод</h4>
             <div class="input-box">
-              <input
-                type="text"
-                placeholder="PRIMORYE10"
-                id="promoInput"
-                aria-label="Промокод"
-              />
+              <input type="text" placeholder="PRIMORYE10" id="promoInput" aria-label="Промокод" />
               <button type="button" id="btnApply">Применить</button>
             </div>
           </div>
           <button class="logout-btn" id="logoutBtn" type="button">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />
@@ -401,19 +369,6 @@
             </svg>
           </button>
         </div>
-
-        <!-- Кнопка профиля только для мобильных устройств -->
-        <button
-          class="mobile-profile-btn"
-          id="mobileProfileTrigger"
-          type="button"
-          aria-label="Профиль"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-        </button>
       </div>
 
       <div class="hero-content">

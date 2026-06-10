@@ -6,7 +6,11 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.cookies import COOKIE_CSRF_TOKEN
 
+<<<<<<< HEAD
 # Методы, требующие CSRF-проверки (OPTIONS исключён — это preflight CORS)
+=======
+# Методы, требующие CSRF-проверки
+>>>>>>> ad8fb2fc605c42a95cbc10f7e96067cac7738306
 _UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 
 # Пути, освобождённые от проверки (OAuth, healthcheck, login/register)

@@ -484,7 +484,7 @@ function initTourFilters() {
 }
 
 const STATUS_LABEL = {
-  booked: { label: "Предстоящий", color: "#00f2fe" },
+  booked: { label: "Предстоящий", color: "#3fd0ca" },
   started: { label: "В процессе", color: "#f59e0b" },
   completed: { label: "Завершён", color: "#10b981" },
 };
@@ -511,7 +511,7 @@ function renderUserTours(tours) {
   if (statCompleted) statCompleted.textContent = counts.completed;
   const statsHtml = `
     <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-      <div style="flex:1;min-width:70px;background:rgba(0,242,254,.08);border:1px solid rgba(0,242,254,.2);border-radius:10px;padding:10px 12px;text-align:center">
+      <div style="flex:1;min-width:70px;background:rgba(63,208,202,.07);border:1px solid rgba(63,208,202,.18);border-radius:10px;padding:10px 12px;text-align:center">
         <div style="font-size:1.3rem;font-weight:800;color:var(--accent-liquid)">${counts.booked}</div>
         <div style="font-size:.65rem;color:rgba(255,255,255,.5);margin-top:2px">Предстоящих</div>
       </div>

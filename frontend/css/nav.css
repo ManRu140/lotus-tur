@@ -7,7 +7,7 @@ header {
   min-height: 100vh;
   background:
     linear-gradient(rgba(26, 34, 38, 0.45), rgba(26, 34, 38, 0.35)),
-    url("/frontend/img/tours/fon.JPG")
+    url("frontend/img/tours/fon.JPG")
       no-repeat center center / cover;
   color: var(--text-light-main);
   display: flex;

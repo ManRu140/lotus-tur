@@ -241,7 +241,9 @@
 .filter-chip {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-light);
-  padding: 4px 8px;
+  min-height: 0;
+  min-width: 0;
+  padding: 4px 10px;
   font-size: 0.68rem;
   font-weight: 600;
   border-radius: 16px;

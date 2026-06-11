@@ -31,12 +31,12 @@ label {
   touch-action: manipulation; /* ускоряет обработку одиночного тапа */
 }
 
-/* Кнопки и ссылки — минимальная область 44px */
-button,
+/* Кнопки и ссылки — минимальная область 44px
+   (.filter-chip исключён — для него задан компактный размер в profile.css) */
+button:not(.filter-chip),
 .btn-book,
 .btn-all-tours,
 .tour-btn,
-.filter-chip,
 .social-btn,
 .auth-submit,
 .booking-submit,
@@ -587,11 +587,12 @@ nav,
     transform: none;
   }
 
-  /* Чипы фильтрации — компактнее, но удобные для нажатия */
+  /* Чипы фильтрации — компактные, но удобные для нажатия */
   .filter-chip {
-    padding: 5px 8px;
+    padding: 6px 10px;
     font-size: 0.7rem;
     min-height: 30px;
+    min-width: 0;
   }
 
   /* Кнопки профиля шире */

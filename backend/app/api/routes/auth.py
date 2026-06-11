@@ -15,7 +15,6 @@ router = APIRouter()
 
 
 def _set_session_cookies(response: Response, token_response: TokenResponse) -> None:
-    """Генерирует CSRF и устанавливает обе куки."""
     csrf_token = secrets.token_hex(32)
     set_auth_cookies(response, token_response.access_token, csrf_token)
 
@@ -31,7 +30,6 @@ async def vk_callback(
 
 @router.get("/vk/client-id", summary="Публичный VK Client ID для OAuth")
 async def vk_client_id() -> dict:
-    """Возвращает VK Client ID для фронтенда (не секрет по стандарту OAuth)."""
     if not settings.VK_CLIENT_ID:
         from fastapi import HTTPException, status
         raise HTTPException(
@@ -69,13 +67,6 @@ async def google_callback(
     session: AsyncSession = Depends(get_session),
     redirect_uri: str | None = None,
 ) -> TokenResponse:
-    """Принимает code от Google, возвращает JWT и устанавливает куки.
-    
-    redirect_uri — необязательный параметр. Фронтенд передаёт его, чтобы
-    бэкенд использовал тот же URI, который был отправлен в Google при старте
-    OAuth (обязательное условие Google — оба URI должны совпадать).
-    Если не передан — используется FRONTEND_URL из настроек.
-    """
     result = await google_auth(code, session, redirect_uri=redirect_uri)
     _set_session_cookies(response, result)
     return result
@@ -83,20 +74,17 @@ async def google_callback(
 
 @router.post("/logout", summary="Выход из системы")
 async def logout(response: Response) -> dict:
-    """Очищает куки сессии."""
     clear_auth_cookies(response)
     return {"detail": "Вы вышли из системы"}
 
 
 @router.get("/me", response_model=ProfileOut, summary="Текущий пользователь")
 async def get_me(user: User = Depends(get_current_active_user)) -> ProfileOut:
-    """Проверка сессии — возвращает профиль текущего пользователя."""
     return user
 
 
 @router.get("/google/client-id", summary="Публичный Google Client ID для OAuth")
 async def google_client_id() -> dict:
-    """Возвращает Google Client ID для фронтенда (не секрет по стандарту OAuth)."""
     if not settings.GOOGLE_CLIENT_ID:
         from fastapi import HTTPException, status
         raise HTTPException(

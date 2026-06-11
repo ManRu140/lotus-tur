@@ -1,13 +1,3 @@
-/* ============================================================
-   СЕКЦИИ, ОТЗЫВЫ, ФУТЕР (sections.css)
-   ============================================================ */
-
-/* ── ВОЛНИСТЫЕ SVG-РАЗДЕЛИТЕЛИ ───────────────────────────────
-   Используем ::before / ::after с clip-path на каждой секции,
-   чтобы плавно переходить между секциями без резких краёв.
-   ─────────────────────────────────────────────────────────── */
-
-/* Общий класс-обёртка для позиционирования волн */
 .wave-top,
 .wave-bottom {
   position: absolute;
@@ -27,7 +17,6 @@
   height: 60px;
 }
 
-/* ── СЕКЦИЯ «ШАГ ЗА ШАГОМ» ───────────────────────────────── */
 .section-dark {
   position: relative;
   background-color: var(--bg-dark);
@@ -60,10 +49,10 @@
 }
 
 .img-box--forest {
-  background-image: url("/frontend/img/tours/kaki.JPG");
+  background-image: url("../img/tours/kaki.JPG");
 }
 .img-box--sport {
-  background-image: url("/frontend/img/tours/4toto.jpg");
+  background-image: url("../img/tours/4toto.jpg");
 }
 
 .section-dark .text-block {
@@ -75,7 +64,6 @@
   align-self: flex-end;
 }
 
-/* ── СЕКЦИЯ «О НАС» — чуть другой оттенок фона ──────────── */
 .section-about-wrap {
   position: relative;
   background: linear-gradient(
@@ -86,7 +74,6 @@
   );
 }
 
-/* Лёгкое свечение-акцент сзади */
 .section-about-wrap::before {
   content: "";
   position: absolute;
@@ -135,7 +122,6 @@
   margin-bottom: 20px;
 }
 
-/* ── СЕКЦИЯ ТУРОВ: заголовок ─────────────────────────────── */
 .section-main-title {
   font-size: 2rem;
   font-weight: 800;
@@ -143,7 +129,6 @@
   margin: 0;
 }
 
-/* ── БЕГУЩАЯ СТРОКА ОТЗЫВОВ ──────────────────────────────── */
 #reviews-section {
   position: relative;
   background: linear-gradient(
@@ -245,7 +230,6 @@
   font-size: 0.8rem;
 }
 
-/* ── ФУТЕР ───────────────────────────────────────────────── */
 .main-footer {
   background-color: #02050a;
   border-top: 1px solid rgba(0, 240, 255, 0.15);
@@ -327,21 +311,11 @@
   margin: 0;
 }
 
-/* ── СВЕТЯЩИЕСЯ ЛИНИИ-РАЗДЕЛИТЕЛИ ────────────────────────────
-   Тонкая горизонтальная линия с gradient-glow между секциями.
-   Добавляется как ::after на секцию-источник.
-   ─────────────────────────────────────────────────────────── */
-/* .section-dark::after — синяя линия-разделитель убрана */
-
-/* .section-about-wrap::after — синяя линия убрана */
-
-/* ── АНИМАЦИИ ─────────────────────────────────────────────── */
 @keyframes globalMarquee {
   0%   { transform: translateX(0); }
   100% { transform: translateX(calc(-50% - 12.5px)); }
 }
 
-/* ── CALENDAR: past-day ────────────────────────────────────── */
 .cal-day.past-day {
   opacity: 0.3;
   cursor: not-allowed;

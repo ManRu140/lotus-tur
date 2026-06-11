@@ -1,7 +1,3 @@
-"""
-admin.py — Административные эндпоинты
-Доступны только пользователям с is_admin=True
-"""
 from datetime import datetime
 from typing import Optional
 
@@ -19,8 +15,6 @@ from app.models.user import User
 
 router = APIRouter()
 
-
-# ── Схемы ──────────────────────────────────────────────────────────────────────
 
 class AdminUserOut(BaseModel):
     id: int
@@ -104,8 +98,6 @@ class BookingStatusUpdate(BaseModel):
     status: str
 
 
-# ── Статистика ─────────────────────────────────────────────────────────────────
-
 @router.get("/stats", response_model=AdminStatsOut, summary="Общая статистика")
 async def get_stats(
     _: User = Depends(require_admin),
@@ -122,7 +114,7 @@ async def get_stats(
     )).scalar_one()
     total_tours = (await session.execute(select(func.count(Tour.id)))).scalar_one()
 
-    # Примерная выручка: сумма цен туров * количество активных бронирований
+
     revenue_result = await session.execute(
         select(func.sum(Tour.price * Booking.people_count))
         .join(Booking, Tour.id == Booking.tour_id)
@@ -140,8 +132,6 @@ async def get_stats(
         revenue_estimate=revenue,
     )
 
-
-# ── Пользователи ───────────────────────────────────────────────────────────────
 
 @router.get("/users", response_model=list[AdminUserOut], summary="Список пользователей")
 async def list_users(
@@ -222,8 +212,6 @@ async def toggle_user_admin(
     )
 
 
-# ── Бронирования ───────────────────────────────────────────────────────────────
-
 @router.get("/bookings", response_model=list[AdminBookingOut], summary="Все бронирования")
 async def list_bookings(
     status_filter: Optional[str] = Query(None, alias="status"),
@@ -290,8 +278,6 @@ async def update_booking_status(
         status=booking.status, created_at=booking.created_at,
     )
 
-
-# ── Туры ───────────────────────────────────────────────────────────────────────
 
 @router.get("/tours", response_model=list[AdminTourOut], summary="Все туры (с кол-вом бронирований)")
 async def list_tours_admin(

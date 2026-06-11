@@ -23,7 +23,7 @@ async def update_username(
     user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_session),
 ) -> ProfileOut:
-    # Проверяем уникальность, исключая самого пользователя
+
     existing = await session.execute(
         select(User.id).where(User.username == data.username, User.id != user.id)
     )
@@ -55,7 +55,6 @@ async def get_achievements(
     user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_session),
 ) -> list[AchievementOut]:
-    """Два лёгких запроса: все достижения + разблокированные ID пользователя."""
     all_achs_result = await session.execute(select(Achievement).order_by(Achievement.id))
     all_achs = all_achs_result.scalars().all()
 

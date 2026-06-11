@@ -1,13 +1,9 @@
-/* ============================================================
-   НАВИГАЦИЯ (nav.css)
-   ============================================================ */
-
 header {
   position: relative;
   min-height: 100vh;
   background:
     linear-gradient(rgba(26, 34, 38, 0.45), rgba(26, 34, 38, 0.35)),
-    url("/frontend/img/tours/fon.JPG")
+    url("../img/tours/fon.JPG")
       no-repeat center center / cover;
   color: var(--text-light-main);
   display: flex;
@@ -56,7 +52,6 @@ header {
   z-index: 3;
 }
 
-/* Вынесено из inline style="border-radius:50%" */
 .logo-img {
   width: 32px;
   height: 32px;
@@ -101,7 +96,6 @@ header {
   background: none;
 }
 
-/* Наведение: мягкий подъём пункта меню в такт жидкому овалу */
 .nav-container nav a:hover,
 .lang-switch:hover,
 .profile-btn:hover {
@@ -123,7 +117,6 @@ header {
   }
 }
 
-/* Жидкий анимированный овал */
 .nav-bg-fluid {
   position: absolute;
   background: rgba(255, 255, 255, 0.12);
@@ -175,7 +168,6 @@ header {
   stroke-width: 2.5;
 }
 
-/* ── HERO ─────────────────────────────────────────────────── */
 .hero-content {
   max-width: 650px;
   margin-top: 25vh;

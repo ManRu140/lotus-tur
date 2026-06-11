@@ -1,18 +1,3 @@
-/**
- * ui.js — Модуль UI-логики
- *
- * Содержит:
- * - DOMContentLoaded инициализацию
- * - Навигацию и переключение кнопок
- * - Рендер карточек туров
- * - Модальное окно детали тура со слайдером
- * - Профиль: вкладки, фильтры туров, достижения, реферал
- * - Мини-календарь (общий для обеих форм)
- * - mockApiFallback для работы без бэкенда
- * - toggleProfile / toggleAuthModal (используются в app.js)
- */
-
-// ── MOCK-ДАННЫЕ ПОЛЬЗОВАТЕЛЯ (до подключения бэкенда) ──────────────────────
 const mockUserTours = [
   {
     id: "askold",
@@ -118,21 +103,7 @@ const tourSlides = {
   ],
 };
 
-// ── MOCK-ФОЛЛБЭК ДЛЯ apiFetch ─────────────────────────────────────────────
-function mockApiFallback(path, options = {}) {
-  if (path === "/api/tours") return Promise.resolve(toursData);
-  if (path === "/api/user/tours") return Promise.resolve(mockUserTours);
-  if (path === "/api/user/achievements") return Promise.resolve(achievementsList);
 
-  // [FIX-1] Mock auth УДАЛЁН — вход только через реальный бэкенд.
-  // Если бэкенд недоступен — пользователь видит ошибку, а не фантомный вход.
-
-  if (path === "/api/auth/me") return Promise.resolve(null);
-  if (path === "/api/bookings") return Promise.resolve({ ok: true });
-  return Promise.resolve(null);
-}
-
-// ── ТОСТ-УВЕДОМЛЕНИЕ ────────────────────────────────────────────────────────
 function showToast(msg) {
   let toast = document.getElementById("toastMsg");
   if (!toast) {
@@ -146,7 +117,7 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove("show"), 2500);
 }
 
-// ── НАВИГАЦИЯ / ПРОФИЛЬ / AUTH MODAL ────────────────────────────────────────
+
 function toggleProfile() {
   const panel = document.getElementById("sideProfile");
   if (!panel) return;
@@ -162,13 +133,13 @@ function toggleAuthModal() {
 function openBookingGeneral() {
   const modal = document.getElementById("bookingModal");
   if (!modal) return;
-  // Сброс выбора даты
+
   selectedDateStr = "";
   buildCalendar("miniCalendarPlaceholder", null);
   modal.classList.add("open");
 }
 
-// ── РЕНДЕР КАРТОЧЕК ТУРОВ ────────────────────────────────────────────────────
+
 function renderTours(tours) {
   const container = document.getElementById("toursContainer");
   if (!container) return;
@@ -205,11 +176,11 @@ function renderTours(tours) {
   });
 }
 
-// ── МОДАЛЬНОЕ ОКНО ДЕТАЛИ ТУРА ───────────────────────────────────────────────
+
 let detailSlideIndex = 0;
 let detailSlides = [];
 let detailCalYear = 2026;
-let detailCalMonth = 5; // 0-based = июнь
+let detailCalMonth = 5;
 
 function openTourDetail(tourId) {
   const tour = toursData.find((t) => t.id === tourId);
@@ -221,11 +192,11 @@ function openTourDetail(tourId) {
   detailCalYear = calYear;
   detailCalMonth = calMonth;
 
-  // Удаляем старую модалку если есть
+
   const old = document.getElementById("tourDetailModal");
   if (old) old.remove();
 
-  // Строим слайдер
+
   const dotsHtml = slides
     .map((_, i) => `<div class="slider-dot${i === 0 ? " active" : ""}" data-idx="${i}"></div>`)
     .join("");
@@ -234,7 +205,7 @@ function openTourDetail(tourId) {
     .map((url) => `<div class="tour-slide" style="background-image:url('${url}')"></div>`)
     .join("");
 
-  // Строим выпадающий список дат (свободные даты = не в bookedDates)
+
   const freeDates = getFreeDatesForTour(tour);
   const dateOptions = freeDates.length
     ? freeDates.map((d) => `<option value="${d}">${formatDateRu(d)}</option>`).join("")
@@ -295,39 +266,39 @@ function openTourDetail(tourId) {
 
   document.body.appendChild(modal);
 
-  // Открываем с анимацией
+
   requestAnimationFrame(() => modal.classList.add("open"));
 
-  // Строим календарь в модалке тура
+
   buildCalendar("detailCalendarPlaceholder", tour.bookedDates || []);
 
-  // Слайдер: кнопки
+
   document.getElementById("sliderPrev").addEventListener("click", () => moveSlider(-1));
   document.getElementById("sliderNext").addEventListener("click", () => moveSlider(1));
 
-  // Слайдер: точки
+
   document.getElementById("sliderDots").addEventListener("click", (e) => {
     const dot = e.target.closest(".slider-dot");
     if (dot) moveSliderTo(Number(dot.dataset.idx));
   });
 
-  // Закрытие
+
   document.getElementById("closeTourDetail").addEventListener("click", closeTourDetail);
   modal.addEventListener("click", (e) => {
     if (e.target === modal) closeTourDetail();
   });
 
-  // Кнопка бронирования из модалки тура
+
   document.getElementById("btnBookFromDetail").addEventListener("click", () => {
     const dateVal = document.getElementById("detailDateSelect").value;
     const timeVal = document.getElementById("detailTimeSelect").value;
     closeTourDetail();
-    // Открываем общую форму бронирования и предзаполняем
+
     openBookingGeneral();
     setTimeout(() => {
       const tourSelect = document.getElementById("bookTourSelect");
       if (tourSelect) {
-        // Находим option по id тура
+
         for (const opt of tourSelect.options) {
           if (opt.value === tour.id) {
             opt.selected = true;
@@ -364,15 +335,19 @@ function moveSliderTo(idx) {
   });
 }
 
-// ── ВСПОМОГАТЕЛЬНЫЕ ДЛЯ ДАТ ─────────────────────────────────────────────────
+
+function toLocalDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function getFreeDatesForTour(tour) {
   const booked = new Set(tour.bookedDates || []);
   const result = [];
   const now = new Date();
-  const end = new Date(now.getFullYear(), now.getMonth() + 2, 0); // 2 месяца вперёд
+  const end = new Date(now.getFullYear(), now.getMonth() + 2, 0);
   let d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
   while (d <= end && result.length < 20) {
-    const str = d.toISOString().slice(0, 10);
+    const str = toLocalDateStr(d);
     if (!booked.has(str)) result.push(str);
     d.setDate(d.getDate() + 1);
   }
@@ -384,7 +359,7 @@ function formatDateRu(str) {
   return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
 }
 
-// ── МИНИ-КАЛЕНДАРЬ ───────────────────────────────────────────────────────────
+
 const RU_MONTHS = [
   "Январь","Февраль","Март","Апрель","Май","Июнь",
   "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"
@@ -398,7 +373,7 @@ function buildCalendar(placeholderId, bookedDates) {
   const today = new Date();
 
   const firstDay = new Date(calYear, calMonth, 1).getDay();
-  const offset = (firstDay + 6) % 7; // пн=0
+  const offset = (firstDay + 6) % 7;
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
 
   let daysHtml = "";
@@ -429,7 +404,7 @@ function buildCalendar(placeholderId, bookedDates) {
     </div>
   `;
 
-  // Выбор даты
+
   el.querySelectorAll(".cal-day.available").forEach((day) => {
     day.addEventListener("click", () => {
       selectedDateStr = day.dataset.date;
@@ -437,7 +412,7 @@ function buildCalendar(placeholderId, bookedDates) {
     });
   });
 
-  // Навигация по месяцам
+
   el.querySelectorAll(".calendar-nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const dir = Number(btn.dataset.calNav);
@@ -450,7 +425,7 @@ function buildCalendar(placeholderId, bookedDates) {
   });
 }
 
-// ── ПРОФИЛЬ: ВКЛАДКИ ─────────────────────────────────────────────────────────
+
 function initProfileTabs() {
   const tabBtns = document.querySelectorAll(".p-tab-btn");
   const tabPanels = document.querySelectorAll(".profile-tab-content");
@@ -468,7 +443,7 @@ function initProfileTabs() {
   });
 }
 
-// ── ПРОФИЛЬ: ФИЛЬТРЫ ТУРОВ ───────────────────────────────────────────────────
+
 let currentFilter = "all";
 
 function initTourFilters() {
@@ -497,14 +472,14 @@ function renderUserTours(tours) {
     ? tours
     : tours.filter((t) => t.status === currentFilter);
 
-  // Счётчик
+
   const counts = {
     booked: tours.filter(t => t.status === "booked").length,
     started: tours.filter(t => t.status === "started").length,
     completed: tours.filter(t => t.status === "completed").length,
   };
 
-  // Обновляем статистику в шапке профиля
+
   const statTours = document.getElementById("statTours");
   if (statTours) statTours.textContent = tours.length;
   const statCompleted = document.getElementById("statCompleted");
@@ -554,7 +529,7 @@ function renderUserTours(tours) {
   list.innerHTML = statsHtml + toursHtml;
 }
 
-// ── ПРОФИЛЬ: ДОСТИЖЕНИЯ ──────────────────────────────────────────────────────
+
 function renderAchievements(list) {
   const grid = document.getElementById("achGrid");
   if (!grid) return;
@@ -570,7 +545,7 @@ function renderAchievements(list) {
   `;
   }).join("");
 
-  // Прогресс + счётчик в шапке
+
   const unlocked = list.filter((a) => a.unlocked).length;
   const total = list.length;
   const label = document.getElementById("achProgressLabel");
@@ -581,7 +556,7 @@ function renderAchievements(list) {
   if (statAch) statAch.textContent = unlocked;
 }
 
-// ── ЗАПОЛНИТЬ ВЫПАДАЮЩИЙ СПИСОК ТУРОВ В ФОРМЕ БРОНИРОВАНИЯ ───────────────────
+
 function populateTourSelect() {
   const sel = document.getElementById("bookTourSelect");
   if (!sel) return;
@@ -590,13 +565,13 @@ function populateTourSelect() {
     .join("");
 }
 
-// ── NICKNAME INLINE EDIT ─────────────────────────────────────────────────────
+
 function initNicknameEdit() {
   const wrapper = document.getElementById("nicknameWrapper");
   const nameEl = document.getElementById("profileName");
   if (!wrapper || !nameEl) return;
 
-  // Добавляем sub-текст (email/статус)
+
   if (!document.getElementById("profileSub")) {
     const sub = document.createElement("span");
     sub.id = "profileSub";
@@ -619,7 +594,7 @@ function initNicknameEdit() {
       const val = input.value.trim() || localStorage.getItem("username") || "Пользователь";
       nameEl.textContent = val;
       wrapper.replaceChild(nameEl, input);
-      // [FIX-1] Сохраняем через API если авторизован
+
       if (isUserLoggedIn && typeof saveNicknameToAPI === "function") {
         saveNicknameToAPI(val);
       } else {
@@ -637,12 +612,12 @@ function initNicknameEdit() {
   nameEl.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") startEdit(); });
 }
 
-// ── ПЕРЕВОДЫ ─────────────────────────────────────────────────────────────────
+
 function applyTranslations(lang) {
   const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : null;
   if (!t) return;
 
-  // Переводим по id
+
   Object.entries(t).forEach(([id, text]) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -655,15 +630,15 @@ function applyTranslations(lang) {
     }
   });
 
-  // Кнопка языка
+
   const langBtn = document.getElementById("langBtn");
   if (langBtn) langBtn.textContent = lang;
 }
 
-// ── ОСНОВНАЯ ИНИЦИАЛИЗАЦИЯ ───────────────────────────────────────────────────
+
 document.addEventListener("DOMContentLoaded", () => {
 
-  // Восстановить имя и аватар из localStorage (до ответа сервера — без мигания)
+
   const savedFull   = localStorage.getItem("full_name");
   const savedName   = localStorage.getItem("username");
   const savedAvatar = localStorage.getItem("avatar_url");
@@ -678,25 +653,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (avatarEl) avatarEl.src = savedAvatar;
   }
 
-  // Рендер туров — только 7 самых популярных
+
   renderTours(toursData.slice(0, 7));
-  // Данные профиля загружаются через loadProfileData() в app.js после проверки сессии
+
   populateTourSelect();
 
-  // Профиль-вкладки и фильтры
+
   initProfileTabs();
   initTourFilters();
   initNicknameEdit();
 
-  // Проверяем сессию (определена в app.js)
+
   if (typeof checkExistingSession === "function") checkExistingSession();
 
-  // Google callback
+
   if (typeof handleGoogleCallback === "function") handleGoogleCallback();
 
-  // ── ДЕЛЕГИРОВАНИЕ СОБЫТИЙ ────────────────────────────────────────────────
 
-  // Кнопка профиля
   document.getElementById("profileTrigger")?.addEventListener("click", () => {
     if (isUserLoggedIn) {
       toggleProfile();
@@ -705,7 +678,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Мобильная кнопка профиля
+
   document.getElementById("mobileProfileTrigger")?.addEventListener("click", () => {
     if (isUserLoggedIn) {
       toggleProfile();
@@ -714,20 +687,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Закрытие профиля
+
   document.getElementById("closeProfileBtn")?.addEventListener("click", () => {
     document.getElementById("sideProfile").classList.remove("open");
   });
 
-  // Закрытие auth modal
+
   document.getElementById("closeAuthBtn")?.addEventListener("click", toggleAuthModal);
 
-  // Закрытие booking modal
+
   document.getElementById("closeBookingBtn")?.addEventListener("click", () => {
     document.getElementById("bookingModal").classList.remove("open");
   });
 
-  // Закрытие по клику вне контейнера
+
   document.getElementById("authModal")?.addEventListener("click", (e) => {
     if (e.target === document.getElementById("authModal")) toggleAuthModal();
   });
@@ -736,7 +709,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("bookingModal").classList.remove("open");
   });
 
-  // Auth tabs (Вход / Регистрация)
+
   document.querySelectorAll(".auth-tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".auth-tab-btn").forEach((b) => {
@@ -755,17 +728,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Auth form submit
+
   document.getElementById("authMainForm")?.addEventListener("submit", (e) => {
     if (typeof handleAuthSubmit === "function") handleAuthSubmit(e);
   });
 
-  // Logout
+
   document.getElementById("logoutBtn")?.addEventListener("click", () => {
     if (typeof handleLogout === "function") handleLogout();
   });
 
-  // VK / Google login
+
   document.querySelector(".social-btn--vk")?.addEventListener("click", () => {
     if (typeof loginWithVK === "function") loginWithVK();
   });
@@ -773,7 +746,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof loginWithGoogle === "function") loginWithGoogle();
   });
 
-  // data-action="openBookingGeneral" (кнопки «Забронировать» и «В путь»)
+
   document.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-action]");
     if (!btn) return;
@@ -787,16 +760,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Клик на карточку тура (не на кнопку «Подробнее»)
+
   document.getElementById("toursContainer")?.addEventListener("click", (e) => {
-    if (e.target.closest("[data-action='openTourDetail']")) return; // кнопка — свой обработчик
+    if (e.target.closest("[data-action='openTourDetail']")) return;
     const card = e.target.closest(".tour-card");
     if (card && card.dataset.id) {
       openTourDetail(card.dataset.id);
     }
   });
 
-  // Кнопка «Все туры» / переключение вида
+
   document.getElementById("toggleGridBtn")?.addEventListener("click", () => {
     isGridViewActive = !isGridViewActive;
     const container = document.getElementById("toursContainer");
@@ -805,25 +778,25 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnText) btnText.textContent = isGridViewActive ? "Свернуть" : "Все туры";
   });
 
-  // Форма бронирования
+
   document.getElementById("bookingForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = document.getElementById("bookSubmitBtn");
     if (btn) btn.disabled = true;
 
     const payload = {
-      full_name: document.getElementById("bookName").value.trim(),
+      first_name: document.getElementById("bookName").value.trim(),
       phone: document.getElementById("bookPhone").value.trim(),
       email: document.getElementById("bookEmail").value.trim(),
       tour_id: document.getElementById("bookTourSelect").value,
-      date: selectedDateStr,
-      time: document.getElementById("bookTime").value,
+      tour_date: selectedDateStr,
+      preferred_time: document.getElementById("bookTime").value,
       people_count: Number(document.getElementById("bookPeopleCount").value),
-      message: document.getElementById("bookMessage").value.trim(),
+      comment: document.getElementById("bookMessage").value.trim() || null,
     };
 
-    if (!payload.full_name || !payload.phone || !payload.tour_id || !payload.date) {
-      alert("Пожалуйста, заполните обязательные поля и выберите дату.");
+    if (!payload.first_name || !payload.phone || !payload.email || !payload.tour_id || !payload.tour_date) {
+      showToast("Пожалуйста, заполните обязательные поля и выберите дату.");
       if (btn) btn.disabled = false;
       return;
     }
@@ -832,34 +805,43 @@ document.addEventListener("DOMContentLoaded", () => {
       await apiFetch("/api/bookings", { method: "POST", body: JSON.stringify(payload) });
       document.getElementById("bookingModal").classList.remove("open");
       showToast("Заявка отправлена! Мы свяжемся с вами.");
-    } catch {
-      showToast("Ошибка при отправке. Попробуйте ещё раз.");
+      if (typeof loadMyBookings === "function" && isUserLoggedIn) loadMyBookings();
+    } catch (err) {
+      showToast(err.message || "Ошибка при отправке. Попробуйте ещё раз.");
     } finally {
       if (btn) btn.disabled = false;
     }
   });
 
-  // Реферал: копировать ссылку
+
   document.getElementById("btnCopy")?.addEventListener("click", () => {
     const inp = document.getElementById("refLink");
     if (!inp) return;
     navigator.clipboard.writeText(inp.value).then(() => showToast("Ссылка скопирована!"));
   });
 
-  // Промокод: применить
-  document.getElementById("btnApply")?.addEventListener("click", () => {
-    const code = document.getElementById("promoInput")?.value.trim().toUpperCase();
+
+  document.getElementById("btnApply")?.addEventListener("click", async () => {
+    const input = document.getElementById("promoInput");
+    const code = input?.value.trim().toUpperCase();
     if (!code) return;
-    // Заглушка — в продакшне запрос на /api/promo/apply
-    const valid = ["PRIMORYE10", "LOTUS2026", "POHODNIK"];
-    if (valid.includes(code)) {
-      showToast(`Промокод ${code} применён! Скидка 10%`);
-    } else {
-      showToast("Промокод не найден или недействителен.");
+    if (!isUserLoggedIn) {
+      showToast("Войдите в аккаунт, чтобы применить промокод.");
+      return;
+    }
+    try {
+      const data = await apiFetch("/api/promo/apply", {
+        method: "POST",
+        body: JSON.stringify({ code }),
+      });
+      showToast(data.message);
+      if (input) input.value = "";
+    } catch (err) {
+      showToast(err.message || "Промокод не найден или недействителен.");
     }
   });
 
-  // Аватар
+
   document.getElementById("avatarTrigger")?.addEventListener("click", () => {
     document.getElementById("avatarFileInput")?.click();
   });
@@ -867,7 +849,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof loadAvatarFromPC === "function") loadAvatarFromPC(e.target);
   });
 
-  // Навигационные якоря
+
   document.querySelectorAll(".nav-target[href^='#']").forEach((link) => {
     link.addEventListener("click", (e) => {
       const href = link.getAttribute("href");
@@ -877,7 +859,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Язык RU/EN
+
   document.getElementById("langBtn")?.addEventListener("click", () => {
     currentLang = currentLang === "RU" ? "EN" : "RU";
     applyTranslations(currentLang);
@@ -893,7 +875,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   buildCalendar("miniCalendarPlaceholder", []);
 
-  // Маркии отзывов: пауза при наведении
+
   const marquee = document.getElementById("marquee-line");
   if (marquee) {
     marquee.addEventListener("mouseenter", () => marquee.style.animationPlayState = "paused");

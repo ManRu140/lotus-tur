@@ -1,12 +1,3 @@
-"""
-API роутер: уведомления пользователя + cookie-consent.
-
-Эндпоинты:
-  GET  /api/notifications          — список уведомлений
-  POST /api/notifications/{id}/read — прочитать уведомление
-  POST /api/notifications/read-all  — прочитать все
-  POST /api/notifications/cookie-consent — зафиксировать принятие Cookie
-"""
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -74,8 +65,4 @@ async def cookie_consent(
     user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_session),
 ) -> NotificationOut:
-    """
-    Вызывается фронтендом после того, как пользователь нажал «Принять» в баннере.
-    Создаёт системное уведомление для аудита.
-    """
     return await record_cookie_consent(user, session)

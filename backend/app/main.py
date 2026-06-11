@@ -1,9 +1,3 @@
-"""
-main.py — ИСПРАВЛЕННАЯ ВЕРСИЯ
-Изменения:
-  [FIX-1] TrustedHostMiddleware: allowed_hosts=["*"] заменён на реальные хосты
-  [FIX-2] /api/health: в production не раскрывает версию и окружение
-"""
 import logging
 from contextlib import asynccontextmanager
 
@@ -49,11 +43,6 @@ app = FastAPI(
     openapi_url="/openapi.json" if settings.ENV != "production" else None,
 )
 
-# Middleware применяются в обратном порядке добавления.
-# Реальный порядок обработки запроса: CORS → CSRF → SecurityHeaders → GZip → роутер
-#
-# CORS должен быть добавлен ПОСЛЕДНИМ, чтобы выполняться ПЕРВЫМ —
-# тогда preflight OPTIONS обрабатывается до CSRFMiddleware.
 
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(CSRFMiddleware)
@@ -61,15 +50,14 @@ app.add_middleware(CSRFMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 if settings.ENV == "production":
-    # allowed_hosts=["*"] не выполняет никакой защиты.
-    # Указываем реальные хосты. Задайте ALLOWED_HOSTS в Railway переменных окружения
-    # или хардкодьте production-домен.
+
+
     allowed_hosts = getattr(settings, "ALLOWED_HOSTS", None) or [
         "lotus-tur-production-23c6.up.railway.app",
     ]
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
-# Добавляем CORS последним — выполняется первым, перехватывает OPTIONS до CSRF
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -114,7 +102,7 @@ async def root():
 
 @app.get("/api/health", tags=["Health"], summary="Healthcheck")
 async def health_check():
-    # [FIX-2] В production не раскрываем версию и окружение — разведывательная информация
+
     if settings.ENV == "production":
         return {"status": "ok"}
     return {

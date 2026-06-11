@@ -9,7 +9,6 @@ section:not(.hero-section) {
   color: var(--text-light-main);
 }
 
-/* Светящаяся линия-разделитель после секции туров */
 .tours-section::after {
   content: "";
   position: absolute;
@@ -58,7 +57,6 @@ section:not(.hero-section) {
   color: #050b14;
 }
 
-/* СЕТКА АККОРДЕОН */
 .tours-grid {
   display: flex;
   width: 100%;
@@ -107,7 +105,6 @@ section:not(.hero-section) {
   transition: opacity 0.4s ease;
 }
 
-/* Название в закрытом состоянии */
 .tour-static-title {
   position: absolute;
   bottom: 0;
@@ -144,7 +141,6 @@ section:not(.hero-section) {
   margin-bottom: 6px;
 }
 
-/* Всплывающий блок при наведении */
 .tour-hover-info {
   position: absolute;
   inset: 0;
@@ -228,7 +224,6 @@ section:not(.hero-section) {
   transform: translateY(-1px);
 }
 
-/* РЕЖИМ «ВСЕ ТУРЫ» — сетка */
 .tours-grid.view-all-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

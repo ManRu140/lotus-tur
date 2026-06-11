@@ -1,9 +1,3 @@
-"""
-models/user.py — ИСПРАВЛЕННАЯ ВЕРСИЯ
-Изменения:
-  [FIX-1] Исправлен отступ в relationship notifications (был неверный)
-  [FIX-2] Добавлено поле is_admin (требуется для require_admin в deps.py)
-"""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -25,7 +19,7 @@ class User(Base):
     avatar_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_oauth: Mapped[bool] = mapped_column(Boolean, default=False)
-    # [FIX-2] Добавлено поле — требуется для require_admin guard в deps.py
+
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     ref_code: Mapped[str | None] = mapped_column(String(32), nullable=True, unique=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -33,13 +27,13 @@ class User(Base):
         default=lambda: datetime.now(timezone.utc),
     )
 
-    bookings: Mapped[list["Booking"]] = relationship(  # noqa: F821
+    bookings: Mapped[list["Booking"]] = relationship(
         back_populates="user", lazy="select"
     )
-    user_achievements: Mapped[list["UserAchievement"]] = relationship(  # noqa: F821
+    user_achievements: Mapped[list["UserAchievement"]] = relationship(
         back_populates="user", lazy="select"
     )
-    # [FIX-1] Исправлен отступ: аргументы relationship были на уровне класса
-    notifications: Mapped[list["Notification"]] = relationship(  # noqa: F821
+
+    notifications: Mapped[list["Notification"]] = relationship(
         back_populates="user", lazy="select"
     )

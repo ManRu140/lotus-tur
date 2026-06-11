@@ -1,6 +1,3 @@
-"""
-Модель бронирования.
-"""
 from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
@@ -18,7 +15,7 @@ class Booking(Base):
     first_name: Mapped[str] = mapped_column(String(128))
     phone: Mapped[str] = mapped_column(String(32))
     email: Mapped[str] = mapped_column(String(128))
-    tour_date: Mapped[str] = mapped_column(String(16))  # YYYY-MM-DD
+    tour_date: Mapped[str] = mapped_column(String(16))
     preferred_time: Mapped[str | None] = mapped_column(String(8), nullable=True)
     people_count: Mapped[int] = mapped_column(Integer, default=1)
     comment: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -28,5 +25,5 @@ class Booking(Base):
         default=lambda: datetime.now(timezone.utc),
     )
 
-    user: Mapped["User"] = relationship(back_populates="bookings")  # noqa: F821
-    tour: Mapped["Tour"] = relationship(back_populates="bookings")  # noqa: F821
+    user: Mapped["User"] = relationship(back_populates="bookings")
+    tour: Mapped["Tour"] = relationship(back_populates="bookings")

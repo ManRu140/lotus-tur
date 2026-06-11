@@ -1,8 +1,3 @@
-/* ============================================================
-   ПЕРЕМЕННЫЕ И СБРОС СТИЛЕЙ (variables.css)
-   Подключать ПЕРВЫМ перед всеми остальными CSS-файлами.
-   ============================================================ */
-
 html {
   scroll-behavior: smooth;
 }
@@ -28,7 +23,6 @@ html {
   --glass-blur: blur(20px) saturate(140%);
 }
 
-/* СБРОС */
 * {
   margin: 0;
   padding: 0;
@@ -47,21 +41,14 @@ body {
   overflow-x: hidden;
 }
 
-/* УТИЛИТЫ */
-
-/* Заменяет style="display:none" на скрытых служебных элементах */
 .visually-hidden {
   display: none;
 }
 
-/* Программное скрытие (JS-управляемое, не inline) */
 .hidden {
   display: none !important;
 }
 
-/* Поля формы авторизации, видимые только при регистрации.
-   JS переключает класс .auth-mode-register на form#authMainForm,
-   этот селектор раскрывает нужные поля. */
 .auth-register-only {
   display: none;
 }
@@ -69,7 +56,6 @@ body {
   display: block;
 }
 
-/* СКРОЛЛБАР */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -90,7 +76,6 @@ body::-webkit-scrollbar-track {
   background: rgba(165, 177, 184, 0.6);
 }
 
-/* ── МИНИ-КАЛЕНДАРЬ (форма бронирования) ─────────────────── */
 .mini-calendar-container {
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid var(--border-light);

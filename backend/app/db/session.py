@@ -15,7 +15,7 @@ _engine_kwargs: dict = {
 if _is_sqlite:
     _engine_kwargs["connect_args"] = {"check_same_thread": False}
 else:
-    # PostgreSQL: пул соединений + переоткрытие каждые 30 минут
+
     _engine_kwargs["pool_size"]    = 10
     _engine_kwargs["max_overflow"] = 20
     _engine_kwargs["pool_recycle"] = 1800
@@ -24,14 +24,13 @@ engine = create_async_engine(settings.DATABASE_URL, **_engine_kwargs)
 
 AsyncSessionLocal = async_sessionmaker(
     engine,
-    expire_on_commit=False,  # объекты доступны после commit
-    autoflush=False,          # управляем flush вручную
+    expire_on_commit=False,
+    autoflush=False,
 )
 
 
 async def init_db() -> None:
-    """Создаёт таблицы при первом запуске. В production используйте Alembic."""
-    import app.models  # noqa: F401 — регистрируем все модели в Base.metadata
+    import app.models
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -42,7 +41,6 @@ async def init_db() -> None:
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    """FastAPI Depends — провайдер сессии с авто-rollback при исключении."""
     async with AsyncSessionLocal() as session:
         try:
             yield session

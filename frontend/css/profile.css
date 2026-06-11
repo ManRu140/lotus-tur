@@ -1,4 +1,3 @@
-/* ── БОКОВАЯ ПАНЕЛЬ ПРОФИЛЯ ─────────────────────────────── */
 .side-profile {
   position: fixed;
   top: 0;
@@ -123,7 +122,6 @@
   white-space: nowrap;
 }
 
-/* ── СТАТИСТИКА В ШАПКЕ ──────────────────────────────────── */
 .profile-stats {
   display: flex;
   gap: 8px;
@@ -172,7 +170,6 @@
   font-weight: 600;
 }
 
-/* ── ВКЛАДКИ ПРОФИЛЯ ─────────────────────────────────────── */
 .profile-tabs-nav {
   background: rgba(255, 255, 255, 0.06);
   padding: 4px;
@@ -202,7 +199,6 @@
   color: var(--bg-dark);
 }
 
-/* Скроллируемая область с контентом вкладок */
 .profile-scroll-area {
   flex: 1;
   overflow-y: auto;
@@ -226,7 +222,6 @@
   display: block;
 }
 
-/* ── ФИЛЬТРЫ ТУРОВ ───────────────────────────────────────── */
 .tour-filters {
   display: flex;
   gap: 6px;
@@ -263,52 +258,6 @@
   border-color: var(--accent-liquid);
 }
 
-/* ── КАРТОЧКИ ТУРОВ В ЛК ─────────────────────────────────── */
-.p-tour-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-light);
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-}
-.p-tour-card h4 {
-  font-size: 0.95rem;
-  margin-bottom: 4px;
-  color: var(--text-light-main);
-}
-.p-tour-card p {
-  font-size: 0.8rem;
-  color: var(--text-light-muted);
-}
-.tour-status {
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-top: 8px;
-  padding: 3px 8px;
-  border-radius: 4px;
-}
-.status-booked {
-  background: rgba(30, 136, 229, 0.2);
-  color: #64b5f6;
-}
-.status-started {
-  background: rgba(251, 140, 0, 0.2);
-  color: #ffb74d;
-}
-.status-completed {
-  background: rgba(67, 160, 71, 0.2);
-  color: #81c784;
-}
-.status-cancelled {
-  background: rgba(229, 57, 53, 0.2);
-  color: #ef9a9a;
-}
-
-/* ── ДОСТИЖЕНИЯ ──────────────────────────────────────────── */
-
-/* Прогресс открытых наград */
 .ach-progress {
   margin-bottom: 16px;
 }
@@ -335,7 +284,6 @@
   transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Сетка наград */
 .achievements-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -388,7 +336,7 @@
   color: var(--bg-dark);
   font-weight: 800;
 }
-/* Закрытые награды — приглушённые */
+
 .ach-item.locked {
   opacity: 0.45;
 }
@@ -398,31 +346,11 @@
 .ach-item.locked:hover {
   opacity: 0.7;
 }
-/* Открытые — с акцентной рамкой */
+
 .ach-item:not(.locked) {
   border-color: rgba(63, 208, 202, 0.25);
 }
 
-.achievements-list-legacy {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.ach-card {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 12px;
-  border-radius: 12px;
-  opacity: 0.4;
-}
-.ach-card.unlocked {
-  opacity: 1;
-  border-left: 3px solid var(--accent-liquid);
-  background: rgba(255, 255, 255, 0.05);
-}
 .ach-icon {
   font-size: 1.5rem;
 }
@@ -436,7 +364,6 @@
   color: var(--text-light-muted);
 }
 
-/* ── ПРОМОКОДЫ ───────────────────────────────────────────── */
 .promo-section {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-light);
@@ -477,7 +404,6 @@
   transition: background 0.3s;
 }
 
-/* ── МОДАЛЬНЫЕ ОКНА ──────────────────────────────────────── */
 .modal-auth,
 .modal-booking {
   position: fixed;
@@ -524,7 +450,6 @@
   margin-bottom: 24px;
 }
 
-/* ── ВКЛАДКИ АВТОРИЗАЦИИ ─────────────────────────────────── */
 .auth-tabs {
   display: flex;
   gap: 20px;
@@ -558,7 +483,6 @@
   background: var(--accent-liquid);
 }
 
-/* ── ФОРМЫ ───────────────────────────────────────────────── */
 .form-group-block {
   display: flex;
   flex-direction: column;
@@ -632,7 +556,6 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* ── СОЦИАЛЬНЫЙ ВХОД ─────────────────────────────────────── */
 .social-title {
   font-size: 0.85rem;
   text-align: center;
@@ -676,7 +599,6 @@
 .social-btn--max    { color: #ff3333; }
 .social-btn--google { color: #4285f4; }
 
-/* ── КНОПКА ВЫХОДА ───────────────────────────────────────── */
 .logout-btn {
   flex-shrink: 0;
   width: 100%;

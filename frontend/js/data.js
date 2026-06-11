@@ -56,7 +56,7 @@ const toursData = [
     name: "Сафари Парк (три парка)",
     desc: "Тигры, леопарды, медведи и олени в естественной среде обитания. Без клеток и ограждений.",
     price: "5 100",
-    img: "img/tours/safari_1.JPG",
+    img: "img/tours/safari_1.jpg",
     schedule: "Понедельник",
     departure: "09:00",
     duration: "7 ч",

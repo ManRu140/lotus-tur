@@ -6,10 +6,10 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.cookies import COOKIE_CSRF_TOKEN
 
-# Методы, требующие CSRF-проверки (OPTIONS исключён — это preflight CORS)
+
 _UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 
-# Пути, освобождённые от проверки (OAuth, healthcheck, login/register)
+
 _CSRF_EXEMPT_PATHS: set[str] = {
     "/api/auth/login",
     "/api/auth/register",
@@ -29,13 +29,13 @@ def _is_exempt(path: str) -> bool:
 
 
 class CSRFMiddleware(BaseHTTPMiddleware):
-    """
-    Double Submit Cookie: сравнивает X-CSRF-Token заголовок со значением куки.
-    Подходит для stateless JWT — не требует хранения состояния на сервере.
-    """
 
     async def dispatch(self, request: Request, call_next):
         if request.method not in _UNSAFE_METHODS or _is_exempt(request.url.path):
+            return await call_next(request)
+
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
             return await call_next(request)
 
         cookie_token = request.cookies.get(COOKIE_CSRF_TOKEN)
@@ -47,7 +47,7 @@ class CSRFMiddleware(BaseHTTPMiddleware):
                 content={"detail": "CSRF-токен отсутствует"},
             )
 
-        # secrets.compare_digest защищает от timing-атак
+
         if not secrets.compare_digest(cookie_token, header_token):
             return JSONResponse(
                 status_code=status.HTTP_403_FORBIDDEN,

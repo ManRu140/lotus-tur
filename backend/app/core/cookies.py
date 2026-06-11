@@ -12,11 +12,6 @@ _MAX_AGE     = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
 
 
 def set_auth_cookies(response: Response, access_token: str, csrf_token: str) -> None:
-    """
-    Устанавливает две куки:
-    - access_token: HttpOnly (JS не читает) — защита от XSS
-    - csrf_token: без HttpOnly (JS вставляет в X-CSRF-Token) — Double Submit Cookie
-    """
     response.set_cookie(
         key=COOKIE_ACCESS_TOKEN, value=access_token,
         max_age=_MAX_AGE, path=_COOKIE_PATH,
@@ -25,13 +20,12 @@ def set_auth_cookies(response: Response, access_token: str, csrf_token: str) -> 
     response.set_cookie(
         key=COOKIE_CSRF_TOKEN, value=csrf_token,
         max_age=_MAX_AGE, path="/",
-        httponly=False,  # намеренно: JS должен читать этот токен
+        httponly=False,
         secure=_IS_PROD, samesite=_SAMESITE,
     )
 
 
 def clear_auth_cookies(response: Response) -> None:
-    """Удаляет обе куки при выходе."""
     response.delete_cookie(key=COOKIE_ACCESS_TOKEN, path=_COOKIE_PATH)
     response.delete_cookie(key=COOKIE_CSRF_TOKEN,   path="/")
 

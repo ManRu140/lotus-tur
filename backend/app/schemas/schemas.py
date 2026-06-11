@@ -1,14 +1,3 @@
-"""
-Pydantic v2 схемы: валидация входящих данных и сериализация ответов.
-
-Ключевые улучшения:
-  - RegisterRequest валидирует сложность пароля через validate_password_strength
-  - Все строковые поля санируются через strip() / нормализацию
-  - Добавлены строгие ограничения длин и паттернов
-  - Поля phone нормализованы через Field(pattern)
-  - Добавлены схемы ошибок для единообразных HTTP 422-ответов
-  - AvatarUpdate для загрузки аватара через URL
-"""
 import re
 from datetime import datetime
 
@@ -23,13 +12,9 @@ from pydantic import (
 from app.core.security import validate_password_strength
 
 
-# ── Вспомогательные ────────────────────────────────────────────────────────────
-
 def _strip(v: str) -> str:
     return v.strip()
 
-
-# ── Auth ───────────────────────────────────────────────────────────────────────
 
 class RegisterRequest(BaseModel):
     username: str = Field(
@@ -49,7 +34,6 @@ class RegisterRequest(BaseModel):
     @field_validator("password")
     @classmethod
     def check_password_strength(cls, v: str) -> str:
-        """Делегируем проверку в security-модуль."""
         return validate_password_strength(v)
 
 
@@ -73,8 +57,6 @@ class TokenResponse(BaseModel):
     avatar_url: str | None = None
     full_name: str | None = None
 
-
-# ── Tours ──────────────────────────────────────────────────────────────────────
 
 class TourOut(BaseModel):
     id: str
@@ -100,9 +82,6 @@ class TourOut(BaseModel):
         )
 
 
-# ── Bookings ───────────────────────────────────────────────────────────────────
-
-# Допустимое время — фиксированный набор
 _ALLOWED_TIMES = {"09:00", "14:00", "19:00"}
 
 class BookingCreate(BaseModel):
@@ -130,12 +109,11 @@ class BookingCreate(BaseModel):
     @field_validator("phone")
     @classmethod
     def normalize_phone(cls, v: str) -> str:
-        """Убираем лишние пробелы, оставляем цифры, +, -, (, )."""
         v = v.strip()
         allowed = re.compile(r"[^\d\+\-\(\) ]")
         if allowed.search(v):
             raise ValueError("Телефон содержит недопустимые символы")
-        # Минимум 6 цифр
+
         digits = re.sub(r"\D", "", v)
         if len(digits) < 6:
             raise ValueError("Введите корректный номер телефона")
@@ -151,7 +129,6 @@ class BookingCreate(BaseModel):
     @field_validator("comment")
     @classmethod
     def sanitize_comment(cls, v: str | None) -> str | None:
-        """Обрезаем и убираем null-байты."""
         if v is None:
             return v
         return v.strip().replace("\x00", "")
@@ -181,8 +158,6 @@ class BookingOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Profile ────────────────────────────────────────────────────────────────────
-
 class UsernameUpdate(BaseModel):
     username: str = Field(
         min_length=3,
@@ -197,7 +172,6 @@ class UsernameUpdate(BaseModel):
 
 
 class AvatarUpdate(BaseModel):
-    """Обновление аватара через URL (например, после OAuth)."""
     avatar_url: str = Field(max_length=512)
 
     @field_validator("avatar_url")
@@ -221,8 +195,6 @@ class ProfileOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Achievements ───────────────────────────────────────────────────────────────
-
 class AchievementOut(BaseModel):
     id: int
     icon: str
@@ -232,8 +204,6 @@ class AchievementOut(BaseModel):
 
     model_config = {"from_attributes": True}
 
-
-# ── Promo ──────────────────────────────────────────────────────────────────────
 
 class RefLinkOut(BaseModel):
     link: str
@@ -245,7 +215,6 @@ class PromoApplyRequest(BaseModel):
     @field_validator("code")
     @classmethod
     def normalize_code(cls, v: str) -> str:
-        """Нормализуем до верхнего регистра без пробелов."""
         return v.strip().upper()
 
 
@@ -254,10 +223,7 @@ class PromoApplyResponse(BaseModel):
     discount: int
 
 
-# ── Общие ошибки (для единообразия документации) ──────────────────────────────
-
 class ErrorDetail(BaseModel):
-    """Стандартная структура тела ошибки для документации."""
     detail: str
 
 class NotificationOut(BaseModel):

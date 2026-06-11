@@ -243,8 +243,8 @@
   border: 1px solid var(--border-light);
   min-height: 0;
   min-width: 0;
-  padding: 4px 10px;
-  font-size: 0.68rem;
+  padding: 4px 7px;
+  font-size: 0.66rem;
   font-weight: 600;
   border-radius: 16px;
   cursor: pointer;

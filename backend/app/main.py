@@ -50,7 +50,6 @@ app = FastAPI(
 )
 
 # Middleware применяются в обратном порядке добавления.
-<<<<<<< HEAD
 # Реальный порядок обработки запроса: CORS → CSRF → SecurityHeaders → GZip → роутер
 #
 # CORS должен быть добавлен ПОСЛЕДНИМ, чтобы выполняться ПЕРВЫМ —
@@ -58,29 +57,19 @@ app = FastAPI(
 
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(CSRFMiddleware)
-=======
-# Порядок выполнения запроса: SecurityHeaders → CSRF → TrustedHost → GZip → CORS → роутер
->>>>>>> ad8fb2fc605c42a95cbc10f7e96067cac7738306
 
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 if settings.ENV == "production":
-<<<<<<< HEAD
-=======
-    # [FIX-1] allowed_hosts=["*"] не выполняет никакой защиты.
+    # allowed_hosts=["*"] не выполняет никакой защиты.
     # Указываем реальные хосты. Задайте ALLOWED_HOSTS в Railway переменных окружения
-    # или хардкодьте production домен.
->>>>>>> ad8fb2fc605c42a95cbc10f7e96067cac7738306
+    # или хардкодьте production-домен.
     allowed_hosts = getattr(settings, "ALLOWED_HOSTS", None) or [
         "lotus-tur-production-23c6.up.railway.app",
     ]
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
-<<<<<<< HEAD
 # Добавляем CORS последним — выполняется первым, перехватывает OPTIONS до CSRF
-=======
-# CORS до CSRF — чтобы preflight OPTIONS не блокировались
->>>>>>> ad8fb2fc605c42a95cbc10f7e96067cac7738306
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -90,13 +79,6 @@ app.add_middleware(
     expose_headers=["X-CSRF-Token"],
     max_age=600,
 )
-
-<<<<<<< HEAD
-=======
-app.add_middleware(CSRFMiddleware)
-app.add_middleware(SecurityHeadersMiddleware)
-
->>>>>>> ad8fb2fc605c42a95cbc10f7e96067cac7738306
 
 @app.exception_handler(IntegrityError)
 async def integrity_error_handler(request: Request, exc: IntegrityError):

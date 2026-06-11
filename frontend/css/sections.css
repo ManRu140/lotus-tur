@@ -60,10 +60,10 @@
 }
 
 .img-box--forest {
-  background-image: url("https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=400&q=80");
+  background-image: url("/frontend/img/tours/kaki.JPG");
 }
 .img-box--sport {
-  background-image: url("https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=400&q=80");
+  background-image: url("/frontend/img/tours/4toto.jpg");
 }
 
 .section-dark .text-block {

@@ -94,10 +94,33 @@ header {
   justify-content: center;
   transition:
     color 0.3s ease,
-    border-color 0.4s ease;
+    border-color 0.4s ease,
+    transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
   height: 38px;
   border-radius: 30px;
   background: none;
+}
+
+/* Наведение: мягкий подъём пункта меню в такт жидкому овалу */
+.nav-container nav a:hover,
+.lang-switch:hover,
+.profile-btn:hover {
+  transform: translateY(-2px);
+}
+.nav-container nav a:active,
+.lang-switch:active,
+.profile-btn:active {
+  transform: translateY(0) scale(0.96);
+  transition-duration: 0.12s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-container nav a,
+  .lang-switch,
+  .profile-btn,
+  .nav-bg-fluid {
+    transition: color 0.3s ease, border-color 0.4s ease;
+    transform: none !important;
+  }
 }
 
 /* Жидкий анимированный овал */
@@ -143,7 +166,6 @@ header {
   border: 1px solid var(--border-light);
   border-radius: 50%;
   cursor: pointer;
-  flex-shrink: 0;
 }
 .profile-btn svg {
   width: 16px;
@@ -151,36 +173,6 @@ header {
   fill: none;
   stroke: currentColor;
   stroke-width: 2.5;
-}
-
-/* ── Мобильная кнопка профиля (видна только на малых экранах) ── */
-.mobile-profile-btn {
-  display: none;
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 38px;
-  height: 38px;
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 50%;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  color: inherit;
-  transition: background 0.2s;
-}
-.mobile-profile-btn svg {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.5;
-}
-.mobile-profile-btn:hover {
-  background: rgba(255,255,255,0.22);
 }
 
 /* ── HERO ─────────────────────────────────────────────────── */

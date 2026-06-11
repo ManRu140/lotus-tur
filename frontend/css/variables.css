@@ -19,7 +19,7 @@ html {
   --text-dark-muted: #4a5358;
 
   --accent-color: #a5b1b8;
-  --accent-liquid: #00f2fe;
+  --accent-liquid: #3fd0ca;
   --border-light: rgba(255, 255, 255, 0.2);
   --border-dark: rgba(26, 34, 38, 0.15);
 
@@ -184,7 +184,7 @@ body::-webkit-scrollbar-track {
   background: var(--accent-liquid);
   color: var(--bg-dark);
   font-weight: 700;
-  box-shadow: 0 0 12px rgba(0, 242, 254, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   border-color: var(--accent-liquid);
 }
 .cal-day.empty-day {

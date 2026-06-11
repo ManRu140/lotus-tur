@@ -111,10 +111,14 @@
 .about-image {
   flex: 1;
   height: 500px;
-  background: url("https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=80")
-    no-repeat center center / cover;
+  background: url("../img/about.jpg") no-repeat center center / cover;
   border-radius: 16px;
   box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  border: 1px solid var(--border-light);
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.about-image:hover {
+  transform: scale(1.015);
 }
 .about-content h2 {
   font-size: 2rem;

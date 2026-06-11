@@ -5,7 +5,9 @@
   right: -450px;
   width: 420px;
   height: 100vh;
-  background: rgba(26, 34, 38, 0.82);
+  background:
+    radial-gradient(ellipse 90% 40% at 50% -10%, rgba(63, 208, 202, 0.12), transparent 70%),
+    rgba(26, 34, 38, 0.85);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.3);
@@ -41,21 +43,32 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 22px;
   text-align: center;
   flex-shrink: 0;
 }
 
 .avatar-container {
   position: relative;
-  width: 90px;
-  height: 90px;
+  width: 92px;
+  height: 92px;
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  border: 2px solid var(--border-light);
+  box-shadow:
+    0 0 0 3px rgba(26, 34, 38, 0.9),
+    0 0 0 5px var(--accent-liquid),
+    0 8px 24px rgba(63, 208, 202, 0.25);
+  border: 2px solid transparent;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s;
+}
+.avatar-container:hover {
+  transform: scale(1.04);
+  box-shadow:
+    0 0 0 3px rgba(26, 34, 38, 0.9),
+    0 0 0 5px var(--accent-liquid),
+    0 10px 30px rgba(63, 208, 202, 0.45);
 }
 .avatar-container img {
   width: 100%;
@@ -81,18 +94,70 @@
 
 .profile-name-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   width: 100%;
   min-height: 35px;
 }
 .profile-name-container h3 {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
   border-bottom: 1px dashed var(--accent-liquid);
   padding-bottom: 2px;
   cursor: pointer;
   transition: color 0.3s;
+}
+.profile-name-container h3:hover {
+  color: var(--accent-liquid);
+}
+.profile-sub {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent-liquid);
+  opacity: 0.85;
+}
+
+/* ── СТАТИСТИКА В ШАПКЕ ──────────────────────────────────── */
+.profile-stats {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+}
+.p-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 10px 6px;
+  transition: all 0.25s ease;
+}
+.p-stat:hover {
+  background: rgba(63, 208, 202, 0.08);
+  border-color: rgba(63, 208, 202, 0.4);
+  transform: translateY(-2px);
+}
+.p-stat b {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--accent-liquid);
+  line-height: 1;
+}
+.p-stat span {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light-muted);
 }
 .nickname-input {
   background: rgba(255, 255, 255, 0.1);
@@ -121,17 +186,21 @@
   flex: 1;
   background: none;
   border: none;
-  padding: 10px 5px;
-  font-size: 0.85rem;
+  padding: 9px 5px;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-light-muted);
   cursor: pointer;
   border-radius: 6px;
   transition: all 0.3s;
 }
+.p-tab-btn:hover {
+  color: var(--text-light-main);
+}
 .p-tab-btn.active {
-  background: var(--text-light-main);
+  background: linear-gradient(135deg, var(--accent-liquid), #2ba8c4);
   color: var(--bg-dark);
+  box-shadow: 0 2px 10px rgba(63, 208, 202, 0.3);
 }
 
 /* Скроллируемая область с контентом вкладок */
@@ -161,10 +230,10 @@
 /* ── ФИЛЬТРЫ ТУРОВ ───────────────────────────────────────── */
 .tour-filters {
   display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 6px;
+  margin-bottom: 16px;
   overflow-x: auto;
-  padding: 4px 4px 10px 4px;
+  padding: 4px 4px 8px 4px;
   scrollbar-width: none;
 }
 .tour-filters::-webkit-scrollbar {
@@ -173,20 +242,25 @@
 .filter-chip {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-light);
-  padding: 8px 16px;
-  font-size: 0.78rem;
+  padding: 5px 12px;
+  font-size: 0.72rem;
   font-weight: 600;
-  border-radius: 20px;
+  border-radius: 16px;
   cursor: pointer;
   color: var(--text-light-muted);
   white-space: nowrap;
   flex-shrink: 0;
   transition: all 0.25s ease;
 }
+.filter-chip:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-light-main);
+}
 .filter-chip.active {
-  background: var(--accent-liquid);
+  background: linear-gradient(135deg, var(--accent-liquid), #2ba8c4);
   color: var(--bg-dark);
-  border-color: var(--accent-liquid);
+  border-color: transparent;
+  box-shadow: 0 2px 10px rgba(63, 208, 202, 0.35);
 }
 
 /* ── КАРТОЧКИ ТУРОВ В ЛК ─────────────────────────────────── */
@@ -233,7 +307,106 @@
 }
 
 /* ── ДОСТИЖЕНИЯ ──────────────────────────────────────────── */
+
+/* Прогресс открытых наград */
+.ach-progress {
+  margin-bottom: 16px;
+}
+.ach-progress-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-light-muted);
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+.ach-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.ach-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2ba8c4, var(--accent-liquid));
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(63, 208, 202, 0.5);
+  transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Сетка наград */
 .achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.ach-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 16px 10px 14px;
+  transition: all 0.25s ease;
+  cursor: default;
+}
+.ach-item:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.07);
+}
+.ach-item .ach-icon {
+  font-size: 1.7rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px rgba(63, 208, 202, 0.4));
+}
+.ach-item .ach-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-light-main);
+  line-height: 1.3;
+}
+.ach-item .ach-check,
+.ach-item .ach-lock {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  font-size: 0.65rem;
+}
+.ach-item .ach-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-liquid);
+  color: var(--bg-dark);
+  font-weight: 800;
+}
+/* Закрытые награды — приглушённые */
+.ach-item.locked {
+  opacity: 0.45;
+}
+.ach-item.locked .ach-icon {
+  filter: grayscale(1);
+}
+.ach-item.locked:hover {
+  opacity: 0.7;
+}
+/* Открытые — с акцентной рамкой */
+.ach-item:not(.locked) {
+  border-color: rgba(63, 208, 202, 0.35);
+  background: rgba(63, 208, 202, 0.06);
+}
+
+.achievements-list-legacy {
   display: flex;
   flex-direction: column;
   gap: 10px;

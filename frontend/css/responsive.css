@@ -587,11 +587,11 @@ nav,
     transform: none;
   }
 
-  /* Чипы фильтрации — легче попасть */
+  /* Чипы фильтрации — компактнее, но удобные для нажатия */
   .filter-chip {
-    padding: 10px 18px;
-    font-size: 0.82rem;
-    min-height: 44px;
+    padding: 7px 13px;
+    font-size: 0.74rem;
+    min-height: 34px;
   }
 
   /* Кнопки профиля шире */

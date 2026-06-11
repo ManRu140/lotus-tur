@@ -471,20 +471,31 @@
 }
 .social-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
   width: 100%;
 }
 .social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 0.9rem;
+  border-radius: 12px;
+  padding: 13px 18px;
+  min-height: 52px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
   text-align: center;
+  white-space: nowrap;
+}
+.social-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 .social-btn:hover {
   background: rgba(255, 255, 255, 0.12);

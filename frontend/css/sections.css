@@ -60,10 +60,10 @@
 }
 
 .img-box--forest {
-  background-image: url("frontend/img/tours/kaki.JPG");
+  background-image: url("/frontend/img/tours/kaki.JPG");
 }
 .img-box--sport {
-  background-image: url("frontend/img/tours/4toto.jpg");
+  background-image: url("/frontend/img/tours/4toto.jpg");
 }
 
 .section-dark .text-block {

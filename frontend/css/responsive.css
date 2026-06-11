@@ -589,7 +589,7 @@ nav,
 
   /* Чипы фильтрации — компактнее, но удобные для нажатия */
   .filter-chip {
-    padding: 7px 13px;
+    padding: 7px 10px;
     font-size: 0.74rem;
     min-height: 34px;
   }

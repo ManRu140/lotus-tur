@@ -1,9 +1,3 @@
-"""
-main.py — ИСПРАВЛЕННАЯ ВЕРСИЯ
-Изменения:
-  [FIX-1] TrustedHostMiddleware: allowed_hosts=["*"] заменён на реальные хосты
-  [FIX-2] /api/health: в production не раскрывает версию и окружение
-"""
 import logging
 from contextlib import asynccontextmanager
 
@@ -26,7 +20,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger("lotos_tour")
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Запуск приложения, инициализация БД...")
@@ -34,7 +27,6 @@ async def lifespan(app: FastAPI):
     logger.info("БД готова. Сервис запущен.")
     yield
     logger.info("Завершение работы сервиса.")
-
 
 _docs_url  = "/docs"  if settings.ENV != "production" else None
 _redoc_url = "/redoc" if settings.ENV != "production" else None
@@ -49,38 +41,18 @@ app = FastAPI(
     openapi_url="/openapi.json" if settings.ENV != "production" else None,
 )
 
-# Middleware применяются в обратном порядке добавления.
-<<<<<<< HEAD
-# Реальный порядок обработки запроса: CORS → CSRF → SecurityHeaders → GZip → роутер
-#
-# CORS должен быть добавлен ПОСЛЕДНИМ, чтобы выполняться ПЕРВЫМ —
-# тогда preflight OPTIONS обрабатывается до CSRFMiddleware.
-
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(CSRFMiddleware)
-=======
-# Порядок выполнения запроса: SecurityHeaders → CSRF → TrustedHost → GZip → CORS → роутер
->>>>>>> ad8fb2fc605c42a95cbc10f7e96067cac7738306
 
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 if settings.ENV == "production":
-<<<<<<< HEAD
-=======
-    # [FIX-1] allowed_hosts=["*"] не выполняет никакой защиты.
-    # Указываем реальные хосты. Задайте ALLOWED_HOSTS в Railway переменных окружения
-    # или хардкодьте production домен.
->>>>>>> ad8fb2fc605c42a95cbc10f7e96067cac7738306
+
     allowed_hosts = getattr(settings, "ALLOWED_HOSTS", None) or [
         "lotus-tur-production-23c6.up.railway.app",
     ]
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
-<<<<<<< HEAD
-# Добавляем CORS последним — выполняется первым, перехватывает OPTIONS до CSRF
-=======
-# CORS до CSRF — чтобы preflight OPTIONS не блокировались
->>>>>>> ad8fb2fc605c42a95cbc10f7e96067cac7738306
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -91,13 +63,6 @@ app.add_middleware(
     max_age=600,
 )
 
-<<<<<<< HEAD
-=======
-app.add_middleware(CSRFMiddleware)
-app.add_middleware(SecurityHeadersMiddleware)
-
->>>>>>> ad8fb2fc605c42a95cbc10f7e96067cac7738306
-
 @app.exception_handler(IntegrityError)
 async def integrity_error_handler(request: Request, exc: IntegrityError):
     logger.warning("IntegrityError на %s: %s", request.url.path, exc)
@@ -105,7 +70,6 @@ async def integrity_error_handler(request: Request, exc: IntegrityError):
         status_code=status.HTTP_409_CONFLICT,
         content={"detail": "Запись с такими данными уже существует"},
     )
-
 
 @app.exception_handler(SQLAlchemyError)
 async def sqlalchemy_error_handler(request: Request, exc: SQLAlchemyError):
@@ -115,7 +79,6 @@ async def sqlalchemy_error_handler(request: Request, exc: SQLAlchemyError):
         content={"detail": "Внутренняя ошибка сервера, попробуйте позже"},
     )
 
-
 app.include_router(auth.router,          prefix="/api/auth",          tags=["Auth"])
 app.include_router(tours.router,         prefix="/api/tours",         tags=["Tours"])
 app.include_router(bookings.router,      prefix="/api/bookings",      tags=["Bookings"])
@@ -124,15 +87,13 @@ app.include_router(promo.router,         prefix="/api/promo",         tags=["Pro
 app.include_router(notifications.router, prefix="/api/notifications", tags=["Notifications"])
 app.include_router(admin.router,         prefix="/api/admin",         tags=["Admin"])
 
-
 @app.get("/", tags=["Health"], include_in_schema=False)
 async def root():
     return {"status": "ok", "service": "Лотос Тур API"}
 
-
 @app.get("/api/health", tags=["Health"], summary="Healthcheck")
 async def health_check():
-    # [FIX-2] В production не раскрываем версию и окружение — разведывательная информация
+
     if settings.ENV == "production":
         return {"status": "ok"}
     return {

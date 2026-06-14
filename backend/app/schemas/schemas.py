@@ -1,14 +1,3 @@
-"""
-Pydantic v2 схемы: валидация входящих данных и сериализация ответов.
-
-Ключевые улучшения:
-  - RegisterRequest валидирует сложность пароля через validate_password_strength
-  - Все строковые поля санируются через strip() / нормализацию
-  - Добавлены строгие ограничения длин и паттернов
-  - Поля phone нормализованы через Field(pattern)
-  - Добавлены схемы ошибок для единообразных HTTP 422-ответов
-  - AvatarUpdate для загрузки аватара через URL
-"""
 import re
 from datetime import datetime
 
@@ -22,14 +11,8 @@ from pydantic import (
 
 from app.core.security import validate_password_strength
 
-
-# ── Вспомогательные ────────────────────────────────────────────────────────────
-
 def _strip(v: str) -> str:
     return v.strip()
-
-
-# ── Auth ───────────────────────────────────────────────────────────────────────
 
 class RegisterRequest(BaseModel):
     username: str = Field(
@@ -49,9 +32,7 @@ class RegisterRequest(BaseModel):
     @field_validator("password")
     @classmethod
     def check_password_strength(cls, v: str) -> str:
-        """Делегируем проверку в security-модуль."""
         return validate_password_strength(v)
-
 
 class LoginRequest(BaseModel):
     username: str = Field(min_length=1, max_length=64)
@@ -65,16 +46,12 @@ class LoginRequest(BaseModel):
             raise ValueError("Поле не может быть пустым")
         return v
 
-
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     username: str
     avatar_url: str | None = None
     full_name: str | None = None
-
-
-# ── Tours ──────────────────────────────────────────────────────────────────────
 
 class TourOut(BaseModel):
     id: str
@@ -99,11 +76,8 @@ class TourOut(BaseModel):
             booked_dates=tour.booked_dates_list,
         )
 
-
-# ── Bookings ───────────────────────────────────────────────────────────────────
-
-# Допустимое время — фиксированный набор
 _ALLOWED_TIMES = {"09:00", "14:00", "19:00"}
+_ALLOWED_CONTACT_METHODS = {"vk", "telegram", "phone"}
 
 class BookingCreate(BaseModel):
     tour_id: str = Field(min_length=1, max_length=64)
@@ -120,6 +94,7 @@ class BookingCreate(BaseModel):
     )
     preferred_time: str | None = None
     people_count: int = Field(default=1, ge=1, le=20)
+    contact_method: str = Field(default="phone", max_length=16)
     comment: str | None = Field(default=None, max_length=1000)
 
     @field_validator("first_name", "tour_id")
@@ -127,15 +102,24 @@ class BookingCreate(BaseModel):
     def strip_str(cls, v: str) -> str:
         return v.strip()
 
+    @field_validator("contact_method")
+    @classmethod
+    def validate_contact_method(cls, v: str) -> str:
+        v = (v or "").strip().lower()
+        if v not in _ALLOWED_CONTACT_METHODS:
+            raise ValueError(
+                f"Способ связи должен быть одним из: {', '.join(sorted(_ALLOWED_CONTACT_METHODS))}"
+            )
+        return v
+
     @field_validator("phone")
     @classmethod
     def normalize_phone(cls, v: str) -> str:
-        """Убираем лишние пробелы, оставляем цифры, +, -, (, )."""
         v = v.strip()
         allowed = re.compile(r"[^\d\+\-\(\) ]")
         if allowed.search(v):
             raise ValueError("Телефон содержит недопустимые символы")
-        # Минимум 6 цифр
+
         digits = re.sub(r"\D", "", v)
         if len(digits) < 6:
             raise ValueError("Введите корректный номер телефона")
@@ -151,7 +135,6 @@ class BookingCreate(BaseModel):
     @field_validator("comment")
     @classmethod
     def sanitize_comment(cls, v: str | None) -> str | None:
-        """Обрезаем и убираем null-байты."""
         if v is None:
             return v
         return v.strip().replace("\x00", "")
@@ -168,7 +151,6 @@ class BookingCreate(BaseModel):
             raise ValueError("Нельзя бронировать прошедшую дату")
         return v
 
-
 class BookingOut(BaseModel):
     id: int
     tour_id: str
@@ -179,9 +161,6 @@ class BookingOut(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
-
-
-# ── Profile ────────────────────────────────────────────────────────────────────
 
 class UsernameUpdate(BaseModel):
     username: str = Field(
@@ -195,9 +174,7 @@ class UsernameUpdate(BaseModel):
     def strip_username(cls, v: str) -> str:
         return v.strip()
 
-
 class AvatarUpdate(BaseModel):
-    """Обновление аватара через URL (например, после OAuth)."""
     avatar_url: str = Field(max_length=512)
 
     @field_validator("avatar_url")
@@ -207,7 +184,6 @@ class AvatarUpdate(BaseModel):
         if not v.startswith(("https://", "http://")):
             raise ValueError("avatar_url должен быть валидным HTTP(S) URL")
         return v
-
 
 class ProfileOut(BaseModel):
     id: int
@@ -220,9 +196,6 @@ class ProfileOut(BaseModel):
 
     model_config = {"from_attributes": True}
 
-
-# ── Achievements ───────────────────────────────────────────────────────────────
-
 class AchievementOut(BaseModel):
     id: int
     icon: str
@@ -232,12 +205,8 @@ class AchievementOut(BaseModel):
 
     model_config = {"from_attributes": True}
 
-
-# ── Promo ──────────────────────────────────────────────────────────────────────
-
 class RefLinkOut(BaseModel):
     link: str
-
 
 class PromoApplyRequest(BaseModel):
     code: str = Field(min_length=3, max_length=32)
@@ -245,19 +214,13 @@ class PromoApplyRequest(BaseModel):
     @field_validator("code")
     @classmethod
     def normalize_code(cls, v: str) -> str:
-        """Нормализуем до верхнего регистра без пробелов."""
         return v.strip().upper()
-
 
 class PromoApplyResponse(BaseModel):
     message: str
     discount: int
 
-
-# ── Общие ошибки (для единообразия документации) ──────────────────────────────
-
 class ErrorDetail(BaseModel):
-    """Стандартная структура тела ошибки для документации."""
     detail: str
 
 class NotificationOut(BaseModel):

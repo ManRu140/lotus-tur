@@ -10,11 +10,9 @@ from app.schemas.schemas import AchievementOut, AvatarUpdate, ProfileOut, Userna
 
 router = APIRouter()
 
-
 @router.get("/me", response_model=ProfileOut, summary="Профиль текущего пользователя")
 async def get_profile(user: User = Depends(get_current_active_user)) -> ProfileOut:
     return user
-
 
 @router.patch("/username", response_model=ProfileOut, summary="Обновить никнейм",
               responses={409: {"description": "Никнейм занят"}})
@@ -23,7 +21,7 @@ async def update_username(
     user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_session),
 ) -> ProfileOut:
-    # Проверяем уникальность, исключая самого пользователя
+
     existing = await session.execute(
         select(User.id).where(User.username == data.username, User.id != user.id)
     )
@@ -35,7 +33,6 @@ async def update_username(
     await session.commit()
     await session.refresh(user)
     return user
-
 
 @router.patch("/avatar", response_model=ProfileOut, summary="Обновить аватар")
 async def update_avatar(
@@ -49,13 +46,11 @@ async def update_avatar(
     await session.refresh(user)
     return user
 
-
 @router.get("/achievements", response_model=list[AchievementOut], summary="Достижения пользователя")
 async def get_achievements(
     user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_session),
 ) -> list[AchievementOut]:
-    """Два лёгких запроса: все достижения + разблокированные ID пользователя."""
     all_achs_result = await session.execute(select(Achievement).order_by(Achievement.id))
     all_achs = all_achs_result.scalars().all()
 

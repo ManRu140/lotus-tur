@@ -1,14 +1,3 @@
-/**
- * app.js — Основная логика приложения
- *
- * Исправления:
- *  [FIX-1] Убран mock-логин: больше нельзя войти под любым именем/паролем.
- *          При недоступности бэкенда — ошибка, не фантомный вход.
- *  [FIX-2] Личный кабинет загружает реальные данные с API.
- *  [FIX-3] VK OAuth использует /api/auth/vk/client-id (как Google).
- *  [FIX-4] state проверка для обоих OAuth провайдеров.
- */
-
 const API_BASE = "https://lotus-tur-production-23c6.up.railway.app";
 
 let isUserLoggedIn   = false;
@@ -16,20 +5,23 @@ let currentLang      = "RU";
 let isGridViewActive = false;
 let currentAuthMode  = "login";
 
-let calYear         = 2026;
-let calMonth        = 5;
+const _todayForCalendar = new Date();
+let calYear         = _todayForCalendar.getFullYear();
+let calMonth        = _todayForCalendar.getMonth();
 let selectedDateStr = "";
 
-let cachedToursData = [];
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
 
-// ─── API-хелпер ───────────────────────────────────────────────────────────────
-// Токен хранится в localStorage и передаётся как Authorization: Bearer.
-// Это позволяет сессии переживать перезагрузку страницы при cross-origin запросах.
 async function apiFetch(path, options = {}) {
   const token = localStorage.getItem("access_token");
+  const csrfToken = getCookie("csrf_token");
   const headers = {
     "Content-Type": "application/json",
     ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+    ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
     ...options.headers,
   };
   const res = await fetch(API_BASE + path, { ...options, headers, credentials: "include" });
@@ -40,9 +32,8 @@ async function apiFetch(path, options = {}) {
   return res.status === 204 ? null : res.json();
 }
 
-// ─── Проверка сессии при загрузке ───────────────────────────────────────────
 async function checkExistingSession() {
-  // Мгновенно восстанавливаем UI из localStorage (аватар + имя — нет мигания)
+
   const savedToken  = localStorage.getItem("access_token");
   const savedName   = localStorage.getItem("username");
   const savedAvatar = localStorage.getItem("avatar_url");
@@ -58,9 +49,8 @@ async function checkExistingSession() {
     if (avatarEl && savedAvatar) avatarEl.src = savedAvatar;
   }
 
-  if (!savedToken) return; // нет токена — проверять не нужно
+  if (!savedToken) return;
 
-  // Верифицируем токен у бэкенда
   try {
     const data = await apiFetch("/api/auth/me");
     if (data && data.username) {
@@ -79,7 +69,7 @@ async function checkExistingSession() {
       loadProfileData();
     }
   } catch {
-    // Токен истёк — чистим
+
     localStorage.removeItem("access_token");
     localStorage.removeItem("username");
     localStorage.removeItem("avatar_url");
@@ -88,31 +78,25 @@ async function checkExistingSession() {
   }
 }
 
-// ─── Загрузка данных личного кабинета ───────────────────────────────────────
 async function loadProfileData() {
   if (!isUserLoggedIn) return;
 
   try {
     const profile = await apiFetch("/api/profile/me");
 
-    // Обновляем localStorage
     localStorage.setItem("username",   profile.username);
     if (profile.avatar_url) localStorage.setItem("avatar_url", profile.avatar_url);
     if (profile.full_name)  localStorage.setItem("full_name",  profile.full_name);
 
-    // Имя: показываем full_name (из Google/VK) или username
     const nameEl = document.getElementById("profileName");
     if (nameEl) nameEl.textContent = profile.full_name || profile.username;
 
-    // Подзаголовок: username + email
     const subEl = document.getElementById("profileSub");
     if (subEl) subEl.textContent = profile.email || profile.username;
 
-    // Аватар
     const avatarEl = document.getElementById("profileAvatar");
     if (avatarEl && profile.avatar_url) avatarEl.src = profile.avatar_url;
 
-    // Реферальная ссылка
     try {
       const refData = await apiFetch("/api/promo/ref");
       const refInp = document.getElementById("refLink");
@@ -127,38 +111,39 @@ async function loadProfileData() {
   loadMyAchievements();
 }
 
-// ─── Загрузка реальных бронирований ─────────────────────────────────────────
 async function loadMyBookings() {
   try {
     const bookings = await apiFetch("/api/bookings/my");
-    renderUserTours(bookings.map(b => ({
-      id: b.tour_id,
-      name: b.tour_name,
-      date: b.tour_date,
-      status: b.status,
-      price: "",
-      img: "",
-      booking_id: b.id,
-    })));
+    renderUserTours(bookings.map(b => {
+      const ref = (typeof toursData !== "undefined")
+        ? toursData.find(t => t.id === b.tour_id)
+        : null;
+      return {
+        id: b.tour_id,
+        name: b.tour_name,
+        date: b.tour_date,
+        status: b.status,
+        price: ref ? ref.price : "—",
+        img: ref ? ref.img : "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
+        booking_id: b.id,
+      };
+    }));
   } catch (e) {
     console.warn("Не удалось загрузить бронирования:", e.message);
     if (typeof mockUserTours !== "undefined") renderUserTours(mockUserTours);
   }
 }
 
-// ─── Загрузка реальных достижений ───────────────────────────────────────────
 async function loadMyAchievements() {
   try {
     const achievements = await apiFetch("/api/profile/achievements");
-    renderAchievements(achievements); // renderAchievements handles both title/titleRu keys
+    renderAchievements(achievements);
   } catch (e) {
     console.warn("Не удалось загрузить достижения:", e.message);
     if (typeof achievementsList !== "undefined") renderAchievements(achievementsList);
   }
 }
 
-// ─── Авторизация (ТОЛЬКО через бэкенд, без mock-fallback) ───────────────────
-// [FIX-1] Убран mockApiFallback для auth — больше нельзя войти под любым логином
 async function handleAuthSubmit(e) {
   e.preventDefault();
   const username = document.getElementById("authLoginInput").value.trim();
@@ -184,7 +169,7 @@ async function handleAuthSubmit(e) {
   try {
     let data;
     if (currentAuthMode === "login") {
-      // [FIX-1] Прямой fetch без mockApiFallback — реальный бэкенд
+
       const res = await fetch(API_BASE + "/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -229,7 +214,6 @@ async function handleAuthSubmit(e) {
   }
 }
 
-// ─── Применяет данные после любого входа (пароль, Google, VK) ────────────────
 function _applyLoginData(data) {
   localStorage.setItem("access_token", data.access_token);
   localStorage.setItem("username", data.username);
@@ -248,7 +232,6 @@ function _applyLoginData(data) {
   if (avatarEl && data.avatar_url) avatarEl.src = data.avatar_url;
 }
 
-// ─── Выход ───────────────────────────────────────────────────────────────────
 function handleLogout() {
   fetch(API_BASE + "/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
 
@@ -270,7 +253,6 @@ function handleLogout() {
   showToast(currentLang === "RU" ? "Вы вышли из аккаунта." : "You have been logged out.");
 }
 
-// ─── VK OAuth [FIX-3] — Client ID с бэкенда + state ─────────────────────────
 async function loginWithVK() {
   try {
     const res = await fetch(`${API_BASE}/api/auth/vk/client-id`);
@@ -299,7 +281,6 @@ async function loginWithVK() {
   }
 }
 
-// ─── Google OAuth ─────────────────────────────────────────────────────────────
 async function loginWithGoogle() {
   try {
     const res = await fetch(`${API_BASE}/api/auth/google/client-id`);
@@ -314,7 +295,7 @@ async function loginWithGoogle() {
 
     sessionStorage.setItem("oauth_state", state);
     sessionStorage.setItem("oauth_provider", "google");
-    // Сохраняем redirect_uri — он нужен бэкенду при обмене code→token
+
     sessionStorage.setItem("oauth_redirect_uri", REDIRECT_URI);
 
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
@@ -332,7 +313,6 @@ async function loginWithGoogle() {
   }
 }
 
-// ─── Google OAuth callback (с проверкой state) ───────────────────────────────
 async function handleGoogleCallback() {
   const params = new URLSearchParams(window.location.search);
   const code   = params.get("code");
@@ -349,7 +329,6 @@ async function handleGoogleCallback() {
     return;
   }
 
-  // Проверка state — защита от CSRF
   const savedState = sessionStorage.getItem("oauth_state");
   const redirectUri = sessionStorage.getItem("oauth_redirect_uri");
   sessionStorage.removeItem("oauth_state");
@@ -365,7 +344,7 @@ async function handleGoogleCallback() {
   if (provider === "vk") {
     endpoint = `/api/auth/vk/callback?code=${encodeURIComponent(code)}`;
   } else {
-    // Передаём redirect_uri бэкенду — Google требует тот же URI при обмене code→token
+
     const uriParam = redirectUri ? `&redirect_uri=${encodeURIComponent(redirectUri)}` : "";
     endpoint = `/api/auth/google/callback?code=${encodeURIComponent(code)}${uriParam}`;
   }
@@ -395,7 +374,6 @@ async function handleGoogleCallback() {
   }
 }
 
-// ─── Аватар с компьютера ─────────────────────────────────────────────────────
 async function loadAvatarFromPC(input) {
   if (!input.files || !input.files[0]) return;
   const file = input.files[0];
@@ -415,12 +393,11 @@ async function loadAvatarFromPC(input) {
     const dataUrl = e.target.result;
     const avatarEl = document.getElementById("profileAvatar");
     if (avatarEl) avatarEl.src = dataUrl;
-    // В продакшне: загружать на CDN и отправлять URL на /api/profile/avatar
+
   };
   reader.readAsDataURL(file);
 }
 
-// ─── Обновление никнейма через API ──────────────────────────────────────────
 async function saveNicknameToAPI(newUsername) {
   try {
     const data = await apiFetch("/api/profile/username", {
@@ -431,9 +408,70 @@ async function saveNicknameToAPI(newUsername) {
     showToast("Никнейм обновлён!");
   } catch (e) {
     showToast("Ошибка: " + e.message);
-    // Откатить UI
+
     const nameEl = document.getElementById("profileName");
     const saved = localStorage.getItem("username");
     if (nameEl && saved) nameEl.textContent = saved;
   }
 }
+
+/* ─── WEEKLY SCHEDULE ─────────────────────────────── */
+(function buildSchedule() {
+  const DAYS = [
+    { key: "Понедельник", short: "Пн" },
+    { key: "Вторник",     short: "Вт" },
+    { key: "Среда",       short: "Ср" },
+    { key: "Четверг",     short: "Чт" },
+    { key: "Пятница",     short: "Пт" },
+    { key: "Суббота",     short: "Сб" },
+    { key: "Воскресенье", short: "Вс" },
+  ];
+
+  const todayIdx = (new Date().getDay() + 6) % 7; // 0=Пн
+
+  const grid = document.getElementById("weekGrid");
+  if (!grid || typeof toursData === "undefined") return;
+
+  DAYS.forEach(function(day, i) {
+    const col = document.createElement("div");
+    col.className = "week-col";
+
+    const header = document.createElement("div");
+    header.className = "week-day-header" + (i === todayIdx ? " today" : "");
+    header.textContent = day.short;
+    if (i === todayIdx) header.title = "Сегодня";
+    col.appendChild(header);
+
+    const toursForDay = toursData.filter(function(t) {
+      return t.schedule === day.key || t.schedule === "Ежедневно";
+    });
+
+    if (toursForDay.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "week-col-empty";
+      empty.textContent = "Выходной";
+      col.appendChild(empty);
+    } else {
+      toursForDay.forEach(function(t) {
+        const card = document.createElement("div");
+        card.className = "schedule-tour-card";
+        card.innerHTML =
+          '<div class="schedule-tour-time">' + (t.departure !== "Ежедневно" ? t.departure : "По расписанию") + '</div>' +
+          '<div class="schedule-tour-name">' + t.name + '</div>' +
+          '<div class="schedule-tour-price">от ' + t.price + ' ₽</div>' +
+          '<div class="schedule-tour-duration">' + t.duration + '</div>';
+        card.addEventListener("click", function() {
+          const bookSelect = document.getElementById("bookTourSelect");
+          if (bookSelect) {
+            bookSelect.value = t.id;
+            const modal = document.getElementById("bookingModal");
+            if (modal) modal.style.display = "flex";
+          }
+        });
+        col.appendChild(card);
+      });
+    }
+
+    grid.appendChild(col);
+  });
+})();

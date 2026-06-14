@@ -10,13 +10,11 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <!-- CSS подключается в правильном порядке: переменные первыми -->
-    <!-- BUG FIX: путь был /frontend/css/style.css (абсолютный, не работает при file://).
-          Исправлено на относительный путь css/style.css -->
+
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <!-- Скрытый input для загрузки аватара (display:none перенесён в CSS) -->
+
     <input
       type="file"
       id="avatarFileInput"
@@ -24,9 +22,6 @@
       class="visually-hidden"
     />
 
-    <!-- ══════════════════════════════════════════════
-         МОДАЛЬНОЕ ОКНО БРОНИРОВАНИЯ
-         ══════════════════════════════════════════════ -->
     <div
       class="modal-booking"
       id="bookingModal"
@@ -97,7 +92,6 @@
             ></textarea>
           </div>
 
-          <!-- BUG FIX: поле people_count было захардкожено в JS как 1 -->
           <div class="form-group-block">
             <label for="bookPeopleCount">Количество человек</label>
             <select id="bookPeopleCount">
@@ -110,6 +104,24 @@
             </select>
           </div>
 
+          <div class="form-group-block">
+            <label>Способ связи</label>
+            <div class="contact-method-group" role="radiogroup" aria-label="Способ связи">
+              <label class="contact-method-option">
+                <input type="radio" name="bookContact" value="vk" required />
+                <span class="contact-method-pill">ВКонтакте</span>
+              </label>
+              <label class="contact-method-option">
+                <input type="radio" name="bookContact" value="telegram" required />
+                <span class="contact-method-pill">Telegram</span>
+              </label>
+              <label class="contact-method-option">
+                <input type="radio" name="bookContact" value="phone" required />
+                <span class="contact-method-pill">Телефон (Макс)</span>
+              </label>
+            </div>
+          </div>
+
           <button type="submit" class="booking-submit" id="bookSubmitBtn">
             Подтвердить заказ
           </button>
@@ -117,9 +129,6 @@
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════
-         МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ
-         ══════════════════════════════════════════════ -->
     <div
       class="modal-auth"
       id="authModal"
@@ -161,7 +170,7 @@
               placeholder="Имя пользователя или Email"
               required
             />
-            <!-- Поля регистрации скрыты классом, не inline style -->
+
             <input
               type="email"
               id="authEmailInput"
@@ -207,9 +216,6 @@
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════
-         ВЫЕЗЖАЮЩИЙ ЛИЧНЫЙ КАБИНЕТ
-         ══════════════════════════════════════════════ -->
     <aside class="side-profile" id="sideProfile" aria-label="Личный кабинет">
       <button class="close-profile" id="closeProfileBtn" aria-label="Закрыть">
         &times;
@@ -228,7 +234,7 @@
             src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
             alt="Аватар пользователя"
           />
-          <div class="avatar-overlay" aria-hidden="true">Обновить</div>
+          <div class="avatar-overlay" aria-hidden="true">📷</div>
         </div>
         <div class="profile-name-container" id="nicknameWrapper">
           <h3
@@ -345,21 +351,18 @@
       </div>
     </aside>
 
-    <!-- ══════════════════════════════════════════════
-         ХЕДЕР + НАВИГАЦИЯ
-         ══════════════════════════════════════════════ -->
     <header id="main">
       <div class="nav-container" id="main-nav">
         <div class="nav-bg-fluid" id="fluid-oval" aria-hidden="true"></div>
 
         <div class="logo">
           <img
-            src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=45&q=80"
+            src="img/tours/logo.png"
             alt="Логотип Лотос"
             id="logoImg"
             class="logo-img"
           />
-          <span id="txtLogo">Пора в поход</span>
+          <span id="txtLogo">Лотос тур</span>
         </div>
 
         <nav aria-label="Основное меню">
@@ -410,9 +413,10 @@
       <div class="hero-content">
         <h1 id="heroH1">Приморский Край</h1>
         <p id="heroP">
-          Откройте для себя первозданную магию Дальнего Востока. Дикие скалы,
-          бирюзовые бухты океана, таинственные острова и величественные вершины
-          ждут вас.
+          Откройте первозданную магию Дальнего Востока: дикие скалы над
+          бирюзовыми бухтами, туман, плывущий по сопкам, безлюдные острова и
+          солёный ветер Японского моря. Приморье уже ждёт — отправляйтесь за ним
+          вместе с нами.
         </p>
         <button
           class="btn-book"
@@ -425,9 +429,6 @@
       <div></div>
     </header>
 
-    <!-- ══════════════════════════════════════════════
-         СЕКЦИЯ ТУРОВ
-         ══════════════════════════════════════════════ -->
     <div id="tours-anchor">
       <section class="tours-section" aria-labelledby="txtToursTitle">
         <div class="section-head">
@@ -457,13 +458,22 @@
             </svg>
           </button>
         </div>
+        <div class="day-filter" id="dayFilter" role="group" aria-label="Фильтр туров по дням недели">
+          <span class="day-filter-label">День недели:</span>
+          <div class="day-filter-chips">
+            <button type="button" class="day-chip" data-day="Понедельник">Пн</button>
+            <button type="button" class="day-chip" data-day="Вторник">Вт</button>
+            <button type="button" class="day-chip" data-day="Среда">Ср</button>
+            <button type="button" class="day-chip" data-day="Четверг">Чт</button>
+            <button type="button" class="day-chip" data-day="Пятница">Пт</button>
+            <button type="button" class="day-chip" data-day="Суббота">Сб</button>
+            <button type="button" class="day-chip" data-day="Воскресенье">Вс</button>
+          </div>
+        </div>
         <div class="tours-grid" id="toursContainer"></div>
       </section>
     </div>
 
-    <!-- ══════════════════════════════════════════════
-         СЕКЦИЯ «ШАГ ЗА ШАГОМ»
-         ══════════════════════════════════════════════ -->
     <section class="section-dark" style="position:relative;overflow:visible">
       <div class="wave-top" aria-hidden="true">
         <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -478,9 +488,10 @@
         <div class="img-box img-box--sport"></div>
       </div>
       <div class="text-block" id="sec1Txt">
-        «Пора в поход» — туристический клуб, который занимается организацией
-        пеших, водных, горных и других походов с опытными инструкторами в России
-        и за рубежом.
+        Лотос тур — клуб для тех, кто выбирает дорогу. Таёжные тропы,
+        морские маршруты вдоль скалистых берегов, восхождения на сопки и сплавы
+        по рекам Приморья — каждый поход ведут инструкторы, для которых эти места
+        давно стали домом.
       </div>
       <div class="wave-bottom" aria-hidden="true">
         <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -489,26 +500,21 @@
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════════════
-         СЕКЦИЯ «О НАС»
-         ══════════════════════════════════════════════ -->
     <div class="section-about-wrap">
       <section class="section-about" id="about" aria-labelledby="sec2H2">
-        <div class="about-image" role="img" aria-label="Фото природы"></div>
         <div class="about-content">
           <h2 id="sec2H2" style="color:var(--text-light-main)">О нас</h2>
           <p id="sec2P1" style="color:var(--text-light-muted)">
-            Лотос-тур — туристическая компания из Находки, которая с 2015 года
-            открывает Приморье по-настоящему. Наши маршруты — не просто поездки,
-            а живые истории: от рассвета на бухте Триозерье до встречи с тюленями
-            у острова Аскольд, от цветения лотосов на Путятине до панорамы
-            Японского моря с вершины сопки Сестра.
+            Лотос-тур открывает Приморье по-настоящему с 2015 года. Наши
+            маршруты — это живые истории: рассвет над бухтой Триозерье, тюлени
+            у острова Аскольд, цветение лотосов на Путятине и панорама Японского
+            моря с вершины сопки Сестра.
           </p>
           <p id="sec2P2" style="color:var(--text-light-muted)">
-            Все наши маршруты хорошо нам известны, а гиды либо сами прокладывали
-            трек, либо постоянно его совершенствуют. Мы работаем небольшими
-            группами, чтобы каждый путешественник чувствовал себя не туристом,
-            а первооткрывателем.
+            Каждый трек мы знаем наизусть — гиды сами прокладывали эти тропы и
+            год за годом делают их лучше. Мы водим небольшие группы, чтобы вы
+            чувствовали себя не туристом, а первооткрывателем своего Дальнего
+            Востока.
           </p>
           <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:28px">
             <div style="text-align:center;padding:18px 22px;border:1px solid var(--border-light);border-radius:14px;flex:1;min-width:90px;background:rgba(255,255,255,0.04)">
@@ -528,9 +534,22 @@
       </section>
     </div>
 
-    <!-- ══════════════════════════════════════════════
-         СЕКЦИЯ ОТЗЫВОВ
-         ══════════════════════════════════════════════ -->
+    <!-- WEEKLY SCHEDULE -->
+    <section class="schedule-section" id="schedule" aria-label="Расписание туров">
+      <div class="section-sub">Расписание</div>
+      <h2>Туры на каждый день</h2>
+      <div class="week-grid" id="weekGrid"></div>
+      <div class="schedule-legend">
+        <div class="schedule-legend-item">
+          <div class="schedule-legend-dot"></div>
+          <span>Нажмите на тур для бронирования</span>
+        </div>
+        <div class="schedule-legend-item" style="margin-left:auto;color:rgba(255,255,255,0.2)">
+          * Ежедневные туры доступны каждый день
+        </div>
+      </div>
+    </section>
+
     <section id="reviews-section" aria-label="Отзывы клиентов" style="position:relative">
       <div class="wave-top" aria-hidden="true">
         <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -630,7 +649,6 @@
             </div>
           </article>
 
-          <!-- Дублируем карточки для бесшовного marquee-цикла -->
           <article class="review-card-item" aria-hidden="true">
             <div class="review-stars">★★★★★</div>
             <p class="review-text">
@@ -724,9 +742,6 @@
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════════════
-         ФУТЕР
-         ══════════════════════════════════════════════ -->
     <footer class="main-footer" style="position:relative">
       <div class="wave-top" aria-hidden="true">
         <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">

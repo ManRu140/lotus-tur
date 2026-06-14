@@ -1,13 +1,9 @@
-"""
-Модели достижений и связи пользователь–достижение.
-"""
 from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
-
 
 class Achievement(Base):
     __tablename__ = "achievements"
@@ -21,7 +17,6 @@ class Achievement(Base):
         back_populates="achievement", lazy="select"
     )
 
-
 class UserAchievement(Base):
     __tablename__ = "user_achievements"
 
@@ -33,5 +28,5 @@ class UserAchievement(Base):
         default=lambda: datetime.now(timezone.utc),
     )
 
-    user: Mapped["User"] = relationship(back_populates="user_achievements")  # noqa: F821
+    user: Mapped["User"] = relationship(back_populates="user_achievements")
     achievement: Mapped[Achievement] = relationship(back_populates="user_achievements")

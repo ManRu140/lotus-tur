@@ -1,10 +1,3 @@
-"""
-booking_service.py — ИСПРАВЛЕННАЯ ВЕРСИЯ
-Изменения:
-  [FIX-1] create_booking: убран лишний flush+refresh до commit
-  [FIX-2] cancel_booking: при отмене дата удаляется из tour.booked_dates
-           если нет других активных бронирований на эту дату
-"""
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +7,6 @@ from app.models.booking import Booking
 from app.models.tour import Tour
 from app.models.user import User
 from app.schemas.schemas import BookingCreate, BookingOut
-
 
 def _booking_to_out(booking: Booking) -> BookingOut:
     return BookingOut(
@@ -27,13 +19,7 @@ def _booking_to_out(booking: Booking) -> BookingOut:
         created_at=booking.created_at,
     )
 
-
 async def create_booking(data: BookingCreate, user: User, session: AsyncSession) -> BookingOut:
-    """
-    with_for_update() блокирует строку тура на время транзакции —
-    предотвращает race condition при одновременных бронированиях одной даты.
-    [FIX-1] Убран лишний flush()+refresh() до commit — одна транзакция, один commit.
-    """
     result = await session.execute(
         select(Tour).where(Tour.id == data.tour_id).with_for_update()
     )
@@ -55,26 +41,23 @@ async def create_booking(data: BookingCreate, user: User, session: AsyncSession)
         user_id=user.id, tour_id=data.tour_id,
         first_name=data.first_name, phone=data.phone, email=data.email,
         tour_date=data.tour_date, preferred_time=data.preferred_time,
-        people_count=data.people_count, comment=data.comment,
+        people_count=data.people_count, contact_method=data.contact_method,
+        comment=data.comment,
         status="booked",
     )
     session.add(booking)
 
-    # Idempotent-обновление занятых дат
     dates = tour.booked_dates_list
     if data.tour_date not in dates:
         dates.append(data.tour_date)
         tour.booked_dates = ",".join(sorted(dates))
 
-    # [FIX-1] Один commit вместо flush+commit+двойной refresh
     await session.commit()
     await session.refresh(booking)
 
     return _booking_to_out(booking)
 
-
 async def get_my_bookings(user: User, session: AsyncSession) -> list[BookingOut]:
-    """joinedload — один SQL с JOIN вместо N+1 запросов."""
     result = await session.execute(
         select(Booking)
         .where(Booking.user_id == user.id)
@@ -83,7 +66,6 @@ async def get_my_bookings(user: User, session: AsyncSession) -> list[BookingOut]
     )
     bookings = result.unique().scalars().all()
     return [_booking_to_out(b) for b in bookings]
-
 
 async def get_booking_by_id(booking_id: int, user: User, session: AsyncSession) -> BookingOut:
     result = await session.execute(
@@ -104,14 +86,7 @@ async def get_booking_by_id(booking_id: int, user: User, session: AsyncSession) 
 
     return _booking_to_out(booking)
 
-
 async def cancel_booking(booking_id: int, user: User, session: AsyncSession) -> BookingOut:
-    """
-    Меняет статус на 'cancelled', не удаляет запись.
-    [FIX-2] При отмене проверяет, остались ли другие активные бронирования
-    на ту же дату. Если нет — удаляет дату из tour.booked_dates,
-    освобождая слот для других пользователей.
-    """
     result = await session.execute(
         select(Booking).where(Booking.id == booking_id).options(joinedload(Booking.tour))
     )
@@ -135,7 +110,6 @@ async def cancel_booking(booking_id: int, user: User, session: AsyncSession) -> 
 
     booking.status = "cancelled"
 
-    # [FIX-2] Освобождаем дату, если нет других активных бронирований на неё
     other_active = await session.execute(
         select(Booking.id).where(
             Booking.tour_id == booking.tour_id,

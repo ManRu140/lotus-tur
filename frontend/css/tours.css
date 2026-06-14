@@ -9,7 +9,6 @@ section:not(.hero-section) {
   color: var(--text-light-main);
 }
 
-/* Светящаяся линия-разделитель после секции туров */
 .tours-section::after {
   content: "";
   position: absolute;
@@ -58,7 +57,6 @@ section:not(.hero-section) {
   color: #050b14;
 }
 
-/* СЕТКА АККОРДЕОН */
 .tours-grid {
   display: flex;
   width: 100%;
@@ -107,7 +105,6 @@ section:not(.hero-section) {
   transition: opacity 0.4s ease;
 }
 
-/* Название в закрытом состоянии */
 .tour-static-title {
   position: absolute;
   bottom: 0;
@@ -144,7 +141,6 @@ section:not(.hero-section) {
   margin-bottom: 6px;
 }
 
-/* Всплывающий блок при наведении */
 .tour-hover-info {
   position: absolute;
   inset: 0;
@@ -228,7 +224,6 @@ section:not(.hero-section) {
   transform: translateY(-1px);
 }
 
-/* РЕЖИМ «ВСЕ ТУРЫ» — сетка */
 .tours-grid.view-all-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -271,4 +266,216 @@ section:not(.hero-section) {
   overflow: hidden;
   margin-bottom: 12px;
   font-size: 0.8rem;
+}
+
+.day-filter {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.day-filter-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.day-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.day-chip {
+  position: relative;
+  min-width: 48px;
+  padding: 9px 16px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.day-chip:hover {
+  border-color: var(--accent-liquid);
+  color: #fff;
+}
+
+.day-chip.active {
+  background: var(--accent-liquid);
+  border-color: var(--accent-liquid);
+  color: #050b14;
+}
+
+.day-chip.is-today::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-liquid);
+}
+
+.day-chip.active.is-today::after {
+  background: #050b14;
+}
+
+.tour-card--dimmed {
+  opacity: 0.28;
+  filter: grayscale(0.7);
+  pointer-events: none;
+  transition: opacity 0.35s ease, filter 0.35s ease;
+}
+
+.tour-card--match {
+  box-shadow: 0 0 0 2px var(--accent-liquid), 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* ─── WEEKLY SCHEDULE ───────────────────────────────────── */
+.schedule-section {
+  background: var(--bg-dark);
+  padding: 80px 5% 60px;
+  position: relative;
+}
+.schedule-section .section-sub {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent-liquid);
+  margin-bottom: 10px;
+}
+.schedule-section h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 48px;
+}
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+.week-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.week-day-header {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 4px;
+}
+.week-day-header.today {
+  color: var(--accent-liquid);
+}
+.schedule-tour-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 10px 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.schedule-tour-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent-liquid);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.schedule-tour-card:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.15);
+  transform: translateY(-2px);
+}
+.schedule-tour-card:hover::before {
+  opacity: 1;
+}
+.schedule-tour-time {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent-liquid);
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.schedule-tour-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+.schedule-tour-price {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.4);
+}
+.schedule-tour-duration {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.3);
+  margin-top: 4px;
+}
+.week-col-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 10px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.12);
+  border: 1px dashed rgba(255,255,255,0.06);
+  border-radius: 10px;
+  text-align: center;
+  line-height: 1.4;
+}
+.schedule-legend {
+  display: flex;
+  gap: 20px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.schedule-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.35);
+}
+.schedule-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-liquid);
+}
+@media (max-width: 900px) {
+  .week-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 560px) {
+  .week-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

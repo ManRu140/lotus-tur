@@ -1,7 +1,3 @@
-"""
-admin.py — Административные эндпоинты
-Доступны только пользователям с is_admin=True
-"""
 from datetime import datetime
 from typing import Optional
 
@@ -19,9 +15,6 @@ from app.models.user import User
 
 router = APIRouter()
 
-
-# ── Схемы ──────────────────────────────────────────────────────────────────────
-
 class AdminUserOut(BaseModel):
     id: int
     username: str
@@ -34,7 +27,6 @@ class AdminUserOut(BaseModel):
     bookings_count: int = 0
 
     model_config = {"from_attributes": True}
-
 
 class AdminBookingOut(BaseModel):
     id: int
@@ -52,7 +44,6 @@ class AdminBookingOut(BaseModel):
 
     model_config = {"from_attributes": True}
 
-
 class AdminTourOut(BaseModel):
     id: str
     tag: str
@@ -64,7 +55,6 @@ class AdminTourOut(BaseModel):
 
     model_config = {"from_attributes": True}
 
-
 class AdminTourCreate(BaseModel):
     id: str
     tag: str
@@ -73,14 +63,12 @@ class AdminTourCreate(BaseModel):
     price: int
     img_url: str
 
-
 class AdminTourUpdate(BaseModel):
     tag: Optional[str] = None
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[int] = None
     img_url: Optional[str] = None
-
 
 class AdminStatsOut(BaseModel):
     total_users: int
@@ -91,20 +79,14 @@ class AdminStatsOut(BaseModel):
     total_tours: int
     revenue_estimate: int
 
-
 class UserToggleAdminRequest(BaseModel):
     is_admin: bool
-
 
 class UserToggleActiveRequest(BaseModel):
     is_active: bool
 
-
 class BookingStatusUpdate(BaseModel):
     status: str
-
-
-# ── Статистика ─────────────────────────────────────────────────────────────────
 
 @router.get("/stats", response_model=AdminStatsOut, summary="Общая статистика")
 async def get_stats(
@@ -122,7 +104,6 @@ async def get_stats(
     )).scalar_one()
     total_tours = (await session.execute(select(func.count(Tour.id)))).scalar_one()
 
-    # Примерная выручка: сумма цен туров * количество активных бронирований
     revenue_result = await session.execute(
         select(func.sum(Tour.price * Booking.people_count))
         .join(Booking, Tour.id == Booking.tour_id)
@@ -139,9 +120,6 @@ async def get_stats(
         total_tours=total_tours,
         revenue_estimate=revenue,
     )
-
-
-# ── Пользователи ───────────────────────────────────────────────────────────────
 
 @router.get("/users", response_model=list[AdminUserOut], summary="Список пользователей")
 async def list_users(
@@ -173,7 +151,6 @@ async def list_users(
         ))
     return out
 
-
 @router.patch("/users/{user_id}/toggle-active", response_model=AdminUserOut, summary="Активировать / деактивировать пользователя")
 async def toggle_user_active(
     user_id: int,
@@ -197,7 +174,6 @@ async def toggle_user_active(
         created_at=user.created_at, bookings_count=count_result.scalar_one(),
     )
 
-
 @router.patch("/users/{user_id}/toggle-admin", response_model=AdminUserOut, summary="Выдать / отозвать права администратора")
 async def toggle_user_admin(
     user_id: int,
@@ -220,9 +196,6 @@ async def toggle_user_admin(
         is_admin=user.is_admin, is_oauth=user.is_oauth,
         created_at=user.created_at, bookings_count=count_result.scalar_one(),
     )
-
-
-# ── Бронирования ───────────────────────────────────────────────────────────────
 
 @router.get("/bookings", response_model=list[AdminBookingOut], summary="Все бронирования")
 async def list_bookings(
@@ -255,7 +228,6 @@ async def list_bookings(
         )
         for b in bookings
     ]
-
 
 @router.patch("/bookings/{booking_id}/status", response_model=AdminBookingOut, summary="Изменить статус бронирования")
 async def update_booking_status(
@@ -290,9 +262,6 @@ async def update_booking_status(
         status=booking.status, created_at=booking.created_at,
     )
 
-
-# ── Туры ───────────────────────────────────────────────────────────────────────
-
 @router.get("/tours", response_model=list[AdminTourOut], summary="Все туры (с кол-вом бронирований)")
 async def list_tours_admin(
     _: User = Depends(require_admin),
@@ -310,7 +279,6 @@ async def list_tours_admin(
             price=t.price, img_url=t.img_url, bookings_count=count_result.scalar_one(),
         ))
     return out
-
 
 @router.post("/tours", response_model=AdminTourOut, status_code=201, summary="Создать тур")
 async def create_tour(
@@ -331,7 +299,6 @@ async def create_tour(
     return AdminTourOut(id=tour.id, tag=tour.tag, name=tour.name,
                         description=tour.description, price=tour.price,
                         img_url=tour.img_url, bookings_count=0)
-
 
 @router.patch("/tours/{tour_id}", response_model=AdminTourOut, summary="Обновить тур")
 async def update_tour(
@@ -356,7 +323,6 @@ async def update_tour(
     return AdminTourOut(id=tour.id, tag=tour.tag, name=tour.name,
                         description=tour.description, price=tour.price,
                         img_url=tour.img_url, bookings_count=count_result.scalar_one())
-
 
 @router.delete("/tours/{tour_id}", status_code=204, summary="Удалить тур")
 async def delete_tour(

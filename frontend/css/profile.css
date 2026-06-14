@@ -1,11 +1,10 @@
-/* ── БОКОВАЯ ПАНЕЛЬ ПРОФИЛЯ ─────────────────────────────── */
 .side-profile {
   position: fixed;
   top: 0;
   right: -450px;
   width: 420px;
   height: 100vh;
-  background: rgba(26, 34, 38, 0.82);
+  background: rgba(26, 34, 38, 0.85);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.3);
@@ -39,23 +38,29 @@
 
 .profile-header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 24px;
-  text-align: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  text-align: left;
   flex-shrink: 0;
 }
 
 .avatar-container {
   position: relative;
-  width: 90px;
-  height: 90px;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   border: 2px solid var(--border-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: border-color 0.3s;
+}
+.avatar-container:hover {
+  border-color: var(--accent-liquid);
 }
 .avatar-container img {
   width: 100%;
@@ -72,7 +77,7 @@
   opacity: 0;
   transition: opacity 0.3s;
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 .avatar-container:hover .avatar-overlay {
@@ -81,18 +86,76 @@
 
 .profile-name-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
-  width: 100%;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
   min-height: 35px;
 }
 .profile-name-container h3 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  border-bottom: 1px dashed var(--accent-liquid);
-  padding-bottom: 2px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+  padding-bottom: 1px;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: color 0.3s, border-color 0.3s;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.profile-name-container h3:hover {
+  color: var(--accent-liquid);
+  border-color: var(--accent-liquid);
+}
+.profile-sub {
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  color: var(--text-light-muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 8px;
+  flex-basis: 100%;
+  width: 100%;
+  margin-top: 6px;
+}
+.p-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 10px 6px;
+  transition: all 0.25s ease;
+}
+.p-stat:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+.p-stat b {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--accent-liquid);
+  line-height: 1;
+}
+.p-stat span {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light-muted);
 }
 .nickname-input {
   background: rgba(255, 255, 255, 0.1);
@@ -107,7 +170,6 @@
   font-weight: 600;
 }
 
-/* ── ВКЛАДКИ ПРОФИЛЯ ─────────────────────────────────────── */
 .profile-tabs-nav {
   background: rgba(255, 255, 255, 0.06);
   padding: 4px;
@@ -121,20 +183,22 @@
   flex: 1;
   background: none;
   border: none;
-  padding: 10px 5px;
-  font-size: 0.85rem;
+  padding: 9px 5px;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-light-muted);
   cursor: pointer;
   border-radius: 6px;
   transition: all 0.3s;
 }
+.p-tab-btn:hover {
+  color: var(--text-light-main);
+}
 .p-tab-btn.active {
   background: var(--text-light-main);
   color: var(--bg-dark);
 }
 
-/* Скроллируемая область с контентом вкладок */
 .profile-scroll-area {
   flex: 1;
   overflow-y: auto;
@@ -158,13 +222,12 @@
   display: block;
 }
 
-/* ── ФИЛЬТРЫ ТУРОВ ───────────────────────────────────────── */
 .tour-filters {
   display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 6px;
+  margin-bottom: 16px;
   overflow-x: auto;
-  padding: 4px 4px 10px 4px;
+  padding: 4px 4px 8px 4px;
   scrollbar-width: none;
 }
 .tour-filters::-webkit-scrollbar {
@@ -173,15 +236,21 @@
 .filter-chip {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-light);
-  padding: 8px 16px;
-  font-size: 0.78rem;
+  min-height: 0;
+  min-width: 0;
+  padding: 4px 7px;
+  font-size: 0.66rem;
   font-weight: 600;
-  border-radius: 20px;
+  border-radius: 16px;
   cursor: pointer;
   color: var(--text-light-muted);
   white-space: nowrap;
   flex-shrink: 0;
   transition: all 0.25s ease;
+}
+.filter-chip:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-light-main);
 }
 .filter-chip.active {
   background: var(--accent-liquid);
@@ -189,70 +258,99 @@
   border-color: var(--accent-liquid);
 }
 
-/* ── КАРТОЧКИ ТУРОВ В ЛК ─────────────────────────────────── */
-.p-tour-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-light);
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 10px;
+.ach-progress {
+  margin-bottom: 16px;
 }
-.p-tour-card h4 {
-  font-size: 0.95rem;
-  margin-bottom: 4px;
-  color: var(--text-light-main);
-}
-.p-tour-card p {
-  font-size: 0.8rem;
+.ach-progress-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-light-muted);
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
 }
-.tour-status {
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-top: 8px;
-  padding: 3px 8px;
-  border-radius: 4px;
+.ach-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  overflow: hidden;
 }
-.status-booked {
-  background: rgba(30, 136, 229, 0.2);
-  color: #64b5f6;
-}
-.status-started {
-  background: rgba(251, 140, 0, 0.2);
-  color: #ffb74d;
-}
-.status-completed {
-  background: rgba(67, 160, 71, 0.2);
-  color: #81c784;
-}
-.status-cancelled {
-  background: rgba(229, 57, 53, 0.2);
-  color: #ef9a9a;
+.ach-progress-fill {
+  height: 100%;
+  background: var(--accent-liquid);
+  border-radius: 20px;
+  transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* ── ДОСТИЖЕНИЯ ──────────────────────────────────────────── */
 .achievements-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
-.ach-card {
+.ach-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 16px 10px 14px;
+  transition: all 0.25s ease;
+  cursor: default;
+}
+.ach-item:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.07);
+}
+.ach-item .ach-icon {
+  font-size: 1.7rem;
+  line-height: 1;
+}
+.ach-item .ach-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-light-main);
+  line-height: 1.3;
+}
+.ach-item .ach-check,
+.ach-item .ach-lock {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  font-size: 0.65rem;
+}
+.ach-item .ach-check {
   display: flex;
   align-items: center;
-  gap: 15px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 12px;
-  border-radius: 12px;
-  opacity: 0.4;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-liquid);
+  color: var(--bg-dark);
+  font-weight: 800;
 }
-.ach-card.unlocked {
-  opacity: 1;
-  border-left: 3px solid var(--accent-liquid);
-  background: rgba(255, 255, 255, 0.05);
+
+.ach-item.locked {
+  opacity: 0.45;
 }
+.ach-item.locked .ach-icon {
+  filter: grayscale(1);
+}
+.ach-item.locked:hover {
+  opacity: 0.7;
+}
+
+.ach-item:not(.locked) {
+  border-color: rgba(63, 208, 202, 0.25);
+}
+
 .ach-icon {
   font-size: 1.5rem;
 }
@@ -266,7 +364,6 @@
   color: var(--text-light-muted);
 }
 
-/* ── ПРОМОКОДЫ ───────────────────────────────────────────── */
 .promo-section {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-light);
@@ -307,7 +404,6 @@
   transition: background 0.3s;
 }
 
-/* ── МОДАЛЬНЫЕ ОКНА ──────────────────────────────────────── */
 .modal-auth,
 .modal-booking {
   position: fixed;
@@ -354,7 +450,6 @@
   margin-bottom: 24px;
 }
 
-/* ── ВКЛАДКИ АВТОРИЗАЦИИ ─────────────────────────────────── */
 .auth-tabs {
   display: flex;
   gap: 20px;
@@ -388,7 +483,6 @@
   background: var(--accent-liquid);
 }
 
-/* ── ФОРМЫ ───────────────────────────────────────────────── */
 .form-group-block {
   display: flex;
   flex-direction: column;
@@ -462,7 +556,6 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* ── СОЦИАЛЬНЫЙ ВХОД ─────────────────────────────────────── */
 .social-title {
   font-size: 0.85rem;
   text-align: center;
@@ -471,20 +564,31 @@
 }
 .social-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
   width: 100%;
 }
 .social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 0.9rem;
+  border-radius: 12px;
+  padding: 13px 18px;
+  min-height: 52px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
   text-align: center;
+  white-space: nowrap;
+}
+.social-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 .social-btn:hover {
   background: rgba(255, 255, 255, 0.12);
@@ -495,7 +599,6 @@
 .social-btn--max    { color: #ff3333; }
 .social-btn--google { color: #4285f4; }
 
-/* ── КНОПКА ВЫХОДА ───────────────────────────────────────── */
 .logout-btn {
   flex-shrink: 0;
   width: 100%;
@@ -524,4 +627,50 @@
   border-color: rgba(239, 68, 68, 0.5);
   color: #fff;
   transform: translateY(-1px);
+}
+
+.contact-method-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.contact-method-option {
+  position: relative;
+  cursor: pointer;
+}
+
+.contact-method-option input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.contact-method-pill {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.contact-method-option:hover .contact-method-pill {
+  border-color: var(--accent-liquid);
+}
+
+.contact-method-option input:checked + .contact-method-pill {
+  background: var(--accent-liquid);
+  border-color: var(--accent-liquid);
+  color: var(--bg-dark);
+}
+
+.contact-method-option input:focus-visible + .contact-method-pill {
+  outline: 2px solid var(--accent-liquid);
+  outline-offset: 2px;
 }

@@ -1,13 +1,9 @@
-"""
-Модель тура.
-"""
 from __future__ import annotations
 
 from sqlalchemy import Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
-
 
 class Tour(Base):
     __tablename__ = "tours"
@@ -18,7 +14,7 @@ class Tour(Base):
     description: Mapped[str] = mapped_column(Text)
     price: Mapped[int] = mapped_column(Integer)
     img_url: Mapped[str] = mapped_column(String(512))
-    # Хранится как строка с датами через запятую: "2026-06-01,2026-06-02"
+
     booked_dates: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     bookings: Mapped[list[Booking]] = relationship(

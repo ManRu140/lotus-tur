@@ -1,13 +1,9 @@
-/* ============================================================
-   НАВИГАЦИЯ (nav.css)
-   ============================================================ */
-
 header {
   position: relative;
   min-height: 100vh;
   background:
     linear-gradient(rgba(26, 34, 38, 0.45), rgba(26, 34, 38, 0.35)),
-    url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80")
+    url("../img/tours/fon.JPG")
       no-repeat center center / cover;
   color: var(--text-light-main);
   display: flex;
@@ -45,23 +41,39 @@ header {
 }
 
 .logo {
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 2px;
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   position: relative;
   z-index: 3;
+  text-decoration: none;
+  color: inherit;
 }
 
-/* Вынесено из inline style="border-radius:50%" */
 .logo-img {
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 42px;
   object-fit: contain;
   border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(63, 208, 202, 0.3), 0 4px 16px rgba(63, 208, 202, 0.18);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.logo:hover .logo-img {
+  box-shadow: 0 0 0 3px rgba(63, 208, 202, 0.5), 0 6px 24px rgba(63, 208, 202, 0.3);
+  transform: scale(1.05);
+}
+
+#txtLogo {
+  background: linear-gradient(135deg, #ffffff 0%, var(--accent-liquid) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  letter-spacing: 3px;
 }
 
 .nav-container nav {
@@ -101,7 +113,6 @@ header {
   background: none;
 }
 
-/* Наведение: мягкий подъём пункта меню в такт жидкому овалу */
 .nav-container nav a:hover,
 .lang-switch:hover,
 .profile-btn:hover {
@@ -123,7 +134,6 @@ header {
   }
 }
 
-/* Жидкий анимированный овал */
 .nav-bg-fluid {
   position: absolute;
   background: rgba(255, 255, 255, 0.12);
@@ -175,7 +185,6 @@ header {
   stroke-width: 2.5;
 }
 
-/* ── HERO ─────────────────────────────────────────────────── */
 .hero-content {
   max-width: 650px;
   margin-top: 25vh;

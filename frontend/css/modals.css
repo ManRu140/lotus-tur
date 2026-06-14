@@ -1,9 +1,3 @@
-/* ============================================================
-   МОДАЛЬНОЕ ОКНО ДЕТАЛИ ТУРА + СЛАЙДЕР (modals.css)
-   Не изменяет существующие .modal-booking / .modal-auth стили.
-   ============================================================ */
-
-/* ── Оверлей детали тура ─────────────────────────────────── */
 .modal-tour-detail {
   position: fixed;
   inset: 0;
@@ -22,7 +16,6 @@
   pointer-events: auto;
 }
 
-/* ── Контейнер ───────────────────────────────────────────── */
 .tour-detail-container {
   background: #1a2226;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -61,7 +54,6 @@
 }
 .tour-detail-close:hover { background: rgba(255,255,255,0.18); }
 
-/* ── Слайдер ─────────────────────────────────────────────── */
 .tour-slider {
   position: relative;
   width: 100%;
@@ -125,7 +117,6 @@
   transform: scale(1.3);
 }
 
-/* ── Тело детали тура ────────────────────────────────────── */
 .tour-detail-body {
   padding: 32px 36px 40px;
   color: var(--text-light-main);
@@ -171,7 +162,6 @@
 }
 .tour-detail-info-chip strong { color: #fff; font-weight: 700; }
 
-/* ── Блок бронирования в модалке ─────────────────────────── */
 .tour-detail-booking {
   background: rgba(0,242,254,0.05);
   border: 1px solid rgba(0,242,254,0.2);
@@ -240,7 +230,6 @@
   box-shadow: 0 6px 20px rgba(0,242,254,0.25);
 }
 
-/* ── Минимальный календарь в модалке тура ────────────────── */
 .tour-detail-calendar {
   margin-top: 4px;
 }
@@ -248,7 +237,6 @@
   background: rgba(255,255,255,0.04);
 }
 
-/* ── Модалки авторизации и бронирования (open-класс) ─────── */
 .modal-auth,
 .modal-booking {
   position: fixed;
@@ -269,7 +257,6 @@
   pointer-events: auto;
 }
 
-/* ── Уведомление "скопировано" ───────────────────────────── */
 .toast-msg {
   position: fixed;
   bottom: 30px;

@@ -374,8 +374,24 @@ let CU = null, editTourId = null, allUsers = [], allBookings = [];
 
 const $ = id => document.getElementById(id);
 
+function getCookie(name) {
+  const m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
 async function api(path, opts = {}) {
-  const r = await fetch(API + path, { ...opts, credentials: "include", headers: { "Content-Type": "application/json", ...opts.headers } });
+  const csrfToken = getCookie("csrf_token");
+  const token = localStorage.getItem("access_token");
+  const r = await fetch(API + path, {
+    ...opts,
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+      ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
+      ...opts.headers,
+    }
+  });
   if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || "Ошибка " + r.status); }
   return r.status === 204 ? null : r.json();
 }
@@ -414,7 +430,8 @@ $("aBtn").onclick = async () => {
   if (!u || !p) { $("aErr").textContent = "Заполните все поля."; return; }
   $("aBtn").disabled = true; $("aBtn").textContent = "Входим…";
   try {
-    await api("/api/auth/login", { method: "POST", body: JSON.stringify({ username: u, password: p }) });
+    const loginData = await api("/api/auth/login", { method: "POST", body: JSON.stringify({ username: u, password: p }) });
+    if (loginData && loginData.access_token) localStorage.setItem("access_token", loginData.access_token);
     try { await api("/api/admin/stats"); } catch { await api("/api/auth/logout", { method: "POST" }); throw new Error("Нет прав администратора."); }
     const me = await api("/api/auth/me");
     CU = me; $("authOverlay").style.display = "none";

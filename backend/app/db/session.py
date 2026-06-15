@@ -7,7 +7,7 @@ from app.db.base import Base
 
 _url = settings.DATABASE_URL
 
-# * Railway injects postgres:// — normalize to asyncpg driver
+# * Normalize Railway postgres:// URL to asyncpg driver
 if _url.startswith("postgres://"):
     _url = _url.replace("postgres://", "postgresql+asyncpg://", 1)
 elif _url.startswith("postgresql://") and "+asyncpg" not in _url:
@@ -36,7 +36,7 @@ AsyncSessionLocal = async_sessionmaker(
 )
 
 async def init_db() -> None:
-    import app.models  # noqa: F401 – registers ORM models
+    import app.models  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

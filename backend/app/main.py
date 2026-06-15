@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -33,7 +32,6 @@ _redoc_url = "/redoc" if settings.ENV != "production" else None
 
 app = FastAPI(
     title="Лотос Тур API",
-    description="Backend для туристического сайта «Пора в поход»",
     version="1.1.0",
     lifespan=lifespan,
     docs_url=_docs_url,
@@ -43,14 +41,7 @@ app = FastAPI(
 
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(CSRFMiddleware)
-
 app.add_middleware(GZipMiddleware, minimum_size=1024)
-
-if settings.ENV == "production":
-    app.add_middleware(
-        TrustedHostMiddleware,
-        allowed_hosts=["*"],
-    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -86,18 +77,10 @@ app.include_router(promo.router,         prefix="/api/promo",         tags=["Pro
 app.include_router(notifications.router, prefix="/api/notifications", tags=["Notifications"])
 app.include_router(admin.router,         prefix="/api/admin",         tags=["Admin"])
 
-@app.get("/", tags=["Health"], include_in_schema=False)
+@app.get("/", include_in_schema=False)
 async def root():
-    return {"status": "ok", "service": "Лотос Тур API"}
+    return {"status": "ok"}
 
-@app.get("/api/health", tags=["Health"], summary="Healthcheck")
+@app.get("/api/health", tags=["Health"])
 async def health_check():
-
-    if settings.ENV == "production":
-        return {"status": "ok"}
-    return {
-        "status": "ok",
-        "service": "Лотос Тур API",
-        "version": "1.1.0",
-        "env": settings.ENV,
-    }
+    return {"status": "ok"}

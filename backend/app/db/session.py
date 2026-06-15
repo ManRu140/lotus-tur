@@ -9,9 +9,11 @@ _url = settings.DATABASE_URL
 
 # * Normalize Railway postgres:// URL to asyncpg driver
 if _url.startswith("postgres://"):
-    _url = _url.replace("postgres://", "postgresql+asyncpg://", 1)
-elif _url.startswith("postgresql://") and "+asyncpg" not in _url:
-    _url = _url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    _url = _url.replace("postgres://", "postgresql+psycopg://", 1)
+elif _url.startswith("postgresql://") and "+" not in _url:
+    _url = _url.replace("postgresql://", "postgresql+psycopg://", 1)
+elif "+asyncpg" in _url:
+    _url = _url.replace("+asyncpg", "+psycopg")
 
 _is_sqlite = "sqlite" in _url
 

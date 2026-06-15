@@ -57,9 +57,10 @@
 
     /* ── MAIN ── */
     #main{margin-left:var(--sw);flex:1;padding:24px 28px;min-height:100vh}
-    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px}
     .topbar h1{font-size:1.25rem;font-weight:800}
     .topbar .sub{font-size:.8rem;color:var(--muted);margin-top:2px}
+    .topbar-actions{display:flex;align-items:center;gap:8px}
 
     /* ── PAGES ── */
     .page{display:none}
@@ -67,7 +68,7 @@
 
     /* ── STATS ── */
     .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:24px}
-    .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;transition:border .2s}
+    .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;transition:border .2s;cursor:default}
     .stat:hover{border-color:rgba(63,208,202,.25)}
     .stat .lbl{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
     .stat .val{font-size:1.7rem;font-weight:800;line-height:1}
@@ -109,6 +110,8 @@
     .btn-danger:hover{background:rgba(248,81,73,.18)}
     .btn-success{background:rgba(63,185,80,.1);color:var(--success);border:1px solid rgba(63,185,80,.2)}
     .btn-success:hover{background:rgba(63,185,80,.18)}
+    .btn-warn{background:rgba(210,153,34,.1);color:var(--warn);border:1px solid rgba(210,153,34,.2)}
+    .btn-warn:hover{background:rgba(210,153,34,.18)}
 
     /* ── BADGES ── */
     .badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:.68rem;font-weight:700;white-space:nowrap}
@@ -118,6 +121,7 @@
     .badge-cancelled{background:rgba(248,81,73,.12);color:var(--danger)}
     .badge-admin{background:rgba(63,208,202,.12);color:var(--accent)}
     .badge-user{background:rgba(255,255,255,.06);color:var(--muted)}
+    .badge-oauth{background:rgba(88,166,255,.1);color:var(--info)}
 
     /* ── EMPTY / LOADING ── */
     .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:10px;color:var(--muted);text-align:center}
@@ -137,13 +141,40 @@
     .modal-body{padding:20px}
     .modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border)}
 
+    /* ── BOOKING DETAIL MODAL ── */
+    .detail-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+    .detail-row:last-child{border-bottom:none}
+    .detail-label{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;min-width:110px}
+    .detail-value{font-size:.85rem;font-weight:500;text-align:right;word-break:break-all}
+
+    /* ── ANALYTICS ── */
+    .chart-wrap{padding:20px;overflow-x:auto}
+    .bar-chart{display:flex;align-items:flex-end;gap:8px;height:180px;padding-bottom:24px;position:relative}
+    .bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:36px}
+    .bar{width:100%;background:linear-gradient(to top,var(--accent),var(--accent2));border-radius:4px 4px 0 0;min-height:3px;transition:opacity .2s;cursor:default;position:relative}
+    .bar:hover{opacity:.8}
+    .bar-tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:3px 7px;font-size:.7rem;font-weight:700;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s}
+    .bar:hover .bar-tip{opacity:1}
+    .bar-label{font-size:.62rem;color:var(--muted);text-align:center;white-space:nowrap}
+    .chart-legend{display:flex;gap:16px;padding:0 20px 16px;flex-wrap:wrap}
+    .chart-legend span{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:5px}
+    .chart-legend span::before{content:'';width:10px;height:10px;border-radius:2px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:inline-block}
+
+    /* ── ANALYTICS METRICS ── */
+    .metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;padding:16px 20px}
+    .metric{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+    .metric .m-label{font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+    .metric .m-value{font-size:1.4rem;font-weight:800;color:var(--text)}
+    .metric .m-sub{font-size:.72rem;color:var(--muted);margin-top:3px}
+
     /* ── TOAST ── */
-    #toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:11px 18px;font-size:.82rem;font-weight:600;opacity:0;transform:translateY(8px);transition:all .25s;z-index:9999;pointer-events:none;max-width:300px}
+    #toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:11px 18px;font-size:.82rem;font-weight:600;opacity:0;transform:translateY(8px);transition:all .25s;z-index:9999;pointer-events:none;max-width:320px}
     #toast.show{opacity:1;transform:translateY(0)}
     #toast.ok{border-color:rgba(63,185,80,.4);color:var(--success)}
     #toast.err{border-color:rgba(248,81,73,.4);color:var(--danger)}
+    #toast.warn{border-color:rgba(210,153,34,.4);color:var(--warn)}
 
-    /* ── WEEKLY SCHEDULE in admin ── */
+    /* ── WEEKLY SCHEDULE ── */
     .week-admin{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
     .wday{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:10px 8px}
     .wday-hd{font-size:.68rem;font-weight:700;color:var(--muted);text-align:center;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid var(--border);letter-spacing:.5px}
@@ -152,6 +183,32 @@
     .wday-tour .tour-nm{font-weight:600;color:var(--text)}
     .wday-tour .tour-t{color:var(--muted);font-size:.66rem}
     .wday-none{font-size:.7rem;color:rgba(255,255,255,.12);text-align:center;padding:10px 0}
+
+    /* ── NOTIFICATIONS PAGE ── */
+    .notif-item{display:flex;gap:12px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+    .notif-item:last-child{border-bottom:none}
+    .notif-item:hover{background:rgba(255,255,255,.02)}
+    .notif-item.unread{background:rgba(63,208,202,.04)}
+    .notif-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:rgba(255,255,255,.05)}
+    .notif-body .n-title{font-size:.85rem;font-weight:600;margin-bottom:2px}
+    .notif-body .n-text{font-size:.78rem;color:var(--muted);line-height:1.4}
+    .notif-body .n-time{font-size:.7rem;color:rgba(255,255,255,.2);margin-top:4px}
+    .notif-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:14px}
+
+    /* ── PAGINATION ── */
+    .pagination{display:flex;align-items:center;gap:8px;padding:14px 18px;border-top:1px solid var(--border)}
+    .pagination .page-info{font-size:.78rem;color:var(--muted);margin-left:auto}
+
+    /* ── USER DETAIL (in modal) ── */
+    .user-detail-av{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#0d1117;flex-shrink:0}
+    img.user-av-img{width:56px;height:56px;border-radius:50%;object-fit:cover}
+
+    @media(max-width:900px){
+      #sidebar{display:none}
+      #main{margin-left:0}
+      .grid-2{grid-template-columns:1fr}
+      .week-admin{grid-template-columns:repeat(3,1fr)}
+    }
   </style>
 </head>
 <body>
@@ -182,6 +239,7 @@
   <nav class="sb-nav">
     <div class="nav-group-label">Обзор</div>
     <button class="ni active" data-page="dashboard" onclick="go('dashboard')"><span class="ico">📊</span>Дашборд</button>
+    <button class="ni" data-page="analytics" onclick="go('analytics')"><span class="ico">📈</span>Аналитика</button>
     <button class="ni" data-page="schedule" onclick="go('schedule')"><span class="ico">📅</span>Расписание</button>
 
     <div class="nav-group-label">Управление</div>
@@ -189,6 +247,7 @@
     <button class="ni" data-page="tours" onclick="go('tours')"><span class="ico">🏔</span>Туры</button>
     <button class="ni" data-page="users" onclick="go('users')"><span class="ico">👥</span>Пользователи</button>
     <button class="ni" data-page="admins" onclick="go('admins')"><span class="ico">🔐</span>Администраторы</button>
+    <button class="ni" data-page="notifications" onclick="go('notifications')"><span class="ico">🔔</span>Уведомления</button>
   </nav>
   <div class="sb-bot">
     <div class="admin-chip">
@@ -207,11 +266,48 @@
 
   <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
-    <div class="topbar"><div><h1>Дашборд</h1><div class="sub">Общая статистика</div></div></div>
+    <div class="topbar">
+      <div><h1>Дашборд</h1><div class="sub">Общая статистика</div></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="loadDashboard()" title="Обновить">🔄 Обновить</button>
+      </div>
+    </div>
     <div class="stats-row" id="statsRow">
       <div class="loading-row" style="grid-column:1/-1"><div class="spin"></div></div>
     </div>
     <div class="grid-2" id="dashGrid"></div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="page" id="page-analytics">
+    <div class="topbar">
+      <div><h1>Аналитика</h1><div class="sub">Статистика бронирований и выручки</div></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="loadAnalytics()">🔄 Обновить</button>
+      </div>
+    </div>
+    <div class="metrics-grid" id="analyticsMetrics">
+      <div class="loading-row" style="grid-column:1/-1"><div class="spin"></div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-hd"><h3>Бронирования по турам</h3></div>
+        <div class="chart-wrap"><div class="bar-chart" id="chartTours"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h3>Распределение статусов</h3></div>
+        <div id="statusPie" style="padding:20px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><h3>Топ туров по выручке</h3></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Тур</th><th>Активных броней</th><th>Цена / чел.</th><th>Выручка (оценка)</th></tr></thead>
+          <tbody id="revenueBody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- SCHEDULE -->
@@ -227,6 +323,10 @@
   <div class="page" id="page-bookings">
     <div class="topbar">
       <div><h1>Бронирования</h1><div class="sub" id="bookCount"></div></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="exportBookingsCSV()">⬇ CSV</button>
+        <button class="btn btn-ghost" onclick="loadBookings()">🔄</button>
+      </div>
     </div>
     <div class="card">
       <div class="toolbar">
@@ -237,11 +337,12 @@
           <option value="completed">Завершённые</option>
           <option value="cancelled">Отменённые</option>
         </select>
-        <input class="search-input" id="bSearch" placeholder="Поиск по имени / туру…" oninput="filterBookings()" />
+        <input class="search-input" id="bSearch" placeholder="Поиск по пользователю / туру…" oninput="debouncedFilterBookings()" />
+        <span class="ml-auto" style="font-size:.75rem;color:var(--muted)" id="bFilterCount"></span>
       </div>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>#</th><th>Пользователь</th><th>Тур</th><th>Дата</th><th>Чел.</th><th>Контакт</th><th>Статус</th><th>Действие</th></tr></thead>
+          <thead><tr><th>#</th><th>Пользователь</th><th>Тур</th><th>Дата</th><th>Чел.</th><th>Контакт</th><th>Статус</th><th>Действия</th></tr></thead>
           <tbody id="bBody"><tr><td colspan="8"><div class="loading-row"><div class="spin"></div></div></td></tr></tbody>
         </table>
       </div>
@@ -252,13 +353,16 @@
   <div class="page" id="page-tours">
     <div class="topbar">
       <div><h1>Туры</h1><div class="sub">Каталог маршрутов</div></div>
-      <button class="btn btn-accent" onclick="openTourModal()">+ Добавить тур</button>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="loadTours()">🔄</button>
+        <button class="btn btn-accent" onclick="openTourModal()">+ Добавить тур</button>
+      </div>
     </div>
     <div class="card">
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>ID</th><th>Название</th><th>Тег</th><th>Цена</th><th>День</th><th>Броней</th><th>Действия</th></tr></thead>
-          <tbody id="tBody"><tr><td colspan="7"><div class="loading-row"><div class="spin"></div></div></td></tr></tbody>
+          <thead><tr><th>ID</th><th>Название</th><th>Тег</th><th>Цена</th><th>Активных броней</th><th>Действия</th></tr></thead>
+          <tbody id="tBody"><tr><td colspan="6"><div class="loading-row"><div class="spin"></div></div></td></tr></tbody>
         </table>
       </div>
     </div>
@@ -266,16 +370,24 @@
 
   <!-- USERS -->
   <div class="page" id="page-users">
-    <div class="topbar"><div><h1>Пользователи</h1><div class="sub" id="userCount"></div></div></div>
+    <div class="topbar">
+      <div><h1>Пользователи</h1><div class="sub" id="userCount"></div></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="exportUsersCSV()">⬇ CSV</button>
+        <button class="btn btn-ghost" onclick="loadUsers()">🔄</button>
+      </div>
+    </div>
     <div class="card">
       <div class="toolbar">
-        <input class="search-input" id="uSearch" placeholder="Поиск по нику / email…" oninput="filterUsers()" />
+        <input class="search-input" id="uSearch" placeholder="Поиск по нику / email…" oninput="debouncedFilterUsers()" />
         <select class="filter-select" id="uFilter" onchange="filterUsers()">
           <option value="">Все</option>
           <option value="active">Активные</option>
           <option value="blocked">Заблокированные</option>
           <option value="admin">Администраторы</option>
+          <option value="oauth">OAuth</option>
         </select>
+        <span class="ml-auto" style="font-size:.75rem;color:var(--muted)" id="uFilterCount"></span>
       </div>
       <div class="tbl-wrap">
         <table>
@@ -323,13 +435,26 @@
     </div>
   </div>
 
+  <!-- NOTIFICATIONS -->
+  <div class="page" id="page-notifications">
+    <div class="topbar">
+      <div><h1>Уведомления</h1><div class="sub" id="notifCount"></div></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="loadNotifications()">🔄 Обновить</button>
+      </div>
+    </div>
+    <div class="card" id="notifList">
+      <div class="loading-row"><div class="spin"></div></div>
+    </div>
+  </div>
+
 </main>
 
 <!-- MODAL: edit booking status -->
 <div class="modal-bg" id="mBooking">
-  <div class="modal-box" style="width:320px">
-    <div class="modal-head"><h3>Статус бронирования #<span id="mBId">—</span></h3><button class="modal-close" onclick="closeMB()">✕</button></div>
-    <div class="modal-body">
+  <div class="modal-box" style="width:340px">
+    <div class="modal-head"><h3>Бронирование #<span id="mBId">—</span></h3><button class="modal-close" onclick="closeMB()">✕</button></div>
+    <div class="modal-body" id="mBBody">
       <div class="field">
         <label>Новый статус</label>
         <select id="mBStatus" class="filter-select" style="width:100%">
@@ -339,6 +464,7 @@
           <option value="cancelled">Отменён</option>
         </select>
       </div>
+      <div id="mBDetails"></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeMB()">Отмена</button>
@@ -352,12 +478,13 @@
   <div class="modal-box">
     <div class="modal-head"><h3 id="mTTitle">Добавить тур</h3><button class="modal-close" onclick="closeMT()">✕</button></div>
     <div class="modal-body">
-      <div class="field"><label>ID (slug)</label><input type="text" id="tId" placeholder="askold" /></div>
-      <div class="field"><label>Название</label><input type="text" id="tName" placeholder="Остров Аскольд" /></div>
-      <div class="field"><label>Тег</label><input type="text" id="tTag" placeholder="Остров" /></div>
-      <div class="field"><label>Цена (₽/чел)</label><input type="number" id="tPrice" placeholder="7500" /></div>
+      <div class="field"><label>ID (slug) *</label><input type="text" id="tId" placeholder="askold" /></div>
+      <div class="field"><label>Название *</label><input type="text" id="tName" placeholder="Остров Аскольд" /></div>
+      <div class="field"><label>Тег *</label><input type="text" id="tTag" placeholder="Остров" /></div>
+      <div class="field"><label>Цена (₽/чел) *</label><input type="number" id="tPrice" placeholder="7500" min="0" /></div>
       <div class="field"><label>URL изображения</label><input type="text" id="tImg" placeholder="https://..." /></div>
       <div class="field"><label>Описание</label><textarea id="tDesc" placeholder="Описание тура…"></textarea></div>
+      <div id="tImgPreview" style="margin-top:8px"></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeMT()">Отмена</button>
@@ -366,11 +493,23 @@
   </div>
 </div>
 
+<!-- MODAL: user detail -->
+<div class="modal-bg" id="mUser">
+  <div class="modal-box">
+    <div class="modal-head"><h3>Профиль пользователя</h3><button class="modal-close" onclick="closeMU()">✕</button></div>
+    <div class="modal-body" id="mUBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeMU()">Закрыть</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
 const API = "https://lotus-tur-production-23c6.up.railway.app";
-let CU = null, editTourId = null, allUsers = [], allBookings = [];
+let CU = null, editTourId = null, allUsers = [], allBookings = [], allTours = [];
+let _bDebounce = null, _uDebounce = null;
 
 const $ = id => document.getElementById(id);
 
@@ -392,22 +531,35 @@ async function api(path, opts = {}) {
       ...opts.headers,
     }
   });
-  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || "Ошибка " + r.status); }
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({}));
+    throw new Error(e.detail || "Ошибка " + r.status);
+  }
   return r.status === 204 ? null : r.json();
 }
 
 function toast(msg, type = "ok") {
   const el = $("toast");
-  el.textContent = (type === "ok" ? "✓ " : "✕ ") + msg;
+  el.textContent = (type === "ok" ? "✓ " : type === "warn" ? "⚠ " : "✕ ") + msg;
   el.className = "show " + type;
   clearTimeout(el._t);
   el._t = setTimeout(() => el.classList.remove("show"), 3200);
 }
 
-function fmt(iso) { return iso ? new Date(iso).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "2-digit" }) : "—"; }
+function fmt(iso) {
+  return iso ? new Date(iso).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "2-digit" }) : "—";
+}
+function fmtFull(iso) {
+  return iso ? new Date(iso).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+}
 
 function badge(s) {
-  const m = { booked: ["badge-booked","Предстоящий"], started: ["badge-started","В процессе"], completed: ["badge-completed","Завершён"], cancelled: ["badge-cancelled","Отменён"] };
+  const m = {
+    booked: ["badge-booked","Предстоящий"],
+    started: ["badge-started","В процессе"],
+    completed: ["badge-completed","Завершён"],
+    cancelled: ["badge-cancelled","Отменён"]
+  };
   const [c, l] = m[s] || ["badge-user", s];
   return `<span class="badge ${c}">${l}</span>`;
 }
@@ -417,11 +569,14 @@ async function checkAuth() {
   try {
     const me = await api("/api/auth/me");
     await api("/api/admin/stats");
-    CU = me; $("authOverlay").style.display = "none";
+    CU = me;
+    $("authOverlay").style.display = "none";
     $("avName").textContent = me.username;
     $("avInit").textContent = me.username[0].toUpperCase();
     loadDashboard();
-  } catch { $("authOverlay").style.display = "flex"; }
+  } catch {
+    $("authOverlay").style.display = "flex";
+  }
 }
 
 $("aBtn").onclick = async () => {
@@ -432,10 +587,16 @@ $("aBtn").onclick = async () => {
   try {
     const loginData = await api("/api/auth/login", { method: "POST", body: JSON.stringify({ username: u, password: p }) });
     if (loginData && loginData.access_token) localStorage.setItem("access_token", loginData.access_token);
-    try { await api("/api/admin/stats"); } catch { await api("/api/auth/logout", { method: "POST" }); throw new Error("Нет прав администратора."); }
+    try { await api("/api/admin/stats"); } catch {
+      await api("/api/auth/logout", { method: "POST" }).catch(() => {});
+      localStorage.removeItem("access_token");
+      throw new Error("Нет прав администратора.");
+    }
     const me = await api("/api/auth/me");
-    CU = me; $("authOverlay").style.display = "none";
-    $("avName").textContent = me.username; $("avInit").textContent = me.username[0].toUpperCase();
+    CU = me;
+    $("authOverlay").style.display = "none";
+    $("avName").textContent = me.username;
+    $("avInit").textContent = me.username[0].toUpperCase();
     loadDashboard();
   } catch (e) { $("aErr").textContent = e.message; }
   finally { $("aBtn").disabled = false; $("aBtn").textContent = "Войти"; }
@@ -444,7 +605,9 @@ $("aBtn").onclick = async () => {
 
 async function adminLogout() {
   await api("/api/auth/logout", { method: "POST" }).catch(() => {});
-  CU = null; $("authOverlay").style.display = "flex";
+  localStorage.removeItem("access_token");
+  CU = null;
+  $("authOverlay").style.display = "flex";
 }
 
 // ── NAVIGATION ──
@@ -452,14 +615,25 @@ function go(name) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.querySelectorAll(".ni").forEach(n => n.classList.remove("active"));
   $("page-" + name).classList.add("active");
-  document.querySelector(`[data-page="${name}"]`).classList.add("active");
-  const loaders = { dashboard: loadDashboard, bookings: loadBookings, tours: loadTours, users: loadUsers, admins: loadAdmins, schedule: buildScheduleAdmin };
+  const btn = document.querySelector(`[data-page="${name}"]`);
+  if (btn) btn.classList.add("active");
+  const loaders = {
+    dashboard: loadDashboard,
+    analytics: loadAnalytics,
+    bookings: loadBookings,
+    tours: loadTours,
+    users: loadUsers,
+    admins: loadAdmins,
+    schedule: buildScheduleAdmin,
+    notifications: loadNotifications,
+  };
   if (loaders[name]) loaders[name]();
 }
 
 // ── DASHBOARD ──
 async function loadDashboard() {
   $("statsRow").innerHTML = '<div class="loading-row" style="grid-column:1/-1"><div class="spin"></div></div>';
+  $("dashGrid").innerHTML = '';
   try {
     const s = await api("/api/admin/stats");
     $("statsRow").innerHTML = [
@@ -470,26 +644,106 @@ async function loadDashboard() {
       ["Отменено", s.cancelled_bookings, "c-danger"],
       ["Туров", s.total_tours, "c-accent"],
     ].map(([l, v, c]) => `<div class="stat ${c}"><div class="lbl">${l}</div><div class="val">${v}</div></div>`).join("")
-    + `<div class="stat c-success" style="grid-column:span 2"><div class="lbl">Выручка (оценка)</div><div class="val">${s.revenue_estimate?.toLocaleString("ru-RU") ?? 0} ₽</div></div>`;
+    + `<div class="stat c-success" style="grid-column:span 2"><div class="lbl">Выручка (оценка)</div><div class="val">${(s.revenue_estimate||0).toLocaleString("ru-RU")} ₽</div></div>`;
 
-    const [rb, ru] = await Promise.all([api("/api/admin/bookings?limit=6"), api("/api/admin/users?limit=6")]);
+    const [rb, ru] = await Promise.all([
+      api("/api/admin/bookings?limit=6"),
+      api("/api/admin/users?limit=6")
+    ]);
     $("dashGrid").innerHTML = `
       <div class="card">
         <div class="card-hd"><h3>Последние бронирования</h3><button class="btn btn-ghost" onclick="go('bookings')" style="font-size:.72rem;padding:5px 10px">Все →</button></div>
         <div class="tbl-wrap"><table>
           <thead><tr><th>#</th><th>Пользователь</th><th>Тур</th><th>Дата</th><th>Статус</th></tr></thead>
-          <tbody>${rb.length ? rb.map(b => `<tr><td class="td-m">${b.id}</td><td>${b.username}</td><td>${b.tour_name}</td><td class="td-m">${b.tour_date}</td><td>${badge(b.status)}</td></tr>`).join("") : '<tr><td colspan="5"><div class="empty"><span class="ico">📭</span>Нет бронирований</div></td></tr>'}</tbody>
+          <tbody>${rb.length ? rb.map(b => `<tr><td class="td-m">${b.id}</td><td>${escHtml(b.username)}</td><td>${escHtml(b.tour_name)}</td><td class="td-m">${b.tour_date}</td><td>${badge(b.status)}</td></tr>`).join("") : '<tr><td colspan="5"><div class="empty"><span class="ico">📭</span>Нет бронирований</div></td></tr>'}</tbody>
         </table></div>
       </div>
       <div class="card">
         <div class="card-hd"><h3>Новые пользователи</h3><button class="btn btn-ghost" onclick="go('users')" style="font-size:.72rem;padding:5px 10px">Все →</button></div>
         <div class="tbl-wrap"><table>
           <thead><tr><th>#</th><th>Имя</th><th>Email</th><th>Дата</th></tr></thead>
-          <tbody>${ru.length ? ru.map(u => `<tr><td class="td-m">${u.id}</td><td>${u.username}${u.is_admin?'<span class="badge badge-admin" style="margin-left:5px">admin</span>':''}</td><td class="td-m">${u.email}</td><td class="td-m">${fmt(u.created_at)}</td></tr>`).join("") : '<tr><td colspan="4"><div class="empty"><span class="ico">👤</span>Нет пользователей</div></td></tr>'}</tbody>
+          <tbody>${ru.length ? ru.map(u => `<tr><td class="td-m">${u.id}</td><td>${escHtml(u.username)}${u.is_admin ? '<span class="badge badge-admin" style="margin-left:5px">admin</span>' : ''}</td><td class="td-m">${escHtml(u.email)}</td><td class="td-m">${fmt(u.created_at)}</td></tr>`).join("") : '<tr><td colspan="4"><div class="empty"><span class="ico">👤</span>Нет пользователей</div></td></tr>'}</tbody>
         </table></div>
       </div>`;
   } catch (e) {
-    $("statsRow").innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="ico">⚠️</span>${e.message}</div>`;
+    $("statsRow").innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="ico">⚠️</span>${escHtml(e.message)}</div>`;
+  }
+}
+
+// ── ANALYTICS ──
+async function loadAnalytics() {
+  $("analyticsMetrics").innerHTML = '<div class="loading-row" style="grid-column:1/-1"><div class="spin"></div></div>';
+  $("chartTours").innerHTML = '';
+  $("revenueBody").innerHTML = '';
+  $("statusPie").innerHTML = '';
+  try {
+    const [stats, tours, bookings] = await Promise.all([
+      api("/api/admin/stats"),
+      api("/api/admin/tours"),
+      api("/api/admin/bookings?limit=500"),
+    ]);
+    allTours = tours;
+
+    // Metrics
+    const completedCount = bookings.filter(b => b.status === "completed").length;
+    const convRate = stats.total_bookings > 0 ? Math.round(completedCount / stats.total_bookings * 100) : 0;
+    const avgPerBooking = stats.active_bookings > 0 ? Math.round(stats.revenue_estimate / stats.active_bookings) : 0;
+
+    $("analyticsMetrics").innerHTML = [
+      ["💰 Выручка (оценка)", (stats.revenue_estimate||0).toLocaleString("ru-RU") + " ₽", "активные + завершённые"],
+      ["📊 Конверсия", convRate + "%", "завершённых от всех"],
+      ["🎒 Среднее / бронь", avgPerBooking.toLocaleString("ru-RU") + " ₽", "без отменённых"],
+      ["👥 Активных польз.", stats.active_users, "из " + stats.total_users + " всего"],
+      ["🏔 Туров в каталоге", stats.total_tours, ""],
+      ["❌ Отменено", stats.cancelled_bookings, "бронирований"],
+    ].map(([l, v, s]) => `<div class="metric"><div class="m-label">${l}</div><div class="m-value">${v}</div>${s ? `<div class="m-sub">${s}</div>` : ""}</div>`).join("");
+
+    // Bar chart: bookings per tour
+    if (tours.length) {
+      const sorted = [...tours].sort((a, b) => (b.bookings_count||0) - (a.bookings_count||0)).slice(0, 10);
+      const max = Math.max(...sorted.map(t => t.bookings_count || 0), 1);
+      $("chartTours").innerHTML = sorted.map(t => {
+        const h = Math.max(Math.round(((t.bookings_count||0) / max) * 150), 3);
+        return `<div class="bar-col">
+          <div class="bar" style="height:${h}px"><div class="bar-tip">${t.bookings_count||0} броней</div></div>
+          <div class="bar-label">${escHtml(t.name.split(" ").slice(0,2).join(" "))}</div>
+        </div>`;
+      }).join("");
+    }
+
+    // Status distribution
+    const statuses = { booked: 0, started: 0, completed: 0, cancelled: 0 };
+    bookings.forEach(b => { if (statuses[b.status] !== undefined) statuses[b.status]++; });
+    const statusColors = { booked: "var(--info)", started: "var(--warn)", completed: "var(--success)", cancelled: "var(--danger)" };
+    const statusNames = { booked: "Предстоящие", started: "В процессе", completed: "Завершённые", cancelled: "Отменённые" };
+    $("statusPie").innerHTML = Object.entries(statuses).map(([s, n]) => {
+      const pct = stats.total_bookings > 0 ? Math.round(n / stats.total_bookings * 100) : 0;
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:5px">
+          <span>${statusNames[s]}</span><span style="font-weight:700">${n} (${pct}%)</span>
+        </div>
+        <div style="height:8px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${statusColors[s]};border-radius:4px;transition:width .5s"></div>
+        </div>
+      </div>`;
+    }).join("");
+
+    // Revenue table
+    const revTours = tours
+      .map(t => ({ ...t, revenue: (t.price||0) * (t.bookings_count||0) }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+    $("revenueBody").innerHTML = revTours.map((t, i) => `
+      <tr>
+        <td class="td-m">${i + 1}</td>
+        <td style="font-weight:600">${escHtml(t.name)}</td>
+        <td style="text-align:center;font-weight:700">${t.bookings_count||0}</td>
+        <td style="color:var(--accent);font-weight:700">${(t.price||0).toLocaleString("ru-RU")} ₽</td>
+        <td style="color:var(--success);font-weight:800">${t.revenue.toLocaleString("ru-RU")} ₽</td>
+      </tr>`).join("") || '<tr><td colspan="5"><div class="empty"><span class="ico">📊</span>Нет данных</div></td></tr>';
+
+  } catch (e) {
+    $("analyticsMetrics").innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="ico">⚠️</span>${escHtml(e.message)}</div>`;
   }
 }
 
@@ -501,7 +755,6 @@ function buildScheduleAdmin() {
   const grid = $("weekAdmin");
   if (!grid) return;
   grid.innerHTML = "";
-  // We'll use the backend API or fallback to hardcoded data if not available
   const TOURS_SCHEDULE = [
     { name: "Сафари Парк", day: "Понедельник", time: "09:00", price: "5 100" },
     { name: "Вл-к: Нагорный парк + Маяк", day: "Понедельник", time: "07:00", price: "4 000" },
@@ -528,7 +781,7 @@ function buildScheduleAdmin() {
       col.innerHTML += '<div class="wday-none">—</div>';
     } else {
       tours.forEach(t => {
-        col.innerHTML += `<div class="wday-tour"><div class="tour-nm">${t.name}</div><div class="tour-t">${t.time} · от ${t.price}₽</div></div>`;
+        col.innerHTML += `<div class="wday-tour"><div class="tour-nm">${escHtml(t.name)}</div><div class="tour-t">${t.time} · от ${t.price}₽</div></div>`;
       });
     }
     grid.appendChild(col);
@@ -539,62 +792,138 @@ function buildScheduleAdmin() {
 async function loadBookings() {
   $("bBody").innerHTML = '<tr><td colspan="8"><div class="loading-row"><div class="spin"></div></div></td></tr>';
   const status = $("bStatus").value;
+  // BUG FIX: always send limit, combine with status filter properly
+  const qs = status ? `status=${status}&limit=200` : `limit=200`;
   try {
-    allBookings = await api("/api/admin/bookings" + (status ? "?status=" + status : "?limit=200"));
+    allBookings = await api("/api/admin/bookings?" + qs);
     $("bookCount").textContent = allBookings.length + " записей";
     renderBookings(allBookings);
   } catch (e) {
-    $("bBody").innerHTML = `<tr><td colspan="8"><div class="empty"><span class="ico">⚠️</span>${e.message}</div></td></tr>`;
+    $("bBody").innerHTML = `<tr><td colspan="8"><div class="empty"><span class="ico">⚠️</span>${escHtml(e.message)}</div></td></tr>`;
   }
+}
+
+function debouncedFilterBookings() {
+  clearTimeout(_bDebounce);
+  _bDebounce = setTimeout(filterBookings, 250);
 }
 
 function filterBookings() {
   const q = $("bSearch").value.toLowerCase();
-  renderBookings(q ? allBookings.filter(b => b.username.toLowerCase().includes(q) || b.tour_name.toLowerCase().includes(q) || (b.first_name||"").toLowerCase().includes(q)) : allBookings);
+  const filtered = q ? allBookings.filter(b =>
+    b.username.toLowerCase().includes(q) ||
+    b.tour_name.toLowerCase().includes(q) ||
+    (b.first_name||"").toLowerCase().includes(q) ||
+    (b.email||"").toLowerCase().includes(q) ||
+    (b.phone||"").includes(q)
+  ) : allBookings;
+  $("bFilterCount").textContent = q ? `Найдено: ${filtered.length}` : "";
+  renderBookings(filtered);
 }
 
 function renderBookings(list) {
+  // BUG FIX: properly show contact info (phone + email)
   $("bBody").innerHTML = list.length ? list.map(b => `
     <tr>
       <td class="td-m">#${b.id}</td>
-      <td><div style="font-weight:600">${b.username}</div></td>
-      <td>${b.tour_name}</td>
+      <td><div style="font-weight:600">${escHtml(b.username)}</div></td>
+      <td>${escHtml(b.tour_name)}</td>
       <td style="font-weight:600">${b.tour_date}</td>
       <td style="text-align:center">${b.people_count}</td>
-      <td><div>${b.first_name||"—"}</div><div class="td-m">${b.phone||""}</div></td>
+      <td><div style="font-size:.78rem">${escHtml(b.first_name||"—")}</div><div class="td-m">${escHtml(b.phone||"")}</div></td>
       <td>${badge(b.status)}</td>
-      <td><button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="openMB(${b.id},'${b.status}')">Статус</button></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="openMB(${b.id},'${b.status}')">✏ Статус</button>
+      </td>
     </tr>`).join("") : '<tr><td colspan="8"><div class="empty"><span class="ico">📭</span>Нет бронирований</div></td></tr>';
 }
 
-function openMB(id, status) { $("mBId").textContent = id; $("mBStatus").value = status; $("mBooking").dataset.id = id; $("mBooking").classList.add("open"); }
+function openMB(id, status) {
+  $("mBId").textContent = id;
+  $("mBStatus").value = status;
+  $("mBooking").dataset.id = id;
+  // Show booking details
+  const b = allBookings.find(b => b.id === id);
+  if (b) {
+    $("mBDetails").innerHTML = `
+      <div style="margin-top:12px;background:rgba(255,255,255,.03);border-radius:8px;padding:12px">
+        <div class="detail-row"><span class="detail-label">Пользователь</span><span class="detail-value">${escHtml(b.username)}</span></div>
+        <div class="detail-row"><span class="detail-label">Тур</span><span class="detail-value">${escHtml(b.tour_name)}</span></div>
+        <div class="detail-row"><span class="detail-label">Дата</span><span class="detail-value">${b.tour_date}</span></div>
+        <div class="detail-row"><span class="detail-label">Человек</span><span class="detail-value">${b.people_count}</span></div>
+        <div class="detail-row"><span class="detail-label">Имя</span><span class="detail-value">${escHtml(b.first_name||"—")}</span></div>
+        <div class="detail-row"><span class="detail-label">Телефон</span><span class="detail-value">${escHtml(b.phone||"—")}</span></div>
+        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${escHtml(b.email||"—")}</span></div>
+        <div class="detail-row"><span class="detail-label">Создано</span><span class="detail-value">${fmtFull(b.created_at)}</span></div>
+      </div>`;
+  } else {
+    $("mBDetails").innerHTML = "";
+  }
+  $("mBooking").classList.add("open");
+}
 function closeMB() { $("mBooking").classList.remove("open"); }
 async function saveBStatus() {
   const id = $("mBooking").dataset.id, status = $("mBStatus").value;
-  try { await api(`/api/admin/bookings/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) }); toast("Статус обновлён"); closeMB(); loadBookings(); }
-  catch (e) { toast(e.message, "err"); }
+  try {
+    await api(`/api/admin/bookings/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) });
+    toast("Статус обновлён");
+    closeMB();
+    loadBookings();
+  } catch (e) { toast(e.message, "err"); }
+}
+
+// ── EXPORT CSV ──
+function exportBookingsCSV() {
+  if (!allBookings.length) { toast("Нет данных для экспорта", "warn"); return; }
+  const header = ["#", "Пользователь", "Тур", "Дата", "Человек", "Имя", "Телефон", "Email", "Статус", "Создано"];
+  const rows = allBookings.map(b => [
+    b.id, b.username, b.tour_name, b.tour_date, b.people_count,
+    b.first_name||"", b.phone||"", b.email||"", b.status, fmtFull(b.created_at)
+  ]);
+  downloadCSV("bookings.csv", [header, ...rows]);
+  toast("CSV скачан");
+}
+
+function exportUsersCSV() {
+  if (!allUsers.length) { toast("Нет данных для экспорта", "warn"); return; }
+  const header = ["#", "Логин", "Email", "Полное имя", "Зарегистрирован", "Броней", "Статус", "Роль", "OAuth"];
+  const rows = allUsers.map(u => [
+    u.id, u.username, u.email, u.full_name||"", fmt(u.created_at),
+    u.bookings_count||0, u.is_active ? "Активен" : "Заблокирован", u.is_admin ? "Админ" : "Пользователь", u.is_oauth ? "Да" : "Нет"
+  ]);
+  downloadCSV("users.csv", [header, ...rows]);
+  toast("CSV скачан");
+}
+
+function downloadCSV(filename, rows) {
+  const bom = "\uFEFF";
+  const content = bom + rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(content);
+  a.download = filename;
+  a.click();
 }
 
 // ── TOURS ──
 async function loadTours() {
-  $("tBody").innerHTML = '<tr><td colspan="7"><div class="loading-row"><div class="spin"></div></div></td></tr>';
+  $("tBody").innerHTML = '<tr><td colspan="6"><div class="loading-row"><div class="spin"></div></div></td></tr>';
   try {
-    const tours = await api("/api/admin/tours");
-    $("tBody").innerHTML = tours.length ? tours.map(t => `
+    allTours = await api("/api/admin/tours");
+    // BUG FIX: Tour model has no 'schedule' field — removed that column from table
+    $("tBody").innerHTML = allTours.length ? allTours.map(t => `
       <tr>
-        <td class="td-m">${t.id}</td>
-        <td style="font-weight:600">${t.name}</td>
-        <td><span class="badge badge-booked">${t.tag}</span></td>
+        <td class="td-m" style="font-family:monospace">${escHtml(t.id)}</td>
+        <td style="font-weight:600">${escHtml(t.name)}</td>
+        <td><span class="badge badge-booked">${escHtml(t.tag)}</span></td>
         <td style="font-weight:700;color:var(--accent)">${(t.price||0).toLocaleString("ru-RU")} ₽</td>
-        <td class="td-m">${t.schedule||"—"}</td>
         <td style="text-align:center;font-weight:700">${t.bookings_count||0}</td>
-        <td>
-          <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick='openTourModal("${t.id}", ${JSON.stringify(t).replace(/'/g,"\\'")}  )'>✏ Ред.</button>
-          <button class="btn btn-danger" style="font-size:.72rem;padding:5px 10px;margin-left:5px" onclick="deleteTour('${t.id}','${t.name.replace(/'/g,"\\'")}')">🗑</button>
+        <td style="white-space:nowrap">
+          <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick='openTourModal("${escHtml(t.id)}", ${JSON.stringify(t).replace(/'/g,"\\'")})'>✏ Ред.</button>
+          <button class="btn btn-danger" style="font-size:.72rem;padding:5px 10px;margin-left:5px" onclick="deleteTour('${escHtml(t.id)}','${t.name.replace(/'/g,"\\'")}')">🗑</button>
         </td>
-      </tr>`).join("") : '<tr><td colspan="7"><div class="empty"><span class="ico">🏔</span>Туры не добавлены</div></td></tr>';
+      </tr>`).join("") : '<tr><td colspan="6"><div class="empty"><span class="ico">🏔</span>Туры не добавлены</div></td></tr>';
   } catch (e) {
-    $("tBody").innerHTML = `<tr><td colspan="7"><div class="empty"><span class="ico">⚠️</span>${e.message}</div></td></tr>`;
+    $("tBody").innerHTML = `<tr><td colspan="6"><div class="empty"><span class="ico">⚠️</span>${escHtml(e.message)}</div></td></tr>`;
   }
 }
 
@@ -605,26 +934,56 @@ function openTourModal(id = null, data = null) {
   $("tName").value = data?.name || ""; $("tTag").value = data?.tag || "";
   $("tPrice").value = data?.price || ""; $("tImg").value = data?.img_url || "";
   $("tDesc").value = data?.description || "";
+  // Show image preview
+  const prev = $("tImgPreview");
+  prev.innerHTML = data?.img_url ? `<img src="${data.img_url}" alt="preview" style="max-width:100%;max-height:120px;border-radius:8px;object-fit:cover" onerror="this.remove()">` : "";
   $("mTour").classList.add("open");
 }
+// Live image preview
+$("tImg").addEventListener("input", function() {
+  const prev = $("tImgPreview");
+  prev.innerHTML = this.value ? `<img src="${this.value}" alt="preview" style="max-width:100%;max-height:120px;border-radius:8px;object-fit:cover;margin-top:8px" onerror="this.remove()">` : "";
+});
 function closeMT() { $("mTour").classList.remove("open"); editTourId = null; }
 
 async function saveTour() {
   $("tSaveBtn").disabled = true;
   try {
-    const payload = { id: $("tId").value.trim(), name: $("tName").value.trim(), tag: $("tTag").value.trim(), price: parseInt($("tPrice").value), img_url: $("tImg").value.trim(), description: $("tDesc").value.trim() };
-    if (!payload.name || !payload.tag || !payload.price || !payload.id) { toast("Заполните обязательные поля", "err"); return; }
-    if (editTourId) { const { id, ...u } = payload; await api(`/api/admin/tours/${editTourId}`, { method: "PATCH", body: JSON.stringify(u) }); toast("Тур обновлён"); }
-    else { await api("/api/admin/tours", { method: "POST", body: JSON.stringify(payload) }); toast("Тур добавлен"); }
-    closeMT(); loadTours();
+    const payload = {
+      id: $("tId").value.trim(),
+      name: $("tName").value.trim(),
+      tag: $("tTag").value.trim(),
+      price: parseInt($("tPrice").value),
+      img_url: $("tImg").value.trim(),
+      description: $("tDesc").value.trim()
+    };
+    if (!payload.name || !payload.tag || !payload.price || !payload.id) {
+      toast("Заполните обязательные поля (ID, название, тег, цена)", "err");
+      return;
+    }
+    if (editTourId) {
+      // BUG FIX: send only updatable fields (no id), handle empty img_url
+      const { id, ...updateData } = payload;
+      if (!updateData.img_url) delete updateData.img_url;
+      await api(`/api/admin/tours/${editTourId}`, { method: "PATCH", body: JSON.stringify(updateData) });
+      toast("Тур обновлён");
+    } else {
+      await api("/api/admin/tours", { method: "POST", body: JSON.stringify(payload) });
+      toast("Тур добавлен");
+    }
+    closeMT();
+    loadTours();
   } catch (e) { toast(e.message, "err"); }
   finally { $("tSaveBtn").disabled = false; }
 }
 
 async function deleteTour(id, name) {
-  if (!confirm(`Удалить тур «${name}»?`)) return;
-  try { await api(`/api/admin/tours/${id}`, { method: "DELETE" }); toast("Тур удалён"); loadTours(); }
-  catch (e) { toast(e.message, "err"); }
+  if (!confirm(`Удалить тур «${name}»?\n\nВсе бронирования этого тура останутся в базе.`)) return;
+  try {
+    await api(`/api/admin/tours/${id}`, { method: "DELETE" });
+    toast("Тур удалён");
+    loadTours();
+  } catch (e) { toast(e.message, "err"); }
 }
 
 // ── USERS ──
@@ -635,18 +994,26 @@ async function loadUsers() {
     $("userCount").textContent = allUsers.length + " пользователей";
     renderUsers(allUsers);
   } catch (e) {
-    $("uBody").innerHTML = `<tr><td colspan="8"><div class="empty"><span class="ico">⚠️</span>${e.message}</div></td></tr>`;
+    $("uBody").innerHTML = `<tr><td colspan="8"><div class="empty"><span class="ico">⚠️</span>${escHtml(e.message)}</div></td></tr>`;
   }
+}
+
+function debouncedFilterUsers() {
+  clearTimeout(_uDebounce);
+  _uDebounce = setTimeout(filterUsers, 250);
 }
 
 function filterUsers() {
   const q = $("uSearch").value.toLowerCase();
   const f = $("uFilter").value;
   let list = allUsers;
-  if (q) list = list.filter(u => u.username.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
-  if (f === "active") list = list.filter(u => u.is_active && !u.is_admin);
+  if (q) list = list.filter(u => u.username.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || (u.full_name||"").toLowerCase().includes(q));
+  // BUG FIX: "active" should include admins who are active; removed incorrect admin exclusion
+  if (f === "active") list = list.filter(u => u.is_active);
   if (f === "blocked") list = list.filter(u => !u.is_active);
   if (f === "admin") list = list.filter(u => u.is_admin);
+  if (f === "oauth") list = list.filter(u => u.is_oauth);
+  $("uFilterCount").textContent = (q || f) ? `Найдено: ${list.length}` : "";
   renderUsers(list);
 }
 
@@ -654,43 +1021,90 @@ function renderUsers(list) {
   $("uBody").innerHTML = list.length ? list.map(u => `
     <tr>
       <td class="td-m">${u.id}</td>
-      <td><div style="font-weight:600">${u.username}</div>${u.full_name ? `<div class="td-m">${u.full_name}</div>` : ""}</td>
-      <td class="td-m">${u.email}</td>
+      <td>
+        <div style="font-weight:600">${escHtml(u.username)}${u.is_oauth ? '<span class="badge badge-oauth" style="margin-left:5px">OAuth</span>' : ""}</div>
+        ${u.full_name ? `<div class="td-m">${escHtml(u.full_name)}</div>` : ""}
+      </td>
+      <td class="td-m">${escHtml(u.email)}</td>
       <td class="td-m">${fmt(u.created_at)}</td>
       <td style="text-align:center;font-weight:700">${u.bookings_count||0}</td>
       <td>${u.is_active ? '<span class="badge badge-completed">Активен</span>' : '<span class="badge badge-cancelled">Заблокирован</span>'}</td>
       <td>${u.is_admin ? '<span class="badge badge-admin">Админ</span>' : '<span class="badge badge-user">Польз.</span>'}</td>
-      <td>
-        <button class="btn ${u.is_active ? 'btn-danger' : 'btn-success'}" style="font-size:.72rem;padding:5px 10px" onclick="toggleActive(${u.id},${!u.is_active})">${u.is_active ? "Блок." : "Разблок."}</button>
-        <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px;margin-left:4px" onclick="toggleAdmin(${u.id},${!u.is_admin})" ${u.id === CU?.id ? "disabled" : ""}>${u.is_admin ? "Снять admin" : "Дать admin"}</button>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost" style="font-size:.68rem;padding:4px 8px" onclick="openMU(${u.id})">👁</button>
+        <button class="btn ${u.is_active ? 'btn-danger' : 'btn-success'}" style="font-size:.68rem;padding:4px 8px;margin-left:3px" onclick="toggleActive(${u.id},${!u.is_active})">${u.is_active ? "Блок." : "Разблок."}</button>
+        <button class="btn btn-ghost" style="font-size:.68rem;padding:4px 8px;margin-left:3px" onclick="toggleAdmin(${u.id},${!u.is_admin})" ${u.id === CU?.id ? "disabled title='Нельзя изменить себя'" : ""}>${u.is_admin ? "Снять" : "+Адм"}</button>
       </td>
     </tr>`).join("") : '<tr><td colspan="8"><div class="empty"><span class="ico">👤</span>Не найдено</div></td></tr>';
 }
 
-async function toggleActive(id, state) {
-  try { await api(`/api/admin/users/${id}/toggle-active`, { method: "PATCH", body: JSON.stringify({ is_active: state }) }); toast(state ? "Разблокирован" : "Заблокирован"); loadUsers(); }
-  catch (e) { toast(e.message, "err"); }
+// User detail modal
+function openMU(id) {
+  const u = allUsers.find(u => u.id === id);
+  if (!u) return;
+  $("mUBody").innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+      <div class="user-detail-av">${u.username[0].toUpperCase()}</div>
+      <div>
+        <div style="font-weight:800;font-size:1rem">${escHtml(u.username)}</div>
+        <div style="color:var(--muted);font-size:.82rem">${escHtml(u.email)}</div>
+        <div style="margin-top:5px;display:flex;gap:6px">
+          ${u.is_admin ? '<span class="badge badge-admin">Администратор</span>' : '<span class="badge badge-user">Пользователь</span>'}
+          ${u.is_active ? '<span class="badge badge-completed">Активен</span>' : '<span class="badge badge-cancelled">Заблокирован</span>'}
+          ${u.is_oauth ? '<span class="badge badge-oauth">OAuth</span>' : ""}
+        </div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,.03);border-radius:8px;padding:4px 12px">
+      <div class="detail-row"><span class="detail-label">ID</span><span class="detail-value">#${u.id}</span></div>
+      <div class="detail-row"><span class="detail-label">Полное имя</span><span class="detail-value">${escHtml(u.full_name||"—")}</span></div>
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${escHtml(u.email)}</span></div>
+      <div class="detail-row"><span class="detail-label">Зарегистрирован</span><span class="detail-value">${fmtFull(u.created_at)}</span></div>
+      <div class="detail-row"><span class="detail-label">Бронирований</span><span class="detail-value" style="font-weight:800;color:var(--accent)">${u.bookings_count||0}</span></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn ${u.is_active ? 'btn-danger' : 'btn-success'}" onclick="toggleActive(${u.id},${!u.is_active});closeMU()">${u.is_active ? "Заблокировать" : "Разблокировать"}</button>
+      ${u.id !== CU?.id ? `<button class="btn btn-ghost" onclick="toggleAdmin(${u.id},${!u.is_admin});closeMU()">${u.is_admin ? "Снять права адм." : "Дать права адм."}</button>` : ""}
+    </div>`;
+  $("mUser").classList.add("open");
 }
+function closeMU() { $("mUser").classList.remove("open"); }
+
+async function toggleActive(id, state) {
+  try {
+    await api(`/api/admin/users/${id}/toggle-active`, { method: "PATCH", body: JSON.stringify({ is_active: state }) });
+    toast(state ? "Пользователь разблокирован" : "Пользователь заблокирован");
+    loadUsers();
+  } catch (e) { toast(e.message, "err"); }
+}
+
 async function toggleAdmin(id, state) {
-  try { await api(`/api/admin/users/${id}/toggle-admin`, { method: "PATCH", body: JSON.stringify({ is_admin: state }) }); toast(state ? "Права выданы" : "Права сняты"); loadUsers(); if (state) loadAdmins(); }
-  catch (e) { toast(e.message, "err"); }
+  try {
+    await api(`/api/admin/users/${id}/toggle-admin`, { method: "PATCH", body: JSON.stringify({ is_admin: state }) });
+    toast(state ? "Права администратора выданы" : "Права администратора сняты");
+    loadUsers();
+    // BUG FIX: refresh admins page too only if it's active
+    if ($("page-admins").classList.contains("active")) loadAdmins();
+  } catch (e) { toast(e.message, "err"); }
 }
 
 // ── ADMINS ──
 async function loadAdmins() {
   $("adminBody").innerHTML = '<tr><td colspan="5"><div class="loading-row"><div class="spin"></div></div></td></tr>';
   try {
-    const admins = (await api("/api/admin/users?limit=500")).filter(u => u.is_admin);
+    // BUG FIX: use allUsers cache if available, otherwise fetch; avoids double 500-user fetch
+    const users = allUsers.length ? allUsers : await api("/api/admin/users?limit=500");
+    const admins = users.filter(u => u.is_admin);
     $("adminBody").innerHTML = admins.length ? admins.map(u => `
       <tr>
         <td class="td-m">${u.id}</td>
-        <td style="font-weight:600">${u.username} ${u.id === CU?.id ? '<span class="badge badge-admin" style="margin-left:5px">вы</span>' : ""}</td>
-        <td class="td-m">${u.email}</td>
+        <td style="font-weight:600">${escHtml(u.username)} ${u.id === CU?.id ? '<span class="badge badge-admin" style="margin-left:5px">вы</span>' : ""}</td>
+        <td class="td-m">${escHtml(u.email)}</td>
         <td class="td-m">${fmt(u.created_at)}</td>
-        <td>${u.id !== CU?.id ? `<button class="btn btn-danger" style="font-size:.72rem;padding:5px 10px" onclick="toggleAdmin(${u.id},false);loadAdmins()">Снять права</button>` : '<span class="td-m">—</span>'}</td>
+        <td>${u.id !== CU?.id ? `<button class="btn btn-danger" style="font-size:.72rem;padding:5px 10px" onclick="toggleAdmin(${u.id},false)">Снять права</button>` : '<span class="td-m">—</span>'}</td>
       </tr>`).join("") : '<tr><td colspan="5"><div class="empty"><span class="ico">🔐</span>Нет администраторов</div></td></tr>';
   } catch (e) {
-    $("adminBody").innerHTML = `<tr><td colspan="5"><div class="empty"><span class="ico">⚠️</span>${e.message}</div></td></tr>`;
+    $("adminBody").innerHTML = `<tr><td colspan="5"><div class="empty"><span class="ico">⚠️</span>${escHtml(e.message)}</div></td></tr>`;
   }
 }
 
@@ -699,7 +1113,9 @@ async function grantAdmin() {
   const msg = $("adminGrantMsg");
   if (!val) { msg.style.color = "var(--danger)"; msg.textContent = "Введите имя пользователя или email."; return; }
   try {
-    const users = await api("/api/admin/users?limit=1000");
+    // BUG FIX: use cache if available
+    const users = allUsers.length ? allUsers : await api("/api/admin/users?limit=1000");
+    if (!allUsers.length) allUsers = users;
     const found = users.find(u => u.username === val || u.email === val);
     if (!found) { msg.style.color = "var(--danger)"; msg.textContent = "Пользователь не найден."; return; }
     if (found.is_admin) { msg.style.color = "var(--warn)"; msg.textContent = "Пользователь уже является администратором."; return; }
@@ -707,12 +1123,56 @@ async function grantAdmin() {
     toast("Права администратора выданы — " + found.username);
     msg.style.color = "var(--success)"; msg.textContent = "✓ " + found.username + " назначен администратором";
     $("newAdminInput").value = "";
+    loadUsers();
     loadAdmins();
   } catch (e) { msg.style.color = "var(--danger)"; msg.textContent = e.message; }
 }
 
+// ── NOTIFICATIONS ──
+async function loadNotifications() {
+  $("notifList").innerHTML = '<div class="loading-row"><div class="spin"></div></div>';
+  $("notifCount").textContent = "";
+  try {
+    const notifs = await api("/api/notifications/");
+    const unreadCount = notifs.filter(n => !n.is_read).length;
+    $("notifCount").textContent = `${notifs.length} уведомлений${unreadCount > 0 ? `, ${unreadCount} непрочитанных` : ""}`;
+    if (!notifs.length) {
+      $("notifList").innerHTML = '<div class="empty"><span class="ico">🔔</span>Уведомлений нет</div>';
+      return;
+    }
+    const typeIcons = { booking: "🎒", achievement: "🏆", promo: "🎁", system: "⚙️" };
+    $("notifList").innerHTML = notifs.map(n => `
+      <div class="notif-item ${n.is_read ? "" : "unread"}">
+        <div class="notif-icon">${typeIcons[n.type] || "🔔"}</div>
+        <div class="notif-body" style="flex:1">
+          <div class="n-title">${escHtml(n.title)}</div>
+          <div class="n-text">${escHtml(n.body)}</div>
+          <div class="n-time">${fmtFull(n.created_at)}</div>
+        </div>
+        ${!n.is_read ? '<div class="notif-dot"></div>' : ""}
+      </div>`).join("");
+  } catch (e) {
+    $("notifList").innerHTML = `<div class="empty"><span class="ico">⚠️</span>${escHtml(e.message)}</div>`;
+  }
+}
+
+// ── UTILS ──
+function escHtml(s) {
+  if (s == null) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
 // ── CLOSE MODALS ON BG CLICK ──
-[$("mBooking"), $("mTour")].forEach(m => m.addEventListener("click", e => { if (e.target === m) m.classList.remove("open"); }));
+[$("mBooking"), $("mTour"), $("mUser")].forEach(m => {
+  if (m) m.addEventListener("click", e => { if (e.target === m) m.classList.remove("open"); });
+});
+
+// ── ESC key closes modals ──
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    [$("mBooking"), $("mTour"), $("mUser")].forEach(m => { if (m) m.classList.remove("open"); });
+  }
+});
 
 checkAuth();
 </script>

@@ -272,8 +272,18 @@
   opacity: 0;
   transition: opacity 0.3s, transform 0.3s;
   pointer-events: none;
+  max-width: 90vw;
+  text-align: center;
 }
 .toast-msg.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+.toast-msg.toast-error {
+  background: #ef4444;
+  color: #fff;
+}
+.toast-msg.toast-success {
+  background: #22c55e;
+  color: #fff;
 }

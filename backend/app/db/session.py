@@ -5,7 +5,15 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from app.core.config import settings
 from app.db.base import Base
 
-_is_sqlite = "sqlite" in settings.DATABASE_URL
+_url = settings.DATABASE_URL
+
+# * Railway injects postgres:// — normalize to asyncpg driver
+if _url.startswith("postgres://"):
+    _url = _url.replace("postgres://", "postgresql+asyncpg://", 1)
+elif _url.startswith("postgresql://") and "+asyncpg" not in _url:
+    _url = _url.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+_is_sqlite = "sqlite" in _url
 
 _engine_kwargs: dict = {
     "echo": settings.ENV == "development",
@@ -15,12 +23,11 @@ _engine_kwargs: dict = {
 if _is_sqlite:
     _engine_kwargs["connect_args"] = {"check_same_thread": False}
 else:
-
     _engine_kwargs["pool_size"]    = 10
     _engine_kwargs["max_overflow"] = 20
     _engine_kwargs["pool_recycle"] = 1800
 
-engine = create_async_engine(settings.DATABASE_URL, **_engine_kwargs)
+engine = create_async_engine(_url, **_engine_kwargs)
 
 AsyncSessionLocal = async_sessionmaker(
     engine,
@@ -29,7 +36,7 @@ AsyncSessionLocal = async_sessionmaker(
 )
 
 async def init_db() -> None:
-    import app.models
+    import app.models  # noqa: F401 – registers ORM models
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

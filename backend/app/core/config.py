@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
 
+    # * Railway sets DATABASE_URL automatically (postgresql+asyncpg)
     DATABASE_URL: str = "sqlite+aiosqlite:///./lotos_tour.db"
 
     SECRET_KEY: str = Field(
@@ -13,7 +14,7 @@ class Settings(BaseSettings):
         min_length=32,
     )
     ALGORITHM: Literal["HS256", "HS512", "RS256"] = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60 * 24, gt=0)
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60 * 24 * 7, gt=0)
 
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
@@ -34,8 +35,9 @@ class Settings(BaseSettings):
         "http://127.0.0.1:5173",
     ]
 
-    RATE_LIMIT_REQUESTS: int = 100
-    RATE_LIMIT_WINDOW_SECONDS: int = 60
+    ALLOWED_HOSTS: list[str] = [
+        "lotus-tur-production-23c6.up.railway.app",
+    ]
 
     ENV: Literal["development", "production", "testing"] = "development"
 
@@ -46,13 +48,11 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def _enforce_production_secret(self) -> "Settings":
-        insecure = "CHANGE_ME_IN_PRODUCTION"
-        if self.ENV == "production" and insecure in self.SECRET_KEY:
+        if self.ENV == "production" and "CHANGE_ME_IN_PRODUCTION" in self.SECRET_KEY:
             raise ValueError(
                 "SECRET_KEY не изменён — запуск в production запрещён. "
                 "Сгенерируйте ключ: openssl rand -hex 32"
             )
-
         if self.ENV == "development" and "null" not in self.CORS_ORIGINS:
             self.CORS_ORIGINS = list(self.CORS_ORIGINS) + ["null"]
         return self

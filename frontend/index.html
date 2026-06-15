@@ -799,3 +799,13 @@
     <script src="js/ui.js"></script>
   </body>
 </html>
+
+python3 -c "
+from app.db.session import SessionLocal
+from app.models.user import User
+db = SessionLocal()
+u = db.query(User).filter(User.username == 'ManRu140').first()
+u.is_admin = True
+db.commit()
+print('Done:', u.username)
+"

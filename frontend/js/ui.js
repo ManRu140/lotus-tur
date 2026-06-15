@@ -103,17 +103,19 @@ const tourSlides = {
   ],
 };
 
-function showToast(msg) {
+// * type: "default" | "success" | "error"
+function showToast(msg, type = "default") {
   let toast = document.getElementById("toastMsg");
   if (!toast) {
     toast = document.createElement("div");
     toast.id = "toastMsg";
-    toast.className = "toast-msg";
     document.body.appendChild(toast);
   }
+  toast.className = "toast-msg toast-" + type;
   toast.textContent = msg;
   toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 2500);
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => toast.classList.remove("show"), 3000);
 }
 
 function toggleProfile() {

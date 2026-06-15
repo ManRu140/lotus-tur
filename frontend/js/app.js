@@ -144,32 +144,51 @@ async function loadMyAchievements() {
   }
 }
 
+// ? Validates email format client-side
+function _isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// ? Checks min password strength: 8+ chars, uppercase, digit
+function _checkPasswordStrength(password) {
+  if (password.length < 8) return "Пароль — минимум 8 символов";
+  if (!/[A-Z]/.test(password)) return "Добавьте хотя бы одну заглавную букву";
+  if (!/\d/.test(password)) return "Добавьте хотя бы одну цифру";
+  return null;
+}
+
 async function handleAuthSubmit(e) {
   e.preventDefault();
   const username = document.getElementById("authLoginInput").value.trim();
   const password = document.getElementById("authPasswordInput").value;
 
   if (!username || !password) {
-    showToast(currentLang === "RU" ? "Заполните все поля." : "Please fill in all fields.");
+    showToast("Заполните все поля.", "error");
     return;
   }
 
   if (currentAuthMode === "register") {
+    const email = document.getElementById("authEmailInput").value.trim();
+    if (!email) { showToast("Введите email.", "error"); return; }
+    if (!_isValidEmail(email)) { showToast("Введите корректный email.", "error"); return; }
+
+    const strengthErr = _checkPasswordStrength(password);
+    if (strengthErr) { showToast(strengthErr, "error"); return; }
+
     const passConfirm = document.getElementById("authPasswordConfirmInput").value;
     if (password !== passConfirm) {
-      showToast(currentLang === "RU" ? "Пароли не совпадают!" : "Passwords do not match!");
+      showToast("Пароли не совпадают!", "error");
       return;
     }
   }
 
   const btn = document.getElementById("authSubmitBtn");
   const originalText = btn ? btn.textContent : "";
-  if (btn) { btn.disabled = true; btn.textContent = "..."; }
+  if (btn) { btn.disabled = true; btn.textContent = "⏳"; }
 
   try {
     let data;
     if (currentAuthMode === "login") {
-
       const res = await fetch(API_BASE + "/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -183,10 +202,6 @@ async function handleAuthSubmit(e) {
       data = await res.json();
     } else {
       const email = document.getElementById("authEmailInput").value.trim();
-      if (!email) {
-        showToast("Введите email.");
-        return;
-      }
       const res = await fetch(API_BASE + "/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -202,13 +217,14 @@ async function handleAuthSubmit(e) {
 
     _applyLoginData(data);
     toggleAuthModal();
+    showToast(currentAuthMode === "login" ? "Добро пожаловать! 👋" : "Аккаунт создан! 🎉", "success");
     setTimeout(() => {
       toggleProfile();
       loadProfileData();
     }, 300);
 
   } catch (err) {
-    showToast(err.message);
+    showToast(err.message, "error");
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = originalText; }
   }

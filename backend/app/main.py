@@ -47,11 +47,10 @@ app.add_middleware(CSRFMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 if settings.ENV == "production":
-
-    allowed_hosts = getattr(settings, "ALLOWED_HOSTS", None) or [
-        "lotus-tur-production-23c6.up.railway.app",
-    ]
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=["*"],
+    )
 
 app.add_middleware(
     CORSMiddleware,

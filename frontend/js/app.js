@@ -104,7 +104,7 @@ async function loadProfileData() {
     } catch {}
 
   } catch (e) {
-    console.warn("Не удалось загрузить профиль:", e.message);
+
   }
 
   loadMyBookings();
@@ -129,7 +129,7 @@ async function loadMyBookings() {
       };
     }));
   } catch (e) {
-    console.warn("Не удалось загрузить бронирования:", e.message);
+
     if (typeof mockUserTours !== "undefined") renderUserTours(mockUserTours);
   }
 }
@@ -139,7 +139,7 @@ async function loadMyAchievements() {
     const achievements = await apiFetch("/api/profile/achievements");
     renderAchievements(achievements);
   } catch (e) {
-    console.warn("Не удалось загрузить достижения:", e.message);
+
     if (typeof achievementsList !== "undefined") renderAchievements(achievementsList);
   }
 }
@@ -292,7 +292,7 @@ async function loginWithVK() {
 
     window.location.href = url;
   } catch (err) {
-    console.error("Ошибка VK OAuth:", err);
+
     showToast("Не удалось подключиться к серверу.");
   }
 }
@@ -324,7 +324,7 @@ async function loginWithGoogle() {
 
     window.location.href = url.toString();
   } catch (err) {
-    console.error("Ошибка Google OAuth:", err);
+
     showToast("Не удалось подключиться к серверу.");
   }
 }
@@ -385,7 +385,7 @@ async function handleGoogleCallback() {
     }, 300);
 
   } catch (err) {
-    console.error("OAuth callback error:", err);
+
     showToast("Не удалось подключиться к серверу.");
   }
 }

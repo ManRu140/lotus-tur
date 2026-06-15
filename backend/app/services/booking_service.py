@@ -8,6 +8,7 @@ from app.models.tour import Tour
 from app.models.user import User
 from app.schemas.schemas import BookingCreate, BookingOut
 
+
 def _booking_to_out(booking: Booking) -> BookingOut:
     return BookingOut(
         id=booking.id,
@@ -19,6 +20,7 @@ def _booking_to_out(booking: Booking) -> BookingOut:
         created_at=booking.created_at,
     )
 
+
 async def create_booking(data: BookingCreate, user: User, session: AsyncSession) -> BookingOut:
     result = await session.execute(
         select(Tour).where(Tour.id == data.tour_id).with_for_update()
@@ -26,10 +28,7 @@ async def create_booking(data: BookingCreate, user: User, session: AsyncSession)
     tour = result.scalar_one_or_none()
 
     if not tour:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Тур не найден",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Тур не найден")
 
     if data.tour_date in tour.booked_dates_list:
         raise HTTPException(
@@ -38,10 +37,15 @@ async def create_booking(data: BookingCreate, user: User, session: AsyncSession)
         )
 
     booking = Booking(
-        user_id=user.id, tour_id=data.tour_id,
-        first_name=data.first_name, phone=data.phone, email=data.email,
-        tour_date=data.tour_date, preferred_time=data.preferred_time,
-        people_count=data.people_count, contact_method=data.contact_method,
+        user_id=user.id,
+        tour_id=data.tour_id,
+        first_name=data.first_name,
+        phone=data.phone,
+        email=data.email,
+        tour_date=data.tour_date,
+        preferred_time=data.preferred_time,
+        people_count=data.people_count,
+        contact_method=data.contact_method,
         comment=data.comment,
         status="booked",
     )
@@ -54,8 +58,8 @@ async def create_booking(data: BookingCreate, user: User, session: AsyncSession)
 
     await session.commit()
     await session.refresh(booking)
-
     return _booking_to_out(booking)
+
 
 async def get_my_bookings(user: User, session: AsyncSession) -> list[BookingOut]:
     result = await session.execute(
@@ -67,6 +71,7 @@ async def get_my_bookings(user: User, session: AsyncSession) -> list[BookingOut]
     bookings = result.unique().scalars().all()
     return [_booking_to_out(b) for b in bookings]
 
+
 async def get_booking_by_id(booking_id: int, user: User, session: AsyncSession) -> BookingOut:
     result = await session.execute(
         select(Booking).where(Booking.id == booking_id).options(joinedload(Booking.tour))
@@ -74,42 +79,35 @@ async def get_booking_by_id(booking_id: int, user: User, session: AsyncSession) 
     booking = result.unique().scalar_one_or_none()
 
     if booking is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Бронирование не найдено",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Бронирование не найдено")
     if booking.user_id != user.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Нет доступа к этому бронированию",
+            status_code=status.HTTP_403_FORBIDDEN, detail="Нет доступа к этому бронированию"
         )
-
     return _booking_to_out(booking)
+
 
 async def cancel_booking(booking_id: int, user: User, session: AsyncSession) -> BookingOut:
     result = await session.execute(
-        select(Booking).where(Booking.id == booking_id).options(joinedload(Booking.tour))
+        select(Booking)
+        .where(Booking.id == booking_id)
+        .options(joinedload(Booking.tour))
+        .with_for_update()
     )
     booking = result.unique().scalar_one_or_none()
 
     if booking is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Бронирование не найдено",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Бронирование не найдено")
     if booking.user_id != user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Нет доступа",
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Нет доступа")
     if booking.status == "cancelled":
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Бронирование уже отменено",
+            status_code=status.HTTP_409_CONFLICT, detail="Бронирование уже отменено"
         )
 
     booking.status = "cancelled"
 
+    # Освобождаем дату только если нет других активных бронирований на неё
     other_active = await session.execute(
         select(Booking.id).where(
             Booking.tour_id == booking.tour_id,
@@ -120,10 +118,9 @@ async def cancel_booking(booking_id: int, user: User, session: AsyncSession) -> 
     )
     if other_active.scalar_one_or_none() is None and booking.tour:
         freed_date = booking.tour_date
-        remaining_dates = [d for d in booking.tour.booked_dates_list if d != freed_date]
-        booking.tour.booked_dates = ",".join(sorted(remaining_dates)) or None
+        remaining = [d for d in booking.tour.booked_dates_list if d != freed_date]
+        booking.tour.booked_dates = ",".join(sorted(remaining)) or None
 
     await session.commit()
     await session.refresh(booking)
-
     return _booking_to_out(booking)

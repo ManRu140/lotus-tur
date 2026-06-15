@@ -32,7 +32,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         if _IS_PROD:
             response.headers["Strict-Transport-Security"] = _HSTS
 
-        response.headers.pop("server",       None)
-        response.headers.pop("x-powered-by", None)
+        if "server" in response.headers:
+            del response.headers["server"]
+        if "x-powered-by" in response.headers:
+            del response.headers["x-powered-by"]
 
         return response

@@ -186,3 +186,4 @@ class TestSecurity:
             headers={"Authorization": f"Bearer {token}"},
         )
         assert resp.status_code == 422
+

@@ -1,3 +1,21 @@
+/* ==========================================================================
+   LOTUS — Адаптивные стили (Mobile-First)
+   Структура:
+     1. Базовые сбросы и утилиты UX
+     2. Мобильные (320px–480px) — дефолт без медиазапроса
+     3. Планшеты (@media ≥ 481px)
+     4. Ноутбуки (@media ≥ 769px / ≥ 968px)
+     5. Десктоп (@media ≥ 1200px)
+     6. Ultra-Wide (@media ≥ 1600px)
+     7. Специальные медиа (pointer: coarse, landscape, reduced-motion, @supports)
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. БАЗОВЫЕ СБРОСЫ И UX-УТИЛИТЫ
+   ========================================================================== */
+
+/* Убираем синий flash при тапе на мобильных */
 a,
 button,
 [role="button"],
@@ -6,11 +24,11 @@ input,
 select,
 textarea,
 label {
-
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
+/* Минимальная зона клика 44x44px для всех интерактивных элементов */
 button:not(.filter-chip),
 .btn-book,
 .btn-all-tours,
@@ -24,11 +42,13 @@ button:not(.filter-chip),
 .auth-tab-btn,
 .calendar-nav-btn,
 .lang-switch,
-.profile-btn {
+.profile-btn,
+.burger-btn {
   min-height: 44px;
   min-width: 44px;
 }
 
+/* Плавные переходы для интерактивных элементов */
 a,
 button,
 input,
@@ -43,19 +63,23 @@ textarea {
     transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+/* GPU-ускорение для тяжёлых слоёв */
 .side-profile,
 .modal-auth,
 .modal-booking,
-.nav-container {
+.nav-container,
+.mobile-nav-menu {
   will-change: transform, opacity;
 }
 
+/* Предотвращаем масштабирование при фокусе на iOS (font-size < 16px) */
 input,
 select,
 textarea {
   font-size: max(16px, 1em);
 }
 
+/* Видимый контур фокуса для клавиатурной навигации */
 :focus-visible {
   outline: 2px solid var(--accent-liquid);
   outline-offset: 3px;
@@ -65,39 +89,177 @@ textarea {
   outline: none;
 }
 
+/* Резиновые изображения и медиафайлы */
+img,
+video,
+iframe,
+embed,
+svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+
+/* ==========================================================================
+   2. МОБИЛЬНЫЕ (320px–480px) — базовые стили без медиазапроса
+   ========================================================================== */
+
+/* -- Навигация --------------------------------------------------------- */
+
 .nav-container {
-  position: absolute;
-  top: 16px;
+  position: fixed;
+  top: 12px;
   left: 4%;
   width: 92%;
-  padding: 0 16px;
+  padding: 0 12px 0 16px;
+  height: 56px;
+  max-height: 56px;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-light);
+  border-radius: 50px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
+  color: var(--text-light-main);
 }
 
-header {
-  padding: 24px 4% 40px;
-  min-height: 100svh;
-}
-
+/* Десктопная навигация и правый блок скрыты на мобилке */
 nav,
 .right-block {
   display: none;
 }
 
-.mobile-profile-btn {
+/* -- Бургер-кнопка ---------------------------------------------------- */
+
+.burger-btn {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.burger-btn span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease;
+  transform-origin: center;
+}
+
+.burger-btn.is-open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.burger-btn.is-open span:nth-child(2) {
+  opacity: 0;
+  width: 0;
+}
+.burger-btn.is-open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* -- Мобильное меню (fullscreen overlay) ------------------------------ */
+
+.mobile-nav-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  background: var(--glass-bg-dark);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(1.5rem, 5vh, 2.5rem);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.97);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.mobile-nav-menu.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.mobile-nav-menu a,
+.mobile-nav-menu button {
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 700;
+  color: var(--text-light-main);
+  text-decoration: none;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 20px;
+  border-radius: 4px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+}
+
+.mobile-nav-menu a:hover,
+.mobile-nav-menu button:hover {
+  color: var(--accent-liquid);
+}
+
+.mobile-nav-footer {
+  position: absolute;
+  bottom: clamp(20px, 5vh, 40px);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* -- Герой ------------------------------------------------------------ */
+
+header {
+  padding: clamp(20px, 4vw, 40px) 4% 40px;
+  min-height: 100svh;
 }
 
 .hero-content {
-  margin-top: 20vh;
+  margin-top: 18vh;
   margin-bottom: 10vh;
   max-width: 100%;
 }
+
 .hero-content h1 {
-  font-size: clamp(2rem, 8vw, 4rem);
+  font-size: clamp(2rem, 9vw, 4rem);
   letter-spacing: clamp(1px, 1vw, 3px);
+  line-height: 1.1;
 }
+
 .hero-content p {
   font-size: clamp(0.9rem, 3vw, 1.1rem);
+  line-height: 1.6;
+  margin-bottom: clamp(24px, 5vw, 40px);
 }
 
 .btn-book {
@@ -107,58 +269,75 @@ nav,
   font-size: 1rem;
 }
 
-.section-dark {
-  flex-direction: column;
-  padding: 60px 4%;
-  gap: 30px;
-}
-.section-dark .image-grid {
-  flex-direction: column;
-  gap: 12px;
-}
-.section-dark .img-box {
-  height: 200px;
-  width: 100%;
-}
+/* -- Секция "О нас" --------------------------------------------------- */
 
 .section-about {
   flex-direction: column;
-  padding: 60px 4%;
-  gap: 30px;
+  padding: clamp(48px, 8vw, 60px) 4%;
+  gap: 24px;
 }
+
 .about-image {
   width: 100%;
-  height: 260px;
+  height: clamp(220px, 50vw, 280px);
   border-radius: 12px;
+  object-fit: cover;
 }
+
 .about-content h2 {
   font-size: clamp(1.4rem, 5vw, 2rem);
 }
 
-.tours-section {
-  padding: 60px 4% 50px;
+/* -- Тёмная секция ---------------------------------------------------- */
+
+.section-dark {
+  flex-direction: column;
+  padding: clamp(48px, 8vw, 60px) 4%;
+  gap: 24px;
 }
+
+.section-dark .image-grid {
+  flex-direction: column;
+  gap: 10px;
+}
+
+.section-dark .img-box {
+  height: clamp(180px, 40vw, 220px);
+  width: 100%;
+}
+
+/* -- Секция туров ----------------------------------------------------- */
+
+.tours-section {
+  padding: clamp(48px, 8vw, 60px) 4% 50px;
+}
+
 .section-head {
   flex-direction: column;
   align-items: flex-start;
   gap: 14px;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
+
 .section-main-title {
   font-size: clamp(1.4rem, 5vw, 2rem);
 }
+
 .btn-all-tours {
   width: 100%;
   justify-content: center;
   padding: 14px 20px;
 }
+
 .tours-grid {
   flex-direction: column;
   gap: 12px;
 }
+
 .tour-card {
-  height: 280px;
+  height: clamp(240px, 55vw, 300px);
   border-radius: 16px;
+  width: 100%;
 }
 
 .tours-grid:not(.view-all-cards) .tour-card .tour-static-title {
@@ -170,54 +349,70 @@ nav,
 }
 
 .tours-grid.view-all-cards {
+  display: grid;
   grid-template-columns: 1fr;
   gap: 14px;
 }
 
+/* -- Отзывы ----------------------------------------------------------- */
+
 #reviews-section {
-  padding: 60px 0 40px;
+  padding: clamp(48px, 8vw, 60px) 0 36px;
 }
+
 #reviews-section h2 {
   font-size: clamp(1.5rem, 6vw, 2.5rem);
   padding-left: 4%;
-  margin-bottom: 28px;
-}
-.review-card-item {
-  flex: 0 0 300px;
-  padding: 22px;
+  margin-bottom: 24px;
 }
 
-.main-footer {
-  padding: 50px 4% 24px;
+.review-card-item {
+  flex: 0 0 clamp(280px, 80vw, 320px);
+  padding: 20px;
 }
+
+/* -- Подвал ----------------------------------------------------------- */
+
+.main-footer {
+  padding: clamp(40px, 8vw, 50px) 4% 24px;
+}
+
 .footer-grid {
   flex-direction: column;
-  gap: 30px;
-  margin-bottom: 40px;
+  gap: 28px;
+  margin-bottom: 36px;
 }
+
 .footer-about {
   max-width: 100%;
 }
+
 .footer-bottom {
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
 }
 
+/* -- Модалки и боковая панель ----------------------------------------- */
+
 .side-profile {
   width: 100%;
   right: -100%;
+}
+.side-profile.open {
+  right: 0;
 }
 
 .auth-container {
   width: 92vw;
   max-width: 440px;
-  padding: 30px 20px;
+  padding: clamp(20px, 5vw, 30px) clamp(16px, 4vw, 24px);
 }
+
 .booking-container {
   width: 92vw;
   max-width: 540px;
-  padding: 30px 20px;
+  padding: clamp(20px, 5vw, 30px) clamp(16px, 4vw, 24px);
   max-height: 92svh;
 }
 
@@ -231,63 +426,143 @@ nav,
   font-size: 0.9rem;
 }
 
-@media (min-width: 480px) {
-  header {
-    padding: 28px 5% 40px;
-  }
+
+/* ==========================================================================
+   3. ПЛАНШЕТЫ (481px–768px)
+   Изменения: кнопка "В путь" — inline, 2 колонки туров,
+   увеличены отступы, заголовок секции туров — строка.
+   ========================================================================== */
+
+@media (min-width: 481px) {
   .nav-container {
-    top: 18px;
-    left: 5%;
-    width: 90%;
+    top: 16px;
+    left: 4%;
+    width: 92%;
+    padding: 0 16px 0 20px;
   }
+
+  header {
+    padding: clamp(24px, 4vw, 40px) 5% 40px;
+  }
+
   .hero-content {
     margin-top: 22vh;
+    max-width: 90%;
   }
+
   .btn-book {
     width: auto;
     padding: 14px 28px;
   }
+
   .about-image {
-    height: 320px;
+    height: clamp(280px, 40vw, 340px);
   }
+
   .tour-card {
-    height: 320px;
+    height: clamp(280px, 45vw, 340px);
   }
+
   .tours-grid.view-all-cards {
     grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
+
   .review-card-item {
     flex: 0 0 360px;
   }
+
   .section-dark .img-box {
-    height: 220px;
+    height: clamp(200px, 35vw, 240px);
+  }
+
+  .section-dark .image-grid {
+    flex-direction: row;
+    gap: 14px;
+  }
+
+  .section-head {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .btn-all-tours {
+    width: auto;
   }
 }
 
-@media (min-width: 768px) {
 
+/* ==========================================================================
+   4a. НОУТБУКИ (769px–967px)
+   Изменения: появляется десктопная навигация, бургер скрывается,
+   "О нас" — горизонтально, туры — строка с hover-expand.
+   ========================================================================== */
+
+@media (min-width: 769px) {
   .nav-container {
     position: fixed;
     top: 20px;
     left: 5%;
     width: 90%;
     padding: 0 24px 0 30px;
+    height: 60px;
+    max-height: 60px;
+  }
+
+  nav,
+  .right-block {
+    display: flex;
+  }
+
+  .burger-btn,
+  .mobile-nav-menu {
+    display: none !important;
   }
 
   header {
-    padding: 40px 8% 60px;
+    padding: clamp(36px, 5vw, 48px) 8% 60px;
   }
+
   .hero-content {
     margin-top: 26vh;
     max-width: 80%;
   }
 
-  .right-block {
-    display: flex;
+  .section-about {
+    flex-direction: row;
+    padding: clamp(64px, 8vw, 80px) 8%;
+    gap: clamp(32px, 5vw, 50px);
+    max-width: 100%;
+    margin: 0;
   }
 
-  .mobile-profile-btn {
-    display: none;
+  .about-image {
+    height: clamp(340px, 40vw, 420px);
+    width: clamp(280px, 40%, 420px);
+    flex-shrink: 0;
+  }
+
+  .section-dark {
+    flex-direction: row;
+    padding: clamp(64px, 8vw, 80px) 8%;
+    gap: clamp(32px, 5vw, 50px);
+  }
+
+  .section-dark .image-grid {
+    flex-direction: row;
+    gap: 16px;
+  }
+
+  .section-dark .img-box {
+    height: clamp(220px, 28vw, 260px);
+  }
+
+  .tours-grid:not(.view-all-cards) {
+    flex-direction: row;
+  }
+
+  .tour-card {
+    height: clamp(380px, 50vw, 440px);
   }
 
   .tours-grid.view-all-cards {
@@ -295,13 +570,81 @@ nav,
     gap: 20px;
   }
 
-  .tours-grid:not(.view-all-cards) {
-    flex-direction: row;
-  }
-  .tour-card {
-    height: 420px;
+  .form-row-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
 
+  .side-profile {
+    width: 400px;
+    right: -440px;
+  }
+  .side-profile.open {
+    right: 0;
+  }
+
+  .footer-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .footer-bottom {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .review-card-item {
+    flex: 0 0 400px;
+  }
+
+  #reviews-section {
+    padding: clamp(64px, 8vw, 90px) 0 clamp(40px, 5vw, 60px);
+  }
+  #reviews-section h2 {
+    padding-left: 8%;
+  }
+}
+
+
+/* ==========================================================================
+   4b. НОУТБУКИ WIDE (968px–1199px)
+   Изменения: hover-эффект на картах (pointer:fine), увеличенные отступы,
+   hero ограничен по ширине, 3+ колонки в сетке туров.
+   ========================================================================== */
+
+@media (min-width: 968px) {
+  header {
+    padding: clamp(40px, 5vw, 50px) 10%;
+  }
+
+  .hero-content {
+    max-width: 650px;
+    margin-top: 25vh;
+    margin-bottom: 15vh;
+  }
+
+  .section-dark,
+  .section-about {
+    padding: clamp(80px, 8vw, 100px) 10%;
+  }
+
+  .section-dark .img-box {
+    height: clamp(230px, 22vw, 270px);
+  }
+
+  .about-image {
+    height: clamp(400px, 45vw, 520px);
+  }
+
+  .tours-section {
+    padding: clamp(80px, 8vw, 100px) 5% clamp(60px, 6vw, 80px);
+  }
+
+  .tour-card {
+    height: clamp(480px, 45vw, 560px);
+  }
+
+  /* Hover-карточки туров — только для мыши */
   @media (pointer: fine) {
     .tours-grid:not(.view-all-cards) .tour-card .tour-static-title {
       display: block;
@@ -320,119 +663,37 @@ nav,
     }
   }
 
-  .section-about {
-    flex-direction: row;
-    padding: 80px 8%;
-    gap: 50px;
-  }
-  .about-image {
-    height: 400px;
-  }
-
-  .section-dark {
-    flex-direction: row;
-    padding: 80px 8%;
-    gap: 40px;
-  }
-  .section-dark .image-grid {
-    flex-direction: row;
-  }
-  .section-dark .img-box {
-    height: 230px;
-  }
-
-  .form-row-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .side-profile {
-    width: 420px;
-    right: -450px;
-  }
-  .side-profile.open {
-    right: 0;
-  }
-
-  .section-head {
-    flex-direction: row;
-    align-items: flex-end;
-  }
-  .btn-all-tours {
-    width: auto;
-  }
-
-  .review-card-item {
-    flex: 0 0 400px;
-  }
-
-  .footer-grid {
-    flex-direction: row;
-  }
-  .footer-bottom {
-    flex-direction: row;
-    align-items: center;
-  }
-}
-
-@media (min-width: 968px) {
-
-  nav {
-    display: flex;
-  }
-
-  header {
-    padding: 40px 10%;
-  }
-  .hero-content {
-    max-width: 650px;
-    margin-top: 25vh;
-    margin-bottom: 15vh;
-  }
-
-  .section-dark,
-  .section-about {
-    padding: 100px 10%;
-  }
-  .section-dark .img-box {
-    height: 250px;
-  }
-  .about-image {
-    height: 500px;
-  }
-
-  .tours-section {
-    padding: 100px 5% 80px;
-  }
-
-  .tour-card {
-    height: 550px;
-  }
-
   .tours-grid.view-all-cards {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
+    gap: 24px;
+  }
+
+  #reviews-section {
+    padding: clamp(80px, 8vw, 100px) 0 clamp(50px, 6vw, 70px);
+  }
+  #reviews-section h2 {
+    padding-left: 5%;
   }
 
   .review-card-item {
     flex: 0 0 420px;
   }
 
-  #reviews-section {
-    padding: 90px 0 60px;
-  }
-  #reviews-section h2 {
-    padding-left: 5%;
-  }
-
   .main-footer {
-    padding: 80px 4% 30px;
+    padding: clamp(64px, 7vw, 80px) 5% clamp(24px, 3vw, 32px);
   }
 }
+
+
+/* ==========================================================================
+   5. ДЕСКТОП (1200px–1599px)
+   Изменения: фиксированная ширина боковой панели, 3+ колонки туров.
+   ========================================================================== */
 
 @media (min-width: 1200px) {
   .tours-grid.view-all-cards {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 28px;
   }
 
   .booking-container {
@@ -444,61 +705,88 @@ nav,
   }
 
   #reviews-section h2 {
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 2.5vw, 2.5rem);
     padding-left: 5%;
+  }
+
+  .main-footer {
+    padding: 80px 5% 30px;
   }
 }
 
+
+/* ==========================================================================
+   6. ULTRA-WIDE (1600px+)
+   Изменения: крупнее заголовки и отступы, расширенный контейнер навигации.
+   ========================================================================== */
+
 @media (min-width: 1600px) {
-  header {
-    padding: 50px 12%;
-  }
-  .hero-content h1 {
-    font-size: 5rem;
-  }
-  .hero-content {
-    max-width: 750px;
-  }
-
-  .section-dark,
-  .section-about {
-    padding: 120px 12%;
-    gap: 80px;
-  }
-
-  .tours-section {
-    padding: 120px 7% 100px;
-  }
-
-  .tours-grid.view-all-cards {
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  }
-
   .nav-container {
     left: 7%;
     width: 86%;
   }
 
+  header {
+    padding: 56px 12%;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(4rem, 4vw, 5.5rem);
+  }
+
+  .hero-content {
+    max-width: 800px;
+  }
+
+  .section-dark,
+  .section-about {
+    padding: clamp(100px, 8vw, 130px) 12%;
+    gap: clamp(60px, 5vw, 90px);
+  }
+
+  .section-dark .img-box {
+    height: clamp(260px, 18vw, 320px);
+  }
+
+  .about-image {
+    height: clamp(500px, 35vw, 620px);
+  }
+
+  .tours-section {
+    padding: clamp(100px, 7vw, 130px) 7% clamp(80px, 6vw, 110px);
+  }
+
+  .tours-grid.view-all-cards {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 32px;
+  }
+
   #reviews-section {
-    padding: 110px 0 70px;
+    padding: clamp(90px, 6vw, 120px) 0 clamp(60px, 5vw, 80px);
   }
   #reviews-section h2 {
     padding-left: 7%;
-    font-size: 2.8rem;
+    font-size: clamp(2.2rem, 2.5vw, 3rem);
+  }
+
+  .review-card-item {
+    flex: 0 0 480px;
+    padding: 36px;
   }
 
   .main-footer {
     padding: 100px 7% 40px;
   }
-
-  .review-card-item {
-    flex: 0 0 460px;
-    padding: 35px;
-  }
 }
 
-@media (pointer: coarse) {
 
+/* ==========================================================================
+   7. СПЕЦИАЛЬНЫЕ МЕДИАЗАПРОСЫ
+   ========================================================================== */
+
+/* -- Touch-устройства (pointer: coarse) -------------------------------- */
+
+@media (pointer: coarse) {
   .tours-grid:not(.view-all-cards) .tour-card .tour-hover-info {
     opacity: 1;
     pointer-events: auto;
@@ -507,7 +795,6 @@ nav,
   .tours-grid:not(.view-all-cards) .tour-card .tour-static-title {
     display: none;
   }
-
   .tours-grid:not(.view-all-cards) .tour-card {
     flex: none;
     width: 100%;
@@ -521,7 +808,7 @@ nav,
   }
 
   .filter-chip {
-    padding: 5px 7px;
+    padding: 5px 8px;
     font-size: 0.68rem;
     min-height: 30px;
     min-width: 0;
@@ -549,11 +836,68 @@ nav,
   .btn-book:active,
   .btn-all-tours:active,
   .auth-submit:active,
-  .booking-submit:active {
-    transform: scale(0.97);
+  .booking-submit:active,
+  .burger-btn:active {
+    transform: scale(0.96);
     opacity: 0.88;
   }
 }
+
+
+/* -- Ландшафт на маленьких экранах ------------------------------------ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  header {
+    min-height: auto;
+    padding: 70px 5% 36px;
+  }
+
+  .hero-content {
+    margin-top: 48px;
+    margin-bottom: 32px;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(1.5rem, 5vw, 2.6rem);
+  }
+
+  .modal-auth,
+  .modal-booking {
+    align-items: flex-start;
+    padding-top: 10px;
+    overflow-y: auto;
+  }
+
+  .auth-container,
+  .booking-container {
+    max-height: 90svh;
+    overflow-y: auto;
+  }
+}
+
+
+/* -- Safe Area Insets (iPhone с чёлкой / Dynamic Island) --------------- */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .main-footer {
+    padding-bottom: calc(30px + env(safe-area-inset-bottom));
+  }
+
+  .side-profile {
+    padding-bottom: calc(40px + env(safe-area-inset-bottom));
+  }
+
+  .nav-container {
+    top: max(12px, env(safe-area-inset-top));
+  }
+
+  .mobile-nav-menu {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+
+/* -- Уменьшение движения (prefers-reduced-motion) ---------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -569,52 +913,43 @@ nav,
     animation: none;
   }
 
-  .nav-bg-fluid {
+  .nav-bg-fluid,
+  .burger-btn span,
+  .mobile-nav-menu,
+  .nav-container {
     transition: none;
   }
 }
 
-@media (max-height: 500px) and (orientation: landscape) {
-  header {
-    min-height: auto;
-    padding: 80px 5% 40px;
-  }
-  .hero-content {
-    margin-top: 60px;
-    margin-bottom: 40px;
-  }
-  .hero-content h1 {
-    font-size: clamp(1.6rem, 5vw, 2.8rem);
-  }
-  .modal-auth,
-  .modal-booking {
-    align-items: flex-start;
-    padding-top: 10px;
-    overflow-y: auto;
-  }
-  .auth-container,
-  .booking-container {
-    max-height: 90svh;
-    overflow-y: auto;
-  }
-}
+
+/* -- Fallback без backdrop-filter -------------------------------------- */
 
 @supports not (backdrop-filter: blur(1px)) {
   .nav-container {
-    background: rgba(26, 34, 38, 0.92);
+    background: rgba(26, 34, 38, 0.94);
   }
+
+  .mobile-nav-menu {
+    background: rgba(15, 20, 22, 0.97);
+  }
+
   .side-profile {
     background: rgba(26, 34, 38, 0.97);
   }
+
   .modal-auth,
   .modal-booking {
-    background: rgba(15, 20, 22, 0.9);
+    background: rgba(15, 20, 22, 0.92);
   }
+
   .auth-container,
   .booking-container {
     background: rgba(26, 34, 38, 0.98);
   }
 }
+
+
+/* -- Нативные контролы ------------------------------------------------- */
 
 select {
   -webkit-appearance: none;
@@ -634,16 +969,4 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   appearance: none;
-}
-
-@supports (padding: env(safe-area-inset-bottom)) {
-  .main-footer {
-    padding-bottom: calc(30px + env(safe-area-inset-bottom));
-  }
-  .side-profile {
-    padding-bottom: calc(40px + env(safe-area-inset-bottom));
-  }
-  .nav-container {
-    top: max(16px, env(safe-area-inset-top));
-  }
 }

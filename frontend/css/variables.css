@@ -156,6 +156,20 @@ body::-webkit-scrollbar-track {
   border-color: var(--text-light-main);
   transform: translateY(-1px);
 }
+/* Past days: same style as available, just slightly dimmed */
+.cal-day.past-day {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255,255,255,0.45);
+  border: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+}
+.cal-day.past-day:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-1px);
+  color: #fff;
+}
+/* Only explicitly booked dates show red */
 .cal-day.booked-out {
   background: rgba(239, 68, 68, 0.2);
   color: #fca5a5;

@@ -287,3 +287,125 @@
   background: #22c55e;
   color: #fff;
 }
+
+/* ── PEOPLE COUNTER ── */
+.people-counter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+.people-counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 10px 14px;
+  transition: border-color 0.2s;
+}
+.people-counter-row:hover { border-color: rgba(0,242,254,0.3); }
+.people-counter-info { display: flex; flex-direction: column; gap: 2px; }
+.people-counter-label { font-size: 0.85rem; font-weight: 600; color: #fff; }
+.people-counter-sub { font-size: 0.7rem; color: rgba(255,255,255,0.45); }
+.people-counter { display: flex; align-items: center; gap: 10px; }
+.pctr-btn {
+  width: 28px; height: 28px; border-radius: 7px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.07); color: #fff;
+  font-size: 1.1rem; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; transition: all 0.2s;
+  line-height: 1;
+}
+.pctr-btn:hover { background: var(--accent-liquid); border-color: var(--accent-liquid); color: #050b14; }
+.pctr-val { font-size: 0.95rem; font-weight: 700; min-width: 18px; text-align: center; color: #fff; }
+
+/* ── CONTACT SUB-PANELS ── */
+.contact-sub-panel {
+  margin-top: 12px;
+  animation: fadeInDown 0.2s ease;
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.contact-sub-hint {
+  font-size: 0.8rem; color: rgba(255,255,255,0.5);
+  background: rgba(0,242,254,0.05);
+  border: 1px solid rgba(0,242,254,0.15);
+  border-radius: 10px; padding: 10px 14px; margin: 0;
+}
+.tg-input-wrap { position: relative; }
+.tg-username-input {
+  width: 100%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px; color: #fff;
+  padding: 10px 14px; font-size: 0.9rem;
+  outline: none; transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.tg-username-input:focus { border-color: var(--accent-liquid); }
+.tg-username-input.input-error { border-color: #ef4444 !important; }
+.tg-field-error {
+  font-size: 0.75rem; color: #ef4444;
+  margin-top: 5px; display: flex; align-items: center; gap: 4px;
+}
+.tg-help-toggle {
+  background: none; border: none; color: var(--accent-liquid);
+  font-size: 0.78rem; cursor: pointer; text-decoration: underline;
+  padding: 8px 0 0; display: block; font-family: inherit;
+}
+.tg-help-box {
+  margin-top: 10px;
+  background: rgba(0,242,254,0.05);
+  border: 1px solid rgba(0,242,254,0.2);
+  border-radius: 10px; padding: 14px 16px;
+  font-size: 0.8rem; color: rgba(255,255,255,0.7); line-height: 1.7;
+}
+.tg-help-box strong { color: var(--accent-liquid); }
+.tg-help-box ol { margin: 8px 0 0 16px; padding: 0; }
+.tg-help-box li { margin-bottom: 4px; }
+
+/* ── NAV LINKS HOVER ANIMATION ── */
+.nav-container nav a {
+  position: relative;
+  overflow: hidden;
+}
+.nav-container nav a::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 60%;
+  height: 2px;
+  background: var(--accent-liquid);
+  border-radius: 2px;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  transform-origin: center;
+}
+.nav-container nav a:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+.nav-container nav a:hover {
+  color: var(--accent-liquid) !important;
+  transform: translateY(-2px);
+}
+
+/* Remove special schedule pill styling */
+.nav-schedule-link {
+  color: inherit !important;
+  border: none !important;
+  border-radius: 30px !important;
+  padding: 8px 18px !important;
+  background: none !important;
+}
+.nav-schedule-link:hover {
+  background: none !important;
+}
+
+@media (max-width: 600px) {
+  .people-counter-grid { grid-template-columns: 1fr; }
+}

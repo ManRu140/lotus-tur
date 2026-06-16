@@ -524,6 +524,12 @@
   outline: none;
   transition: all 0.3s;
 }
+/* Fix select option contrast: dark bg so text is visible */
+.booking-form select option,
+.detail-form-group select option {
+  background: #1a2226;
+  color: #fff;
+}
 .booking-form input:focus,
 .booking-form textarea:focus,
 .booking-form select:focus,

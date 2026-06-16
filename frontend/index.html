@@ -93,23 +93,62 @@
           </div>
 
           <div class="form-group-block">
-            <label for="bookPeopleCount">Количество человек</label>
-            <select id="bookPeopleCount">
-              <option value="1">1 человек</option>
-              <option value="2">2 человека</option>
-              <option value="3">3 человека</option>
-              <option value="4">4 человека</option>
-              <option value="5">5 человек</option>
-              <option value="6">6 человек</option>
-            </select>
+            <label>Количество человек</label>
+            <div class="people-counter-grid">
+              <div class="people-counter-row">
+                <div class="people-counter-info">
+                  <span class="people-counter-label">Взрослые</span>
+                  <span class="people-counter-sub">18–59 лет</span>
+                </div>
+                <div class="people-counter">
+                  <button type="button" class="pctr-btn" data-target="cntAdults" data-min="0">−</button>
+                  <span class="pctr-val" id="cntAdults">0</span>
+                  <button type="button" class="pctr-btn" data-target="cntAdults" data-dir="1">+</button>
+                </div>
+              </div>
+              <div class="people-counter-row">
+                <div class="people-counter-info">
+                  <span class="people-counter-label">Подростки</span>
+                  <span class="people-counter-sub">12–17 лет</span>
+                </div>
+                <div class="people-counter">
+                  <button type="button" class="pctr-btn" data-target="cntTeens" data-min="0">−</button>
+                  <span class="pctr-val" id="cntTeens">0</span>
+                  <button type="button" class="pctr-btn" data-target="cntTeens" data-dir="1">+</button>
+                </div>
+              </div>
+              <div class="people-counter-row">
+                <div class="people-counter-info">
+                  <span class="people-counter-label">Дети</span>
+                  <span class="people-counter-sub">до 12 лет</span>
+                </div>
+                <div class="people-counter">
+                  <button type="button" class="pctr-btn" data-target="cntKids" data-min="0">−</button>
+                  <span class="pctr-val" id="cntKids">0</span>
+                  <button type="button" class="pctr-btn" data-target="cntKids" data-dir="1">+</button>
+                </div>
+              </div>
+              <div class="people-counter-row">
+                <div class="people-counter-info">
+                  <span class="people-counter-label">Пожилые</span>
+                  <span class="people-counter-sub">60+ лет</span>
+                </div>
+                <div class="people-counter">
+                  <button type="button" class="pctr-btn" data-target="cntSeniors" data-min="0">−</button>
+                  <span class="pctr-val" id="cntSeniors">0</span>
+                  <button type="button" class="pctr-btn" data-target="cntSeniors" data-dir="1">+</button>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" id="bookPeopleCount" value="1" />
           </div>
 
           <div class="form-group-block">
             <label>Способ связи</label>
             <div class="contact-method-group" role="radiogroup" aria-label="Способ связи">
               <label class="contact-method-option">
-                <input type="radio" name="bookContact" value="vk" required />
-                <span class="contact-method-pill">ВКонтакте</span>
+                <input type="radio" name="bookContact" value="whatsapp" required />
+                <span class="contact-method-pill">WhatsApp</span>
               </label>
               <label class="contact-method-option">
                 <input type="radio" name="bookContact" value="telegram" required />
@@ -117,8 +156,36 @@
               </label>
               <label class="contact-method-option">
                 <input type="radio" name="bookContact" value="phone" required />
-                <span class="contact-method-pill">Телефон (Макс)</span>
+                <span class="contact-method-pill">MAX</span>
               </label>
+            </div>
+
+            <!-- WhatsApp sub-panel: uses bookPhone already in form -->
+            <div class="contact-sub-panel" id="subWhatsapp" style="display:none">
+              <p class="contact-sub-hint">Мы напишем вам на WhatsApp по номеру, указанному выше.</p>
+            </div>
+
+            <!-- Telegram sub-panel -->
+            <div class="contact-sub-panel" id="subTelegram" style="display:none">
+              <div class="tg-input-wrap">
+                <input type="text" id="bookTgUsername" placeholder="@username" class="tg-username-input" autocomplete="off" />
+                <span class="tg-field-error" id="tgFieldError" style="display:none">⚠ Введите ваш Telegram-юзернейм</span>
+              </div>
+              <button type="button" class="tg-help-toggle" id="tgHelpToggle">Как найти свой юзернейм? →</button>
+              <div class="tg-help-box" id="tgHelpBox" style="display:none">
+                <strong>Как узнать юзернейм в Telegram:</strong>
+                <ol>
+                  <li>Откройте Telegram и нажмите на своё фото (вверху слева)</li>
+                  <li>Перейдите в <strong>Настройки</strong></li>
+                  <li>Найдите строку <strong>«Имя пользователя»</strong> — это и есть ваш @username</li>
+                  <li>Если его нет — создайте прямо там</li>
+                </ol>
+              </div>
+            </div>
+
+            <!-- Макс sub-panel: uses bookPhone already in form, no extra field needed -->
+            <div class="contact-sub-panel" id="subMax" style="display:none">
+              <p class="contact-sub-hint">Макс напишет вам на номер, указанный в поле «Телефон» выше.</p>
             </div>
           </div>
 
@@ -368,12 +435,10 @@
         <nav aria-label="Основное меню">
           <ul>
             <li>
-              <a href="#about" class="nav-link nav-target" id="m1">О нас</a>
+              <a href="#schedule" class="nav-link nav-target nav-schedule-link" id="m3">Расписание</a>
             </li>
             <li>
-              <a href="#tours-anchor" class="nav-link nav-target" id="m2"
-                >Туры</a
-              >
+              <a href="#tours-anchor" class="nav-link nav-target" id="m2">Туры</a>
             </li>
             <li>
               <a
@@ -383,6 +448,9 @@
                 data-action="openBookingGeneral"
                 >Забронировать</a
               >
+            </li>
+            <li>
+              <a href="#about" class="nav-link nav-target" id="m1">О нас</a>
             </li>
           </ul>
         </nav>
@@ -428,6 +496,22 @@
       </div>
       <div></div>
     </header>
+
+    <!-- WEEKLY SCHEDULE — первым после hero -->
+    <section class="schedule-section" id="schedule" aria-label="Расписание туров">
+      <div class="section-sub">Расписание</div>
+      <h2>Туры на каждый день</h2>
+      <div class="week-grid" id="weekGrid"></div>
+      <div class="schedule-legend">
+        <div class="schedule-legend-item">
+          <div class="schedule-legend-dot"></div>
+          <span>Нажмите на тур для бронирования</span>
+        </div>
+        <div class="schedule-legend-item" style="margin-left:auto;color:rgba(255,255,255,0.2)">
+          * Ежедневные туры доступны каждый день
+        </div>
+      </div>
+    </section>
 
     <div id="tours-anchor">
       <section class="tours-section" aria-labelledby="txtToursTitle">
@@ -497,56 +581,6 @@
         <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M0,60 C480,0 960,60 1440,20 L1440,60 Z" fill="rgba(10,18,26,1)"/>
         </svg>
-      </div>
-    </section>
-
-    <div class="section-about-wrap">
-      <section class="section-about" id="about" aria-labelledby="sec2H2">
-        <div class="about-content">
-          <h2 id="sec2H2" style="color:var(--text-light-main)">О нас</h2>
-          <p id="sec2P1" style="color:var(--text-light-muted)">
-            Лотос-тур открывает Приморье по-настоящему с 2015 года. Наши
-            маршруты — это живые истории: рассвет над бухтой Триозерье, тюлени
-            у острова Аскольд, цветение лотосов на Путятине и панорама Японского
-            моря с вершины сопки Сестра.
-          </p>
-          <p id="sec2P2" style="color:var(--text-light-muted)">
-            Каждый трек мы знаем наизусть — гиды сами прокладывали эти тропы и
-            год за годом делают их лучше. Мы водим небольшие группы, чтобы вы
-            чувствовали себя не туристом, а первооткрывателем своего Дальнего
-            Востока.
-          </p>
-          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:28px">
-            <div style="text-align:center;padding:18px 22px;border:1px solid var(--border-light);border-radius:14px;flex:1;min-width:90px;background:rgba(255,255,255,0.04)">
-              <div style="font-size:1.8rem;font-weight:800;color:var(--accent-liquid)">8+</div>
-              <div style="font-size:0.75rem;color:var(--text-light-muted);margin-top:4px">лет на рынке</div>
-            </div>
-            <div style="text-align:center;padding:18px 22px;border:1px solid var(--border-light);border-radius:14px;flex:1;min-width:90px;background:rgba(255,255,255,0.04)">
-              <div style="font-size:1.8rem;font-weight:800;color:var(--accent-liquid)">15+</div>
-              <div style="font-size:0.75rem;color:var(--text-light-muted);margin-top:4px">маршрутов</div>
-            </div>
-            <div style="text-align:center;padding:18px 22px;border:1px solid var(--border-light);border-radius:14px;flex:1;min-width:90px;background:rgba(255,255,255,0.04)">
-              <div style="font-size:1.8rem;font-weight:800;color:var(--accent-liquid)">5000+</div>
-              <div style="font-size:0.75rem;color:var(--text-light-muted);margin-top:4px">путешественников</div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- WEEKLY SCHEDULE -->
-    <section class="schedule-section" id="schedule" aria-label="Расписание туров">
-      <div class="section-sub">Расписание</div>
-      <h2>Туры на каждый день</h2>
-      <div class="week-grid" id="weekGrid"></div>
-      <div class="schedule-legend">
-        <div class="schedule-legend-item">
-          <div class="schedule-legend-dot"></div>
-          <span>Нажмите на тур для бронирования</span>
-        </div>
-        <div class="schedule-legend-item" style="margin-left:auto;color:rgba(255,255,255,0.2)">
-          * Ежедневные туры доступны каждый день
-        </div>
       </div>
     </section>
 
@@ -742,6 +776,40 @@
       </div>
     </section>
 
+    <div class="section-about-wrap">
+      <section class="section-about" id="about" aria-labelledby="sec2H2">
+        <div class="about-content">
+          <h2 id="sec2H2" style="color:var(--text-light-main)">О нас</h2>
+          <p id="sec2P1" style="color:var(--text-light-muted)">
+            Лотос-тур открывает Приморье по-настоящему с 2015 года. Наши
+            маршруты — это живые истории: рассвет над бухтой Триозерье, тюлени
+            у острова Аскольд, цветение лотосов на Путятине и панорама Японского
+            моря с вершины сопки Сестра.
+          </p>
+          <p id="sec2P2" style="color:var(--text-light-muted)">
+            Каждый трек мы знаем наизусть — гиды сами прокладывали эти тропы и
+            год за годом делают их лучше. Мы водим небольшие группы, чтобы вы
+            чувствовали себя не туристом, а первооткрывателем своего Дальнего
+            Востока.
+          </p>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:28px">
+            <div style="text-align:center;padding:18px 22px;border:1px solid var(--border-light);border-radius:14px;flex:1;min-width:90px;background:rgba(255,255,255,0.04)">
+              <div style="font-size:1.8rem;font-weight:800;color:var(--accent-liquid)">8+</div>
+              <div style="font-size:0.75rem;color:var(--text-light-muted);margin-top:4px">лет на рынке</div>
+            </div>
+            <div style="text-align:center;padding:18px 22px;border:1px solid var(--border-light);border-radius:14px;flex:1;min-width:90px;background:rgba(255,255,255,0.04)">
+              <div style="font-size:1.8rem;font-weight:800;color:var(--accent-liquid)">15+</div>
+              <div style="font-size:0.75rem;color:var(--text-light-muted);margin-top:4px">маршрутов</div>
+            </div>
+            <div style="text-align:center;padding:18px 22px;border:1px solid var(--border-light);border-radius:14px;flex:1;min-width:90px;background:rgba(255,255,255,0.04)">
+              <div style="font-size:1.8rem;font-weight:800;color:var(--accent-liquid)">5000+</div>
+              <div style="font-size:0.75rem;color:var(--text-light-muted);margin-top:4px">путешественников</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <footer class="main-footer" style="position:relative">
       <div class="wave-top" aria-hidden="true">
         <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -799,13 +867,3 @@
     <script src="js/ui.js"></script>
   </body>
 </html>
-
-python3 -c "
-from app.db.session import SessionLocal
-from app.models.user import User
-db = SessionLocal()
-u = db.query(User).filter(User.username == 'ManRu140').first()
-u.is_admin = True
-db.commit()
-print('Done:', u.username)
-"

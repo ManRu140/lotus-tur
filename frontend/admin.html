@@ -487,6 +487,16 @@
       <div class="field"><label>URL изображения</label><input type="text" id="tImg" placeholder="https://..." /></div>
       <div class="field"><label>Описание</label><textarea id="tDesc" placeholder="Описание тура…"></textarea></div>
       <div id="tImgPreview" style="margin-top:8px"></div>
+
+      <!-- Booked dates manager -->
+      <div class="field" style="margin-top:16px">
+        <label style="display:flex;align-items:center;justify-content:space-between">
+          <span>🔴 Заблокированные даты</span>
+          <span style="font-size:.72rem;color:var(--muted);font-weight:400">Красные в календаре</span>
+        </label>
+        <div id="bookedDatesCalWrap" style="margin-top:8px"></div>
+        <div id="bookedDatesList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeMT()">Отмена</button>
@@ -931,6 +941,61 @@ async function loadTours() {
   }
 }
 
+let adminBookedDates = new Set();
+let adminCalYear = new Date().getFullYear();
+let adminCalMonth = new Date().getMonth();
+const RU_MONTHS_ADMIN = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+
+function buildAdminCalendar() {
+  const wrap = $("bookedDatesCalWrap");
+  if (!wrap) return;
+  const daysInMonth = new Date(adminCalYear, adminCalMonth + 1, 0).getDate();
+  const firstDay = (new Date(adminCalYear, adminCalMonth, 1).getDay() + 6) % 7;
+  let days = "";
+  for (let i = 0; i < firstDay; i++) days += `<div style="aspect-ratio:1;"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${adminCalYear}-${String(adminCalMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const isBooked = adminBookedDates.has(ds);
+    days += `<div onclick="toggleAdminDate('${ds}')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;${isBooked ? 'background:rgba(239,68,68,.3);color:#fca5a5;border:1px solid rgba(239,68,68,.5)' : 'background:rgba(255,255,255,.05);color:#fff;border:1px solid rgba(255,255,255,.1)'};">${d}</div>`;
+  }
+  wrap.innerHTML = `
+    <div style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <button type="button" onclick="adminCalNav(-1)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:.9rem">‹</button>
+        <span style="font-size:.82rem;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px">${RU_MONTHS_ADMIN[adminCalMonth]} ${adminCalYear}</span>
+        <button type="button" onclick="adminCalNav(1)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:.9rem">›</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:.62rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:6px">
+        <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">${days}</div>
+      <p style="font-size:.7rem;color:rgba(255,255,255,.35);margin-top:8px">Нажмите на дату, чтобы пометить/снять блокировку (красный = занято)</p>
+    </div>`;
+  renderAdminBookedList();
+}
+
+function toggleAdminDate(ds) {
+  if (adminBookedDates.has(ds)) adminBookedDates.delete(ds);
+  else adminBookedDates.add(ds);
+  buildAdminCalendar();
+}
+function adminCalNav(dir) {
+  adminCalMonth += dir;
+  if (adminCalMonth < 0) { adminCalMonth = 11; adminCalYear--; }
+  if (adminCalMonth > 11) { adminCalMonth = 0; adminCalYear++; }
+  buildAdminCalendar();
+}
+function renderAdminBookedList() {
+  const list = $("bookedDatesList");
+  if (!list) return;
+  if (!adminBookedDates.size) { list.innerHTML = `<span style="font-size:.75rem;color:rgba(255,255,255,.3)">Нет заблокированных дат</span>`; return; }
+  list.innerHTML = [...adminBookedDates].sort().map(ds => `
+    <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(239,68,68,.18);border:1px solid rgba(239,68,68,.35);border-radius:6px;padding:3px 9px;font-size:.72rem;color:#fca5a5">
+      ${ds}
+      <button type="button" onclick="toggleAdminDate('${ds}')" style="background:none;border:none;color:#fca5a5;cursor:pointer;font-size:.85rem;line-height:1;padding:0">×</button>
+    </span>`).join("");
+}
+
 function openTourModal(id = null, data = null) {
   editTourId = id;
   $("mTTitle").textContent = id ? "Редактировать тур" : "Добавить тур";
@@ -938,10 +1003,15 @@ function openTourModal(id = null, data = null) {
   $("tName").value = data?.name || ""; $("tTag").value = data?.tag || "";
   $("tPrice").value = data?.price || ""; $("tImg").value = data?.img_url || "";
   $("tDesc").value = data?.description || "";
+  // Init booked dates from tour data
+  adminBookedDates = new Set(data?.booked_dates || data?.bookedDates || []);
+  adminCalYear = new Date().getFullYear();
+  adminCalMonth = new Date().getMonth();
   // Show image preview
   const prev = $("tImgPreview");
   prev.innerHTML = data?.img_url ? `<img src="${data.img_url}" alt="preview" style="max-width:100%;max-height:120px;border-radius:8px;object-fit:cover" onerror="this.remove()">` : "";
   $("mTour").classList.add("open");
+  setTimeout(() => buildAdminCalendar(), 50);
 }
 // Live image preview
 $("tImg").addEventListener("input", function() {
@@ -959,7 +1029,8 @@ async function saveTour() {
       tag: $("tTag").value.trim(),
       price: parseInt($("tPrice").value),
       img_url: $("tImg").value.trim(),
-      description: $("tDesc").value.trim()
+      description: $("tDesc").value.trim(),
+      booked_dates: [...adminBookedDates].sort()
     };
     if (!payload.name || !payload.tag || !payload.price || !payload.id) {
       toast("Заполните обязательные поля (ID, название, тег, цена)", "err");

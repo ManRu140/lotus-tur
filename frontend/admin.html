@@ -1486,9 +1486,7 @@
           </div>
           <div class="topbar-actions">
             <button class="btn btn-ghost" onclick="loadContent()">🔄</button>
-            <button class="btn btn-accent" onclick="openContentModal()">
-              + Добавить блок
-            </button>
+            <button class="btn btn-accent" onclick="openContentModal()">+ Добавить блок</button>
           </div>
         </div>
         <div class="card">
@@ -1505,11 +1503,7 @@
                 </tr>
               </thead>
               <tbody id="cBody">
-                <tr>
-                  <td colspan="6">
-                    <div class="loading-row"><div class="spin"></div></div>
-                  </td>
-                </tr>
+                <tr><td colspan="6"><div class="loading-row"><div class="spin"></div></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -1525,9 +1519,7 @@
           </div>
           <div class="topbar-actions">
             <button class="btn btn-ghost" onclick="loadBanners()">🔄</button>
-            <button class="btn btn-accent" onclick="openBannerModal()">
-              + Добавить баннер
-            </button>
+            <button class="btn btn-accent" onclick="openBannerModal()">+ Добавить баннер</button>
           </div>
         </div>
         <div class="card">
@@ -1543,11 +1535,7 @@
                 </tr>
               </thead>
               <tbody id="bnBody">
-                <tr>
-                  <td colspan="5">
-                    <div class="loading-row"><div class="spin"></div></div>
-                  </td>
-                </tr>
+                <tr><td colspan="5"><div class="loading-row"><div class="spin"></div></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -1565,93 +1553,64 @@
             <button class="btn btn-ghost" onclick="loadSettings()">🔄</button>
           </div>
         </div>
-        <div class="card" style="margin-bottom: 16px">
+        <div class="card" style="margin-bottom:16px">
           <div class="card-hd"><h3>SEO</h3></div>
-          <div
-            style="padding: 20px; display: grid; gap: 14px; max-width: 560px"
-          >
-            <div class="field" style="margin: 0">
+          <div style="padding:20px;display:grid;gap:14px;max-width:560px">
+            <div class="field" style="margin:0">
               <label>Title (до 70 симв.)</label>
               <input type="text" id="stSeoTitle" maxlength="70" />
             </div>
-            <div class="field" style="margin: 0">
+            <div class="field" style="margin:0">
               <label>Meta description (до 200 симв.)</label>
-              <textarea
-                id="stSeoDescription"
-                maxlength="200"
-                style="min-height: 70px"
-              ></textarea>
+              <textarea id="stSeoDescription" maxlength="200" style="min-height:70px"></textarea>
             </div>
           </div>
         </div>
-        <div class="card" style="margin-bottom: 16px">
+        <div class="card" style="margin-bottom:16px">
           <div class="card-hd"><h3>Контакты и логотип</h3></div>
-          <div
-            style="padding: 20px; display: grid; gap: 14px; max-width: 560px"
-          >
-            <div class="field" style="margin: 0">
+          <div style="padding:20px;display:grid;gap:14px;max-width:560px">
+            <div class="field" style="margin:0">
               <label>Телефон</label>
               <input type="text" id="stPhone" placeholder="+7 900 000-00-00" />
             </div>
-            <div class="field" style="margin: 0">
+            <div class="field" style="margin:0">
               <label>Email</label>
-              <input
-                type="text"
-                id="stEmail"
-                placeholder="info@lotos-tour.ru"
-              />
+              <input type="text" id="stEmail" placeholder="info@lotos-tour.ru" />
             </div>
-            <div class="field" style="margin: 0">
+            <div class="field" style="margin:0">
               <label>Адрес</label>
               <input type="text" id="stAddress" />
             </div>
-            <div class="field" style="margin: 0">
+            <div class="field" style="margin:0">
               <label>VK</label>
               <input type="text" id="stVk" placeholder="https://vk.com/…" />
             </div>
-            <div class="field" style="margin: 0">
+            <div class="field" style="margin:0">
               <label>Telegram</label>
               <input type="text" id="stTelegram" placeholder="https://t.me/…" />
             </div>
-            <div class="field" style="margin: 0">
+            <div class="field" style="margin:0">
               <label>Логотип</label>
-              <input
-                type="file"
-                id="stLogoFile"
-                accept="image/png,image/jpeg,image/webp"
-              />
+              <input type="file" id="stLogoFile" accept="image/png,image/jpeg,image/webp" />
               <input type="hidden" id="stLogoUrl" />
-              <div id="stLogoPreview" style="margin-top: 8px"></div>
+              <div id="stLogoPreview" style="margin-top:8px"></div>
             </div>
           </div>
         </div>
-        <div class="card" style="margin-bottom: 16px">
+        <div class="card" style="margin-bottom:16px">
           <div class="card-hd"><h3>⚠️ Технические работы</h3></div>
-          <div
-            style="padding: 20px; display: grid; gap: 14px; max-width: 560px"
-          >
-            <div
-              class="field"
-              style="margin: 0; display: flex; align-items: center; gap: 8px"
-            >
-              <input type="checkbox" id="stMaintenance" style="width: auto" />
-              <label style="margin: 0; text-transform: none; font-size: 0.85rem"
-                >Включить технические работы (сайт станет недоступен для
-                посетителей)</label
-              >
+          <div style="padding:20px;display:grid;gap:14px;max-width:560px">
+            <div class="field" style="margin:0;display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="stMaintenance" style="width:auto" />
+              <label style="margin:0;text-transform:none;font-size:.85rem">Включить технические работы (сайт станет недоступен для посетителей)</label>
             </div>
-            <div class="field" style="margin: 0">
+            <div class="field" style="margin:0">
               <label>Сообщение для посетителей</label>
-              <textarea
-                id="stMaintenanceMessage"
-                style="min-height: 70px"
-              ></textarea>
+              <textarea id="stMaintenanceMessage" style="min-height:70px"></textarea>
             </div>
           </div>
         </div>
-        <button class="btn btn-accent" id="stSaveBtn" onclick="saveSettings()">
-          Сохранить настройки
-        </button>
+        <button class="btn btn-accent" id="stSaveBtn" onclick="saveSettings()">Сохранить настройки</button>
       </div>
 
       <!-- AUDIT LOGS -->
@@ -1667,12 +1626,7 @@
         </div>
         <div class="card">
           <div class="toolbar">
-            <input
-              class="search-input"
-              id="lgAdmin"
-              placeholder="Фильтр по администратору…"
-              oninput="debouncedFilterLogs()"
-            />
+            <input class="search-input" id="lgAdmin" placeholder="Фильтр по администратору…" oninput="debouncedFilterLogs()" />
             <select class="filter-select" id="lgAction" onchange="loadLogs()">
               <option value="">Все действия</option>
               <option value="tour.">Туры</option>
@@ -1697,11 +1651,7 @@
                 </tr>
               </thead>
               <tbody id="lgBody">
-                <tr>
-                  <td colspan="6">
-                    <div class="loading-row"><div class="spin"></div></div>
-                  </td>
-                </tr>
+                <tr><td colspan="6"><div class="loading-row"><div class="spin"></div></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -1828,30 +1778,19 @@
           <button class="modal-close" onclick="closeMResetPwd()">✕</button>
         </div>
         <div class="modal-body">
-          <p
-            style="color: var(--muted); font-size: 0.82rem; margin-bottom: 14px"
-          >
-            Новый пароль для
-            <b id="mResetPwdUsername" style="color: var(--text)"></b>. Сообщите
-            его пользователю напрямую — он не сохраняется в журнале действий.
+          <p style="color:var(--muted);font-size:.82rem;margin-bottom:14px">
+            Новый пароль для <b id="mResetPwdUsername" style="color:var(--text)"></b>.
+            Сообщите его пользователю напрямую — он не сохраняется в журнале действий.
           </p>
           <div class="field">
             <label>Новый пароль</label>
-            <input
-              type="text"
-              id="rpNewPassword"
-              placeholder="Минимум 8 символов, 1 заглавная, 1 цифра"
-            />
+            <input type="text" id="rpNewPassword" placeholder="Минимум 8 символов, 1 заглавная, 1 цифра" />
           </div>
           <div class="auth-err" id="rpErr"></div>
         </div>
         <div class="modal-foot">
-          <button class="btn btn-ghost" onclick="closeMResetPwd()">
-            Отмена
-          </button>
-          <button class="btn btn-accent" onclick="submitResetPassword()">
-            Сохранить
-          </button>
+          <button class="btn btn-ghost" onclick="closeMResetPwd()">Отмена</button>
+          <button class="btn btn-accent" onclick="submitResetPassword()">Сохранить</button>
         </div>
       </div>
     </div>
@@ -1866,11 +1805,7 @@
         <div class="modal-body">
           <div class="field">
             <label>Key (slug) *</label>
-            <input
-              type="text"
-              id="cKey"
-              placeholder="about_page, footer_note…"
-            />
+            <input type="text" id="cKey" placeholder="about_page, footer_note…" />
           </div>
           <div class="field">
             <label>Тип</label>
@@ -1885,34 +1820,16 @@
           </div>
           <div class="field">
             <label>Содержимое</label>
-            <textarea
-              id="cBodyInput"
-              style="min-height: 160px"
-              placeholder="Текст блока/страницы…"
-            ></textarea>
+            <textarea id="cBodyInput" style="min-height:160px" placeholder="Текст блока/страницы…"></textarea>
           </div>
-          <div
-            class="field"
-            style="display: flex; align-items: center; gap: 8px"
-          >
-            <input
-              type="checkbox"
-              id="cPublished"
-              style="width: auto"
-              checked
-            />
-            <label style="margin: 0; text-transform: none; font-size: 0.85rem"
-              >Опубликовано</label
-            >
+          <div class="field" style="display:flex;align-items:center;gap:8px">
+            <input type="checkbox" id="cPublished" style="width:auto" checked />
+            <label style="margin:0;text-transform:none;font-size:.85rem">Опубликовано</label>
           </div>
         </div>
         <div class="modal-foot">
-          <button class="btn btn-ghost" onclick="closeMContent()">
-            Отмена
-          </button>
-          <button class="btn btn-accent" id="cSaveBtn" onclick="saveContent()">
-            Сохранить
-          </button>
+          <button class="btn btn-ghost" onclick="closeMContent()">Отмена</button>
+          <button class="btn btn-accent" id="cSaveBtn" onclick="saveContent()">Сохранить</button>
         </div>
       </div>
     </div>
@@ -1931,49 +1848,30 @@
           </div>
           <div class="field">
             <label>Подзаголовок</label>
-            <input
-              type="text"
-              id="bnSubtitle"
-              placeholder="Скидка 20% до конца месяца"
-            />
+            <input type="text" id="bnSubtitle" placeholder="Скидка 20% до конца месяца" />
           </div>
           <div class="field">
             <label>Изображение *</label>
-            <input
-              type="file"
-              id="bnImageFile"
-              accept="image/png,image/jpeg,image/gif,image/webp"
-            />
+            <input type="file" id="bnImageFile" accept="image/png,image/jpeg,image/gif,image/webp" />
             <input type="hidden" id="bnImageUrl" />
-            <div id="bnImgPreview" style="margin-top: 8px"></div>
+            <div id="bnImgPreview" style="margin-top:8px"></div>
           </div>
           <div class="field">
             <label>Ссылка при клике</label>
-            <input
-              type="text"
-              id="bnLinkUrl"
-              placeholder="https://lotos-tour.ru/tours/askold"
-            />
+            <input type="text" id="bnLinkUrl" placeholder="https://lotos-tour.ru/tours/askold" />
           </div>
           <div class="field">
             <label>Порядок сортировки</label>
             <input type="number" id="bnSortOrder" value="0" min="0" />
           </div>
-          <div
-            class="field"
-            style="display: flex; align-items: center; gap: 8px"
-          >
-            <input type="checkbox" id="bnActive" style="width: auto" checked />
-            <label style="margin: 0; text-transform: none; font-size: 0.85rem"
-              >Активен</label
-            >
+          <div class="field" style="display:flex;align-items:center;gap:8px">
+            <input type="checkbox" id="bnActive" style="width:auto" checked />
+            <label style="margin:0;text-transform:none;font-size:.85rem">Активен</label>
           </div>
         </div>
         <div class="modal-foot">
           <button class="btn btn-ghost" onclick="closeMBanner()">Отмена</button>
-          <button class="btn btn-accent" id="bnSaveBtn" onclick="saveBanner()">
-            Сохранить
-          </button>
+          <button class="btn btn-accent" id="bnSaveBtn" onclick="saveBanner()">Сохранить</button>
         </div>
       </div>
     </div>
@@ -2709,8 +2607,7 @@
         const tour = allTours.find((t) => String(t.id) === btn.dataset.tourId);
         if (!tour) return;
         if (btn.dataset.action === "edit-tour") openTourModal(tour.id, tour);
-        else if (btn.dataset.action === "delete-tour")
-          deleteTour(tour.id, tour.name);
+        else if (btn.dataset.action === "delete-tour") deleteTour(tour.id, tour.name);
       });
 
       let adminBookedDates = new Set();
@@ -2939,11 +2836,7 @@
         renderUsers(list);
       }
 
-      const ROLE_LABELS = {
-        user: "Пользователь",
-        moderator: "Модератор",
-        admin: "Админ",
-      };
+      const ROLE_LABELS = { user: "Пользователь", moderator: "Модератор", admin: "Админ" };
 
       function renderUsers(list) {
         $("uBody").innerHTML = list.length
@@ -2962,12 +2855,7 @@
       <td>${u.is_active ? '<span class="badge badge-completed">Активен</span>' : '<span class="badge badge-cancelled">Заблокирован</span>'}</td>
       <td>
         <select class="role-select" data-user-id="${u.id}" onchange="updateUserRole(${u.id}, this.value)" ${u.id === CU?.id ? "disabled title='Нельзя изменить свою роль'" : ""}>
-          ${Object.entries(ROLE_LABELS)
-            .map(
-              ([val, label]) =>
-                `<option value="${val}" ${(u.role || (u.is_admin ? "admin" : "user")) === val ? "selected" : ""}>${label}</option>`,
-            )
-            .join("")}
+          ${Object.entries(ROLE_LABELS).map(([val, label]) => `<option value="${val}" ${(u.role || (u.is_admin ? "admin" : "user")) === val ? "selected" : ""}>${label}</option>`).join("")}
         </select>
       </td>
       <td style="white-space:nowrap">
@@ -3029,12 +2917,7 @@
         const u = allUsers.find((u) => u.id === id);
         if (!u) return;
         const role = u.role || (u.is_admin ? "admin" : "user");
-        const roleBadgeClass =
-          role === "admin"
-            ? "badge-admin"
-            : role === "moderator"
-              ? "badge-oauth"
-              : "badge-user";
+        const roleBadgeClass = role === "admin" ? "badge-admin" : role === "moderator" ? "badge-oauth" : "badge-user";
         $("mUBody").innerHTML = `
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
       <div class="user-detail-av">${u.username[0].toUpperCase()}</div>
@@ -3215,15 +3098,12 @@
         const block = allContent.find((c) => c.key === btn.dataset.key);
         if (!block) return;
         if (btn.dataset.action === "edit-content") openContentModal(block);
-        else if (btn.dataset.action === "delete-content")
-          deleteContent(block.key, block.title);
+        else if (btn.dataset.action === "delete-content") deleteContent(block.key, block.title);
       });
 
       function openContentModal(block = null) {
         editContentKey = block ? block.key : null;
-        $("mContentTitle").textContent = block
-          ? "Редактировать блок"
-          : "Добавить блок";
+        $("mContentTitle").textContent = block ? "Редактировать блок" : "Добавить блок";
         $("cKey").value = block?.key || "";
         $("cKey").readOnly = !!block;
         $("cType").value = block?.block_type || "block";
@@ -3250,13 +3130,10 @@
             return;
           }
           if (editContentKey) {
-            await api(
-              `/api/admin/content/${encodeURIComponent(editContentKey)}`,
-              {
-                method: "PATCH",
-                body: JSON.stringify(payload),
-              },
-            );
+            await api(`/api/admin/content/${encodeURIComponent(editContentKey)}`, {
+              method: "PATCH",
+              body: JSON.stringify(payload),
+            });
             toast("Блок обновлён");
           } else {
             const key = $("cKey").value.trim();
@@ -3266,11 +3143,7 @@
             }
             await api("/api/admin/content", {
               method: "POST",
-              body: JSON.stringify({
-                key,
-                block_type: $("cType").value,
-                ...payload,
-              }),
+              body: JSON.stringify({ key, block_type: $("cType").value, ...payload }),
             });
             toast("Блок добавлен");
           }
@@ -3284,12 +3157,9 @@
       }
 
       async function deleteContent(key, title) {
-        if (!confirm(`Удалить блок «${title}»? Это действие нельзя отменить.`))
-          return;
+        if (!confirm(`Удалить блок «${title}»? Это действие нельзя отменить.`)) return;
         try {
-          await api(`/api/admin/content/${encodeURIComponent(key)}`, {
-            method: "DELETE",
-          });
+          await api(`/api/admin/content/${encodeURIComponent(key)}`, { method: "DELETE" });
           toast("Блок удалён");
           loadContent();
         } catch (e) {
@@ -3335,15 +3205,12 @@
         const banner = allBanners.find((b) => String(b.id) === btn.dataset.id);
         if (!banner) return;
         if (btn.dataset.action === "edit-banner") openBannerModal(banner);
-        else if (btn.dataset.action === "delete-banner")
-          deleteBanner(banner.id, banner.title);
+        else if (btn.dataset.action === "delete-banner") deleteBanner(banner.id, banner.title);
       });
 
       function openBannerModal(banner = null) {
         editBannerId = banner ? banner.id : null;
-        $("mBannerTitle").textContent = banner
-          ? "Редактировать баннер"
-          : "Добавить баннер";
+        $("mBannerTitle").textContent = banner ? "Редактировать баннер" : "Добавить баннер";
         $("bnTitle").value = banner?.title || "";
         $("bnSubtitle").value = banner?.subtitle || "";
         $("bnImageUrl").value = banner?.image_url || "";

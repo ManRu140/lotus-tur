@@ -54,7 +54,9 @@ body {
 [data-reveal] {
   opacity: 0;
   transform: translateY(22px);
-  transition: opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1), transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+  transition:
+    opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1),
+    transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
 }
 [data-reveal].is-visible {
   opacity: 1;
@@ -178,13 +180,13 @@ body::-webkit-scrollbar-track {
 /* Past days: same style as available, just slightly dimmed */
 .cal-day.past-day {
   background: rgba(255, 255, 255, 0.05);
-  color: rgba(255,255,255,0.45);
-  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
 }
 .cal-day.past-day:hover {
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255,255,255,0.3);
+  border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
   color: #fff;
 }

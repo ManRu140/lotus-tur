@@ -3,8 +3,7 @@ header {
   min-height: 100vh;
   background:
     linear-gradient(rgba(26, 34, 38, 0.45), rgba(26, 34, 38, 0.35)),
-    url("../img/tours/fon.JPG")
-      no-repeat center center / cover;
+    url("../img/tours/fon.JPG") no-repeat center center / cover;
   color: var(--text-light-main);
   display: flex;
   flex-direction: column;
@@ -64,11 +63,17 @@ header {
   height: 42px;
   object-fit: contain;
   border-radius: 50%;
-  box-shadow: 0 0 0 2px rgba(63, 208, 202, 0.3), 0 4px 16px rgba(63, 208, 202, 0.18);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  box-shadow:
+    0 0 0 2px rgba(63, 208, 202, 0.3),
+    0 4px 16px rgba(63, 208, 202, 0.18);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
 }
 .logo:hover .logo-img {
-  box-shadow: 0 0 0 3px rgba(63, 208, 202, 0.5), 0 6px 24px rgba(63, 208, 202, 0.3);
+  box-shadow:
+    0 0 0 3px rgba(63, 208, 202, 0.5),
+    0 6px 24px rgba(63, 208, 202, 0.3);
   transform: scale(1.05);
 }
 
@@ -134,7 +139,9 @@ header {
   .lang-switch,
   .profile-btn,
   .nav-bg-fluid {
-    transition: color 0.3s ease, border-color 0.4s ease;
+    transition:
+      color 0.3s ease,
+      border-color 0.4s ease;
     transform: none !important;
   }
 }
@@ -251,11 +258,19 @@ header {
   animation-delay: var(--d, 0s);
 }
 @keyframes heroFadeUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-anim { animation: none; }
+  .hero-anim {
+    animation: none;
+  }
 }
 
 /* Scroll-down cue at the base of the hero */
@@ -272,7 +287,9 @@ header {
   opacity: 0.75;
   transition: opacity 0.25s ease;
 }
-.scroll-cue:hover { opacity: 1; }
+.scroll-cue:hover {
+  opacity: 1;
+}
 .scroll-cue-mouse {
   display: block;
   width: 24px;
@@ -293,13 +310,27 @@ header {
   animation: scrollCueBounce 1.8s ease-in-out infinite;
 }
 @keyframes scrollCueBounce {
-  0%   { transform: translate(-50%, 0); opacity: 1; }
-  60%  { transform: translate(-50%, 10px); opacity: 0; }
-  61%  { transform: translate(-50%, 0); opacity: 0; }
-  100% { transform: translate(-50%, 0); opacity: 1; }
+  0% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(-50%, 10px);
+    opacity: 0;
+  }
+  61% {
+    transform: translate(-50%, 0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .scroll-cue-wheel { animation: none; }
+  .scroll-cue-wheel {
+    animation: none;
+  }
 }
 
 .btn-book {

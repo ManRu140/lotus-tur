@@ -145,13 +145,19 @@ function openBookingGeneral() {
 }
 
 const WEEKDAYS = [
-  "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"
+  "Понедельник",
+  "Вторник",
+  "Среда",
+  "Четверг",
+  "Пятница",
+  "Суббота",
+  "Воскресенье",
 ];
 
 let selectedDay = null;
 
 function isTourAvailableOnDay(tour, dayName) {
-  const sched = (tour && tour.schedule) ? tour.schedule.trim() : "";
+  const sched = tour && tour.schedule ? tour.schedule.trim() : "";
   if (sched === "Ежедневно") return true;
   if (WEEKDAYS.includes(sched)) return sched === dayName;
   return true;
@@ -259,16 +265,24 @@ function openTourDetail(tourId) {
   if (old) old.remove();
 
   const dotsHtml = slides
-    .map((_, i) => `<div class="slider-dot${i === 0 ? " active" : ""}" data-idx="${i}"></div>`)
+    .map(
+      (_, i) =>
+        `<div class="slider-dot${i === 0 ? " active" : ""}" data-idx="${i}"></div>`,
+    )
     .join("");
 
   const slidesHtml = slides
-    .map((url) => `<div class="tour-slide" style="background-image:url('${url}')"></div>`)
+    .map(
+      (url) =>
+        `<div class="tour-slide" style="background-image:url('${url}')"></div>`,
+    )
     .join("");
 
   const freeDates = getFreeDatesForTour(tour);
   const dateOptions = freeDates.length
-    ? freeDates.map((d) => `<option value="${d}">${formatDateRu(d)}</option>`).join("")
+    ? freeDates
+        .map((d) => `<option value="${d}">${formatDateRu(d)}</option>`)
+        .join("")
     : `<option value="">Нет доступных дат</option>`;
   selectedDateStr = freeDates.length ? freeDates[0] : "";
 
@@ -331,32 +345,49 @@ function openTourDetail(tourId) {
 
   const detailDateSelect = document.getElementById("detailDateSelect");
 
-  buildCalendar("detailCalendarPlaceholder", tour.bookedDates || [], (picked) => {
-    if (detailDateSelect && [...detailDateSelect.options].some((o) => o.value === picked)) {
-      detailDateSelect.value = picked;
-    }
-  });
+  buildCalendar(
+    "detailCalendarPlaceholder",
+    tour.bookedDates || [],
+    (picked) => {
+      if (
+        detailDateSelect &&
+        [...detailDateSelect.options].some((o) => o.value === picked)
+      ) {
+        detailDateSelect.value = picked;
+      }
+    },
+  );
 
   if (detailDateSelect) {
     detailDateSelect.addEventListener("change", () => {
       selectedDateStr = detailDateSelect.value;
-      buildCalendar("detailCalendarPlaceholder", tour.bookedDates || [], (picked) => {
-        if ([...detailDateSelect.options].some((o) => o.value === picked)) {
-          detailDateSelect.value = picked;
-        }
-      });
+      buildCalendar(
+        "detailCalendarPlaceholder",
+        tour.bookedDates || [],
+        (picked) => {
+          if ([...detailDateSelect.options].some((o) => o.value === picked)) {
+            detailDateSelect.value = picked;
+          }
+        },
+      );
     });
   }
 
-  document.getElementById("sliderPrev").addEventListener("click", () => moveSlider(-1));
-  document.getElementById("sliderNext").addEventListener("click", () => moveSlider(1));
+  document
+    .getElementById("sliderPrev")
+    .addEventListener("click", () => moveSlider(-1));
+  document
+    .getElementById("sliderNext")
+    .addEventListener("click", () => moveSlider(1));
 
   document.getElementById("sliderDots").addEventListener("click", (e) => {
     const dot = e.target.closest(".slider-dot");
     if (dot) moveSliderTo(Number(dot.dataset.idx));
   });
 
-  document.getElementById("closeTourDetail").addEventListener("click", closeTourDetail);
+  document
+    .getElementById("closeTourDetail")
+    .addEventListener("click", closeTourDetail);
   modal.addEventListener("click", (e) => {
     if (e.target === modal) closeTourDetail();
   });
@@ -371,7 +402,6 @@ function openTourDetail(tourId) {
     setTimeout(() => {
       const tourSelect = document.getElementById("bookTourSelect");
       if (tourSelect) {
-
         for (const opt of tourSelect.options) {
           if (opt.value === tour.id) {
             opt.selected = true;
@@ -428,12 +458,26 @@ function getFreeDatesForTour(tour) {
 
 function formatDateRu(str) {
   const d = new Date(str + "T00:00:00");
-  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+  return d.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 const RU_MONTHS = [
-  "Январь","Февраль","Март","Апрель","Май","Июнь",
-  "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"
+  "Январь",
+  "Февраль",
+  "Март",
+  "Апрель",
+  "Май",
+  "Июнь",
+  "Июль",
+  "Август",
+  "Сентябрь",
+  "Октябрь",
+  "Ноябрь",
+  "Декабрь",
 ];
 
 function buildCalendar(placeholderId, bookedDates, onSelect) {
@@ -448,7 +492,8 @@ function buildCalendar(placeholderId, bookedDates, onSelect) {
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
 
   let daysHtml = "";
-  for (let i = 0; i < offset; i++) daysHtml += `<div class="cal-day empty-day"></div>`;
+  for (let i = 0; i < offset; i++)
+    daysHtml += `<div class="cal-day empty-day"></div>`;
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
     const isPast = new Date(dateStr + "T00:00:00") < today;
@@ -476,21 +521,29 @@ function buildCalendar(placeholderId, bookedDates, onSelect) {
     </div>
   `;
 
-  el.querySelectorAll(".cal-day.available, .cal-day.past-day").forEach((day) => {
-    day.addEventListener("click", () => {
-      selectedDateStr = day.dataset.date;
-      buildCalendar(placeholderId, bookedDates, onSelect);
-      if (typeof onSelect === "function") onSelect(selectedDateStr);
-    });
-  });
+  el.querySelectorAll(".cal-day.available, .cal-day.past-day").forEach(
+    (day) => {
+      day.addEventListener("click", () => {
+        selectedDateStr = day.dataset.date;
+        buildCalendar(placeholderId, bookedDates, onSelect);
+        if (typeof onSelect === "function") onSelect(selectedDateStr);
+      });
+    },
+  );
 
   el.querySelectorAll(".calendar-nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const dir = Number(btn.dataset.calNav);
       const booked = JSON.parse(btn.dataset.calBooked || "[]");
       calMonth += dir;
-      if (calMonth < 0) { calMonth = 11; calYear--; }
-      if (calMonth > 11) { calMonth = 0; calYear++; }
+      if (calMonth < 0) {
+        calMonth = 11;
+        calYear--;
+      }
+      if (calMonth > 11) {
+        calMonth = 0;
+        calYear++;
+      }
       buildCalendar(placeholderId, booked, onSelect);
     });
   });
@@ -503,7 +556,10 @@ function initProfileTabs() {
   tabBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       const idx = Number(btn.dataset.tab);
-      tabBtns.forEach((b) => { b.classList.remove("active"); b.setAttribute("aria-selected", "false"); });
+      tabBtns.forEach((b) => {
+        b.classList.remove("active");
+        b.setAttribute("aria-selected", "false");
+      });
       tabPanels.forEach((p) => p.classList.remove("active"));
       btn.classList.add("active");
       btn.setAttribute("aria-selected", "true");
@@ -522,7 +578,8 @@ function initTourFilters() {
       filterBtns.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       currentFilter = btn.dataset.filter;
-      if (typeof loadMyBookings === 'function') loadMyBookings(); else renderUserTours([]);
+      if (typeof loadMyBookings === "function") loadMyBookings();
+      else renderUserTours([]);
     });
   });
 }
@@ -537,14 +594,15 @@ function renderUserTours(tours) {
   const list = document.getElementById("toursList");
   if (!list) return;
 
-  const filtered = currentFilter === "all"
-    ? tours
-    : tours.filter((t) => t.status === currentFilter);
+  const filtered =
+    currentFilter === "all"
+      ? tours
+      : tours.filter((t) => t.status === currentFilter);
 
   const counts = {
-    booked: tours.filter(t => t.status === "booked").length,
-    started: tours.filter(t => t.status === "started").length,
-    completed: tours.filter(t => t.status === "completed").length,
+    booked: tours.filter((t) => t.status === "booked").length,
+    started: tours.filter((t) => t.status === "started").length,
+    completed: tours.filter((t) => t.status === "completed").length,
   };
 
   const statTours = document.getElementById("statTours");
@@ -569,7 +627,9 @@ function renderUserTours(tours) {
   `;
 
   if (!filtered.length) {
-    list.innerHTML = statsHtml + `
+    list.innerHTML =
+      statsHtml +
+      `
       <div style="text-align:center;padding:28px 10px;color:rgba(255,255,255,0.4)">
         <div style="font-size:2rem;margin-bottom:8px">🥾</div>
         <p style="font-size:.85rem;line-height:1.5">Туров в этой категории пока нет.<br>
@@ -578,9 +638,10 @@ function renderUserTours(tours) {
     return;
   }
 
-  const toursHtml = filtered.map((t) => {
-    const s = STATUS_LABEL[t.status] || { label: t.status, color: "#aaa" };
-    return `
+  const toursHtml = filtered
+    .map((t) => {
+      const s = STATUS_LABEL[t.status] || { label: t.status, color: "#aaa" };
+      return `
       <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.07);align-items:center">
         <img src="${t.img}" alt="${t.name}" style="width:56px;height:56px;object-fit:cover;border-radius:10px;flex-shrink:0">
         <div style="flex:1;min-width:0">
@@ -591,7 +652,8 @@ function renderUserTours(tours) {
         <span style="font-weight:800;font-size:.88rem;white-space:nowrap;color:#fff;flex-shrink:0">${t.price} ₽</span>
       </div>
     `;
-  }).join("");
+    })
+    .join("");
 
   list.innerHTML = statsHtml + toursHtml;
 }
@@ -599,24 +661,29 @@ function renderUserTours(tours) {
 function renderAchievements(list) {
   const grid = document.getElementById("achGrid");
   if (!grid) return;
-  grid.innerHTML = list.map((a) => {
-    const title = a.titleRu || a.title || "";
-    const desc  = a.descRu  || a.description || "";
-    return `
+  grid.innerHTML = list
+    .map((a) => {
+      const title = a.titleRu || a.title || "";
+      const desc = a.descRu || a.description || "";
+      return `
     <div class="ach-item${a.unlocked ? "" : " locked"}" title="${desc}">
       <div class="ach-icon">${a.icon}</div>
       <p class="ach-title">${title}</p>
       ${a.unlocked ? `<div class="ach-check">✓</div>` : `<div class="ach-lock">🔒</div>`}
     </div>
   `;
-  }).join("");
+    })
+    .join("");
 
   const unlocked = list.filter((a) => a.unlocked).length;
   const total = list.length;
   const label = document.getElementById("achProgressLabel");
   if (label) label.textContent = `Открыто ${unlocked} из ${total}`;
   const fill = document.getElementById("achProgressFill");
-  if (fill) fill.style.width = total ? `${Math.round((unlocked / total) * 100)}%` : "0%";
+  if (fill)
+    fill.style.width = total
+      ? `${Math.round((unlocked / total) * 100)}%`
+      : "0%";
   const statAch = document.getElementById("statAch");
   if (statAch) statAch.textContent = unlocked;
 }
@@ -647,13 +714,17 @@ function initNicknameEdit() {
     const input = document.createElement("input");
     input.className = "nickname-input";
     input.value = nameEl.textContent.trim();
-    input.style.cssText = "background:rgba(255,255,255,.1);border:1px solid var(--accent-liquid);border-radius:6px;color:#fff;padding:4px 10px;font-size:1rem;width:160px;outline:none;max-width:100%";
+    input.style.cssText =
+      "background:rgba(255,255,255,.1);border:1px solid var(--accent-liquid);border-radius:6px;color:#fff;padding:4px 10px;font-size:1rem;width:160px;outline:none;max-width:100%";
     wrapper.replaceChild(input, nameEl);
     input.focus();
     input.select();
 
     const save = () => {
-      const val = input.value.trim() || localStorage.getItem("username") || "Пользователь";
+      const val =
+        input.value.trim() ||
+        localStorage.getItem("username") ||
+        "Пользователь";
       nameEl.textContent = val;
       wrapper.replaceChild(nameEl, input);
 
@@ -671,11 +742,16 @@ function initNicknameEdit() {
   };
 
   nameEl.addEventListener("click", startEdit);
-  nameEl.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") startEdit(); });
+  nameEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") startEdit();
+  });
 }
 
 function applyTranslations(lang) {
-  const t = (typeof translations !== "undefined" && translations[lang]) ? translations[lang] : null;
+  const t =
+    typeof translations !== "undefined" && translations[lang]
+      ? translations[lang]
+      : null;
   if (!t) return;
 
   Object.entries(t).forEach(([id, text]) => {
@@ -695,9 +771,8 @@ function applyTranslations(lang) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-
-  const savedFull   = localStorage.getItem("full_name");
-  const savedName   = localStorage.getItem("username");
+  const savedFull = localStorage.getItem("full_name");
+  const savedName = localStorage.getItem("username");
   const savedAvatar = localStorage.getItem("avatar_url");
   if (savedName) {
     const nameEl = document.getElementById("profileName");
@@ -732,19 +807,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  document.getElementById("mobileProfileTrigger")?.addEventListener("click", () => {
-    if (isUserLoggedIn) {
-      toggleProfile();
-    } else {
-      toggleAuthModal();
-    }
-  });
+  document
+    .getElementById("mobileProfileTrigger")
+    ?.addEventListener("click", () => {
+      if (isUserLoggedIn) {
+        toggleProfile();
+      } else {
+        toggleAuthModal();
+      }
+    });
 
   document.getElementById("closeProfileBtn")?.addEventListener("click", () => {
     document.getElementById("sideProfile").classList.remove("open");
   });
 
-  document.getElementById("closeAuthBtn")?.addEventListener("click", toggleAuthModal);
+  document
+    .getElementById("closeAuthBtn")
+    ?.addEventListener("click", toggleAuthModal);
 
   document.getElementById("closeBookingBtn")?.addEventListener("click", () => {
     document.getElementById("bookingModal").classList.remove("open");
@@ -769,10 +848,15 @@ document.addEventListener("DOMContentLoaded", () => {
       currentAuthMode = btn.dataset.mode;
       const form = document.getElementById("authMainForm");
       if (form) {
-        form.classList.toggle("auth-mode-register", currentAuthMode === "register");
+        form.classList.toggle(
+          "auth-mode-register",
+          currentAuthMode === "register",
+        );
       }
       const submitBtn = document.getElementById("authSubmitBtn");
-      if (submitBtn) submitBtn.textContent = currentAuthMode === "login" ? "Войти" : "Зарегистрироваться";
+      if (submitBtn)
+        submitBtn.textContent =
+          currentAuthMode === "login" ? "Войти" : "Зарегистрироваться";
     });
   });
 
@@ -818,83 +902,102 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnText = document.getElementById("txtBtnAll");
     renderTours(isGridViewActive ? toursData : toursData.slice(0, 7));
     container?.classList.toggle("view-all-cards", isGridViewActive);
-    if (btnText) btnText.textContent = isGridViewActive ? "Свернуть" : "Все туры";
+    if (btnText)
+      btnText.textContent = isGridViewActive ? "Свернуть" : "Все туры";
     applyDayFilter();
   });
 
-  document.getElementById("bookingForm")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById("bookSubmitBtn");
-    if (btn) btn.disabled = true;
+  document
+    .getElementById("bookingForm")
+    ?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("bookSubmitBtn");
+      if (btn) btn.disabled = true;
 
-    const contactEl = document.querySelector('input[name="bookContact"]:checked');
-    const tgUsername = document.getElementById("bookTgUsername")?.value.trim() || "";
+      const contactEl = document.querySelector(
+        'input[name="bookContact"]:checked',
+      );
+      const tgUsername =
+        document.getElementById("bookTgUsername")?.value.trim() || "";
 
-    // Validate Telegram username if selected
-    if (contactEl && contactEl.value === "telegram" && !tgUsername) {
-      const tgInput = document.getElementById("bookTgUsername");
-      const tgErr   = document.getElementById("tgFieldError");
-      if (tgInput) { tgInput.classList.add("input-error"); tgInput.focus(); }
-      if (tgErr)   tgErr.style.display = "flex";
-      if (btn) btn.disabled = false;
-      return;
-    }
-    // Validate phone for Max contact
-    if (contactEl && contactEl.value === "phone") {
-      const phoneEl = document.getElementById("bookPhone");
-      if (phoneEl && !phoneEl.value.trim()) {
-        phoneEl.style.borderColor = "#ef4444";
-        phoneEl.focus();
-        showToast("Введите номер телефона для связи через Макса.", "error");
+      // Validate Telegram username if selected
+      if (contactEl && contactEl.value === "telegram" && !tgUsername) {
+        const tgInput = document.getElementById("bookTgUsername");
+        const tgErr = document.getElementById("tgFieldError");
+        if (tgInput) {
+          tgInput.classList.add("input-error");
+          tgInput.focus();
+        }
+        if (tgErr) tgErr.style.display = "flex";
         if (btn) btn.disabled = false;
         return;
       }
-    }
+      // Validate phone for Max contact
+      if (contactEl && contactEl.value === "phone") {
+        const phoneEl = document.getElementById("bookPhone");
+        if (phoneEl && !phoneEl.value.trim()) {
+          phoneEl.style.borderColor = "#ef4444";
+          phoneEl.focus();
+          showToast("Введите номер телефона для связи через Макса.", "error");
+          if (btn) btn.disabled = false;
+          return;
+        }
+      }
 
-    const payload = {
-      first_name: document.getElementById("bookName").value.trim(),
-      phone: document.getElementById("bookPhone").value.trim(),
-      email: document.getElementById("bookEmail").value.trim(),
-      tour_id: document.getElementById("bookTourSelect").value,
-      tour_date: selectedDateStr,
-      preferred_time: document.getElementById("bookTime").value,
-      people_count: Number(document.getElementById("bookPeopleCount").value),
-      contact_method: contactEl ? contactEl.value : "",
-      tg_username: tgUsername || null,
-      comment: document.getElementById("bookMessage").value.trim() || null,
-    };
+      const payload = {
+        first_name: document.getElementById("bookName").value.trim(),
+        phone: document.getElementById("bookPhone").value.trim(),
+        email: document.getElementById("bookEmail").value.trim(),
+        tour_id: document.getElementById("bookTourSelect").value,
+        tour_date: selectedDateStr,
+        preferred_time: document.getElementById("bookTime").value,
+        people_count: Number(document.getElementById("bookPeopleCount").value),
+        contact_method: contactEl ? contactEl.value : "",
+        tg_username: tgUsername || null,
+        comment: document.getElementById("bookMessage").value.trim() || null,
+      };
 
-    if (!payload.first_name || !payload.phone || !payload.email || !payload.tour_id || !payload.tour_date) {
-      showToast("Пожалуйста, заполните обязательные поля и выберите дату.");
-      if (btn) btn.disabled = false;
-      return;
-    }
+      if (
+        !payload.first_name ||
+        !payload.phone ||
+        !payload.email ||
+        !payload.tour_id ||
+        !payload.tour_date
+      ) {
+        showToast("Пожалуйста, заполните обязательные поля и выберите дату.");
+        if (btn) btn.disabled = false;
+        return;
+      }
 
-    if (!payload.contact_method) {
-      showToast("Выберите способ связи.");
-      if (btn) btn.disabled = false;
-      return;
-    }
+      if (!payload.contact_method) {
+        showToast("Выберите способ связи.");
+        if (btn) btn.disabled = false;
+        return;
+      }
 
-    try {
-      await apiFetch("/api/bookings", { method: "POST", body: JSON.stringify(payload) });
-      document.getElementById("bookingModal").classList.remove("open");
-      showToast("Заявка отправлена! Мы свяжемся с вами.");
-      if (typeof loadMyBookings === "function" && isUserLoggedIn) loadMyBookings();
-    } catch (err) {
-      showToast(err.message || "Ошибка при отправке. Попробуйте ещё раз.");
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-  });
+      try {
+        await apiFetch("/api/bookings", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        document.getElementById("bookingModal").classList.remove("open");
+        showToast("Заявка отправлена! Мы свяжемся с вами.");
+        if (typeof loadMyBookings === "function" && isUserLoggedIn)
+          loadMyBookings();
+      } catch (err) {
+        showToast(err.message || "Ошибка при отправке. Попробуйте ещё раз.");
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
 
   /* ── People counter ── */
   const pctrCounts = { cntAdults: 1, cntTeens: 0, cntKids: 0, cntSeniors: 0 };
   document.querySelectorAll(".pctr-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const targetId = btn.dataset.target;
-      const isPlus   = btn.dataset.dir === "1";
-      const min      = Number(btn.dataset.min ?? 0);
+      const isPlus = btn.dataset.dir === "1";
+      const min = Number(btn.dataset.min ?? 0);
       if (isPlus) {
         pctrCounts[targetId]++;
       } else {
@@ -902,7 +1005,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const el = document.getElementById(targetId);
       if (el) el.textContent = pctrCounts[targetId];
-      const total = pctrCounts.cntAdults + pctrCounts.cntTeens + pctrCounts.cntKids + pctrCounts.cntSeniors;
+      const total =
+        pctrCounts.cntAdults +
+        pctrCounts.cntTeens +
+        pctrCounts.cntKids +
+        pctrCounts.cntSeniors;
       const hidden = document.getElementById("bookPeopleCount");
       if (hidden) hidden.value = total;
     });
@@ -910,7 +1017,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ── Contact sub-panels ── */
   function showContactPanel(value) {
-    ["subWhatsapp","subTelegram","subMax"].forEach(id => {
+    ["subWhatsapp", "subTelegram", "subMax"].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.style.display = "none";
     });
@@ -927,7 +1034,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (el) el.style.display = "block";
       if (phoneEl && !phoneEl.value.trim()) {
         phoneEl.style.borderColor = "#ef4444";
-        phoneEl.setAttribute("title", "Введите номер телефона для звонка от Макса");
+        phoneEl.setAttribute(
+          "title",
+          "Введите номер телефона для звонка от Макса",
+        );
       }
     }
   }
@@ -962,7 +1072,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btnCopy")?.addEventListener("click", () => {
     const inp = document.getElementById("refLink");
     if (!inp) return;
-    navigator.clipboard.writeText(inp.value).then(() => showToast("Ссылка скопирована!"));
+    navigator.clipboard
+      .writeText(inp.value)
+      .then(() => showToast("Ссылка скопирована!"));
   });
 
   document.getElementById("btnApply")?.addEventListener("click", async () => {
@@ -988,9 +1100,11 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("avatarTrigger")?.addEventListener("click", () => {
     document.getElementById("avatarFileInput")?.click();
   });
-  document.getElementById("avatarFileInput")?.addEventListener("change", (e) => {
-    if (typeof loadAvatarFromPC === "function") loadAvatarFromPC(e.target);
-  });
+  document
+    .getElementById("avatarFileInput")
+    ?.addEventListener("change", (e) => {
+      if (typeof loadAvatarFromPC === "function") loadAvatarFromPC(e.target);
+    });
 
   document.querySelectorAll(".nav-target[href^='#']").forEach((link) => {
     link.addEventListener("click", (e) => {
@@ -1018,8 +1132,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const marquee = document.getElementById("marquee-line");
   if (marquee) {
-    marquee.addEventListener("mouseenter", () => marquee.style.animationPlayState = "paused");
-    marquee.addEventListener("mouseleave", () => marquee.style.animationPlayState = "running");
+    marquee.addEventListener(
+      "mouseenter",
+      () => (marquee.style.animationPlayState = "paused"),
+    );
+    marquee.addEventListener(
+      "mouseleave",
+      () => (marquee.style.animationPlayState = "running"),
+    );
   }
-
 });

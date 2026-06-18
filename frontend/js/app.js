@@ -1,13 +1,13 @@
 const API_BASE = "https://lotus-tur-production-23c6.up.railway.app";
 
-let isUserLoggedIn   = false;
-let currentLang      = "RU";
+let isUserLoggedIn = false;
+let currentLang = "RU";
 let isGridViewActive = false;
-let currentAuthMode  = "login";
+let currentAuthMode = "login";
 
 const _todayForCalendar = new Date();
-let calYear         = _todayForCalendar.getFullYear();
-let calMonth        = _todayForCalendar.getMonth();
+let calYear = _todayForCalendar.getFullYear();
+let calMonth = _todayForCalendar.getMonth();
 let selectedDateStr = "";
 
 function getCookie(name) {
@@ -20,11 +20,15 @@ async function apiFetch(path, options = {}) {
   const csrfToken = getCookie("csrf_token");
   const headers = {
     "Content-Type": "application/json",
-    ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
     ...options.headers,
   };
-  const res = await fetch(API_BASE + path, { ...options, headers, credentials: "include" });
+  const res = await fetch(API_BASE + path, {
+    ...options,
+    headers,
+    credentials: "include",
+  });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || `Ошибка ${res.status}`);
@@ -33,11 +37,10 @@ async function apiFetch(path, options = {}) {
 }
 
 async function checkExistingSession() {
-
-  const savedToken  = localStorage.getItem("access_token");
-  const savedName   = localStorage.getItem("username");
+  const savedToken = localStorage.getItem("access_token");
+  const savedName = localStorage.getItem("username");
   const savedAvatar = localStorage.getItem("avatar_url");
-  const savedFull   = localStorage.getItem("full_name");
+  const savedFull = localStorage.getItem("full_name");
 
   if (savedToken && savedName) {
     isUserLoggedIn = true;
@@ -57,7 +60,7 @@ async function checkExistingSession() {
       isUserLoggedIn = true;
       localStorage.setItem("username", data.username);
       if (data.avatar_url) localStorage.setItem("avatar_url", data.avatar_url);
-      if (data.full_name)  localStorage.setItem("full_name",  data.full_name);
+      if (data.full_name) localStorage.setItem("full_name", data.full_name);
 
       const nameEl = document.getElementById("profileName");
       if (nameEl) nameEl.textContent = data.full_name || data.username;
@@ -69,7 +72,6 @@ async function checkExistingSession() {
       loadProfileData();
     }
   } catch {
-
     localStorage.removeItem("access_token");
     localStorage.removeItem("username");
     localStorage.removeItem("avatar_url");
@@ -84,9 +86,10 @@ async function loadProfileData() {
   try {
     const profile = await apiFetch("/api/profile/me");
 
-    localStorage.setItem("username",   profile.username);
-    if (profile.avatar_url) localStorage.setItem("avatar_url", profile.avatar_url);
-    if (profile.full_name)  localStorage.setItem("full_name",  profile.full_name);
+    localStorage.setItem("username", profile.username);
+    if (profile.avatar_url)
+      localStorage.setItem("avatar_url", profile.avatar_url);
+    if (profile.full_name) localStorage.setItem("full_name", profile.full_name);
 
     const nameEl = document.getElementById("profileName");
     if (nameEl) nameEl.textContent = profile.full_name || profile.username;
@@ -102,10 +105,7 @@ async function loadProfileData() {
       const refInp = document.getElementById("refLink");
       if (refInp && refData.link) refInp.value = refData.link;
     } catch {}
-
-  } catch (e) {
-
-  }
+  } catch (e) {}
 
   loadMyBookings();
   loadMyAchievements();
@@ -114,22 +114,26 @@ async function loadProfileData() {
 async function loadMyBookings() {
   try {
     const bookings = await apiFetch("/api/bookings/my");
-    renderUserTours(bookings.map(b => {
-      const ref = (typeof toursData !== "undefined")
-        ? toursData.find(t => t.id === b.tour_id)
-        : null;
-      return {
-        id: b.tour_id,
-        name: b.tour_name,
-        date: b.tour_date,
-        status: b.status,
-        price: ref ? ref.price : "—",
-        img: ref ? ref.img : "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
-        booking_id: b.id,
-      };
-    }));
+    renderUserTours(
+      bookings.map((b) => {
+        const ref =
+          typeof toursData !== "undefined"
+            ? toursData.find((t) => t.id === b.tour_id)
+            : null;
+        return {
+          id: b.tour_id,
+          name: b.tour_name,
+          date: b.tour_date,
+          status: b.status,
+          price: ref ? ref.price : "—",
+          img: ref
+            ? ref.img
+            : "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
+          booking_id: b.id,
+        };
+      }),
+    );
   } catch (e) {
-
     if (typeof mockUserTours !== "undefined") renderUserTours(mockUserTours);
   }
 }
@@ -139,8 +143,8 @@ async function loadMyAchievements() {
     const achievements = await apiFetch("/api/profile/achievements");
     renderAchievements(achievements);
   } catch (e) {
-
-    if (typeof achievementsList !== "undefined") renderAchievements(achievementsList);
+    if (typeof achievementsList !== "undefined")
+      renderAchievements(achievementsList);
   }
 }
 
@@ -169,13 +173,24 @@ async function handleAuthSubmit(e) {
 
   if (currentAuthMode === "register") {
     const email = document.getElementById("authEmailInput").value.trim();
-    if (!email) { showToast("Введите email.", "error"); return; }
-    if (!_isValidEmail(email)) { showToast("Введите корректный email.", "error"); return; }
+    if (!email) {
+      showToast("Введите email.", "error");
+      return;
+    }
+    if (!_isValidEmail(email)) {
+      showToast("Введите корректный email.", "error");
+      return;
+    }
 
     const strengthErr = _checkPasswordStrength(password);
-    if (strengthErr) { showToast(strengthErr, "error"); return; }
+    if (strengthErr) {
+      showToast(strengthErr, "error");
+      return;
+    }
 
-    const passConfirm = document.getElementById("authPasswordConfirmInput").value;
+    const passConfirm = document.getElementById(
+      "authPasswordConfirmInput",
+    ).value;
     if (password !== passConfirm) {
       showToast("Пароли не совпадают!", "error");
       return;
@@ -184,7 +199,10 @@ async function handleAuthSubmit(e) {
 
   const btn = document.getElementById("authSubmitBtn");
   const originalText = btn ? btn.textContent : "";
-  if (btn) { btn.disabled = true; btn.textContent = "⏳"; }
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "⏳";
+  }
 
   try {
     let data;
@@ -217,16 +235,23 @@ async function handleAuthSubmit(e) {
 
     _applyLoginData(data);
     toggleAuthModal();
-    showToast(currentAuthMode === "login" ? "Добро пожаловать! 👋" : "Аккаунт создан! 🎉", "success");
+    showToast(
+      currentAuthMode === "login"
+        ? "Добро пожаловать! 👋"
+        : "Аккаунт создан! 🎉",
+      "success",
+    );
     setTimeout(() => {
       toggleProfile();
       loadProfileData();
     }, 300);
-
   } catch (err) {
     showToast(err.message, "error");
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = originalText; }
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
   }
 }
 
@@ -234,7 +259,7 @@ function _applyLoginData(data) {
   localStorage.setItem("access_token", data.access_token);
   localStorage.setItem("username", data.username);
   if (data.avatar_url) localStorage.setItem("avatar_url", data.avatar_url);
-  if (data.full_name)  localStorage.setItem("full_name",  data.full_name);
+  if (data.full_name) localStorage.setItem("full_name", data.full_name);
 
   isUserLoggedIn = true;
 
@@ -249,7 +274,10 @@ function _applyLoginData(data) {
 }
 
 function handleLogout() {
-  fetch(API_BASE + "/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
+  fetch(API_BASE + "/api/auth/logout", {
+    method: "POST",
+    credentials: "include",
+  }).catch(() => {});
 
   isUserLoggedIn = false;
   localStorage.removeItem("access_token");
@@ -262,11 +290,16 @@ function handleLogout() {
 
   const avatarEl = document.getElementById("profileAvatar");
   if (avatarEl) {
-    avatarEl.src = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80";
+    avatarEl.src =
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80";
   }
 
   document.getElementById("sideProfile")?.classList.remove("open");
-  showToast(currentLang === "RU" ? "Вы вышли из аккаунта." : "You have been logged out.");
+  showToast(
+    currentLang === "RU"
+      ? "Вы вышли из аккаунта."
+      : "You have been logged out.",
+  );
 }
 
 async function loginWithVK() {
@@ -282,17 +315,19 @@ async function loginWithVK() {
     sessionStorage.setItem("oauth_state", state);
     sessionStorage.setItem("oauth_provider", "vk");
 
-    const redirectUri = encodeURIComponent(window.location.origin + "/index.html");
-    const url = `https://id.vk.com/authorize`
-      + `?response_type=code`
-      + `&client_id=${client_id}`
-      + `&redirect_uri=${redirectUri}`
-      + `&scope=email`
-      + `&state=${encodeURIComponent(state)}`;
+    const redirectUri = encodeURIComponent(
+      window.location.origin + "/index.html",
+    );
+    const url =
+      `https://id.vk.com/authorize` +
+      `?response_type=code` +
+      `&client_id=${client_id}` +
+      `&redirect_uri=${redirectUri}` +
+      `&scope=email` +
+      `&state=${encodeURIComponent(state)}`;
 
     window.location.href = url;
   } catch (err) {
-
     showToast("Не удалось подключиться к серверу.");
   }
 }
@@ -324,16 +359,15 @@ async function loginWithGoogle() {
 
     window.location.href = url.toString();
   } catch (err) {
-
     showToast("Не удалось подключиться к серверу.");
   }
 }
 
 async function handleGoogleCallback() {
   const params = new URLSearchParams(window.location.search);
-  const code   = params.get("code");
-  const state  = params.get("state");
-  const error  = params.get("error");
+  const code = params.get("code");
+  const state = params.get("state");
+  const error = params.get("error");
   const provider = sessionStorage.getItem("oauth_provider") || "google";
 
   if (!code && !error) return;
@@ -360,8 +394,9 @@ async function handleGoogleCallback() {
   if (provider === "vk") {
     endpoint = `/api/auth/vk/callback?code=${encodeURIComponent(code)}`;
   } else {
-
-    const uriParam = redirectUri ? `&redirect_uri=${encodeURIComponent(redirectUri)}` : "";
+    const uriParam = redirectUri
+      ? `&redirect_uri=${encodeURIComponent(redirectUri)}`
+      : "";
     endpoint = `/api/auth/google/callback?code=${encodeURIComponent(code)}${uriParam}`;
   }
 
@@ -383,9 +418,7 @@ async function handleGoogleCallback() {
       if (typeof toggleProfile === "function") toggleProfile();
       loadProfileData();
     }, 300);
-
   } catch (err) {
-
     showToast("Не удалось подключиться к серверу.");
   }
 }
@@ -409,7 +442,6 @@ async function loadAvatarFromPC(input) {
     const dataUrl = e.target.result;
     const avatarEl = document.getElementById("profileAvatar");
     if (avatarEl) avatarEl.src = dataUrl;
-
   };
   reader.readAsDataURL(file);
 }
@@ -435,10 +467,10 @@ async function saveNicknameToAPI(newUsername) {
 (function buildSchedule() {
   const DAYS = [
     { key: "Понедельник", full: "Понедельник" },
-    { key: "Вторник",     full: "Вторник" },
-    { key: "Среда",       full: "Среда" },
-    { key: "Четверг",     full: "Четверг" },
-    { key: "Пятница",     full: "Пятница" },
+    { key: "Вторник", full: "Вторник" },
+    { key: "Среда", full: "Среда" },
+    { key: "Четверг", full: "Четверг" },
+    { key: "Пятница", full: "Пятница" },
   ];
 
   const todayIdx = (new Date().getDay() + 6) % 7; // 0=Пн
@@ -450,11 +482,19 @@ async function saveNicknameToAPI(newUsername) {
     const card = document.createElement("div");
     card.className = "schedule-tour-card";
     card.innerHTML =
-      '<div class="schedule-tour-time">' + (t.departure !== "Ежедневно" ? t.departure : "По расписанию") + '</div>' +
-      '<div class="schedule-tour-name">' + t.name + '</div>' +
-      '<div class="schedule-tour-price">от ' + t.price + ' ₽</div>' +
-      '<div class="schedule-tour-duration">' + t.duration + '</div>';
-    card.addEventListener("click", function() {
+      '<div class="schedule-tour-time">' +
+      (t.departure !== "Ежедневно" ? t.departure : "По расписанию") +
+      "</div>" +
+      '<div class="schedule-tour-name">' +
+      t.name +
+      "</div>" +
+      '<div class="schedule-tour-price">от ' +
+      t.price +
+      " ₽</div>" +
+      '<div class="schedule-tour-duration">' +
+      t.duration +
+      "</div>";
+    card.addEventListener("click", function () {
       const bookSelect = document.getElementById("bookTourSelect");
       if (bookSelect) bookSelect.value = t.id;
       if (typeof openBookingGeneral === "function") {
@@ -468,17 +508,18 @@ async function saveNicknameToAPI(newUsername) {
   }
 
   // Будние дни Пн–Пт — показываем только туры, привязанные именно к этому дню
-  DAYS.forEach(function(day, i) {
+  DAYS.forEach(function (day, i) {
     const col = document.createElement("div");
     col.className = "week-col";
 
     const header = document.createElement("div");
-    header.className = "week-day-header" + (i === todayIdx ? " today" : "") + " day-glow";
+    header.className =
+      "week-day-header" + (i === todayIdx ? " today" : "") + " day-glow";
     header.textContent = day.full;
     if (i === todayIdx) header.title = "Сегодня";
     col.appendChild(header);
 
-    const toursForDay = toursData.filter(function(t) {
+    const toursForDay = toursData.filter(function (t) {
       return t.schedule === day.key;
     });
 
@@ -488,7 +529,7 @@ async function saveNicknameToAPI(newUsername) {
       empty.textContent = "Нет отдельных туров";
       col.appendChild(empty);
     } else {
-      toursForDay.forEach(function(t) {
+      toursForDay.forEach(function (t) {
         col.appendChild(makeTourCard(t));
       });
     }
@@ -499,8 +540,10 @@ async function saveNicknameToAPI(newUsername) {
   // Колонка "Каждый день" — туры, доступные ежедневно
   const dailyCol = document.getElementById("dailyToursCol");
   if (dailyCol) {
-    const dailyTours = toursData.filter(function(t) { return t.schedule === "Ежедневно"; });
-    dailyTours.forEach(function(t) {
+    const dailyTours = toursData.filter(function (t) {
+      return t.schedule === "Ежедневно";
+    });
+    dailyTours.forEach(function (t) {
       dailyCol.appendChild(makeTourCard(t));
     });
   }
@@ -508,28 +551,34 @@ async function saveNicknameToAPI(newUsername) {
   // Отдельная плашка "Выходные туры" — Субота + Воскресенье вместе
   const weekendWrap = document.getElementById("weekendBlock");
   if (weekendWrap) {
-    const satTours = toursData.filter(function(t) {
+    const satTours = toursData.filter(function (t) {
       return t.schedule === "Суббота";
     });
-    const sunTours = toursData.filter(function(t) {
+    const sunTours = toursData.filter(function (t) {
       return t.schedule === "Воскресенье";
     });
 
     const satCol = document.createElement("div");
     satCol.className = "weekend-col";
     const satHeader = document.createElement("div");
-    satHeader.className = "weekend-day-header" + (todayIdx === 5 ? " today" : "");
+    satHeader.className =
+      "weekend-day-header" + (todayIdx === 5 ? " today" : "");
     satHeader.textContent = "Суббота";
     satCol.appendChild(satHeader);
-    satTours.forEach(function(t) { satCol.appendChild(makeTourCard(t)); });
+    satTours.forEach(function (t) {
+      satCol.appendChild(makeTourCard(t));
+    });
 
     const sunCol = document.createElement("div");
     sunCol.className = "weekend-col";
     const sunHeader = document.createElement("div");
-    sunHeader.className = "weekend-day-header" + (todayIdx === 6 ? " today" : "");
+    sunHeader.className =
+      "weekend-day-header" + (todayIdx === 6 ? " today" : "");
     sunHeader.textContent = "Воскресенье";
     sunCol.appendChild(sunHeader);
-    sunTours.forEach(function(t) { sunCol.appendChild(makeTourCard(t)); });
+    sunTours.forEach(function (t) {
+      sunCol.appendChild(makeTourCard(t));
+    });
 
     weekendWrap.appendChild(satCol);
     weekendWrap.appendChild(sunCol);

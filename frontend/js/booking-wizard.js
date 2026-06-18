@@ -11,7 +11,6 @@
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
-
   /* ──────────────────────────────────────────────────────────
      1) MOBILE BURGER MENU
      ────────────────────────────────────────────────────────── */
@@ -93,8 +92,12 @@ document.addEventListener("DOMContentLoaded", () => {
   (function setupBookingWizard() {
     const modal = document.getElementById("bookingModal");
     const steps = Array.from(document.querySelectorAll(".booking-step"));
-    const progressSteps = Array.from(document.querySelectorAll(".booking-progress-step"));
-    const progressLines = Array.from(document.querySelectorAll(".booking-progress-line"));
+    const progressSteps = Array.from(
+      document.querySelectorAll(".booking-progress-step"),
+    );
+    const progressLines = Array.from(
+      document.querySelectorAll(".booking-progress-line"),
+    );
     const backBtn = document.getElementById("bookBackBtn");
     const nextBtn = document.getElementById("bookNextBtn");
     const submitBtn = document.getElementById("bookSubmitBtn");
@@ -128,7 +131,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function focusFirstInvalid(el) {
       el.style.borderColor = "#ef4444";
       el.focus({ preventScroll: false });
-      setTimeout(() => { el.style.borderColor = ""; }, 2000);
+      setTimeout(() => {
+        el.style.borderColor = "";
+      }, 2000);
     }
 
     // Validates only the fields visible in the *current* step before
@@ -142,15 +147,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const tourSelect = document.getElementById("bookTourSelect");
         const timeSelect = document.getElementById("bookTime");
         if (tourSelect && !tourSelect.value) {
-          if (typeof showToast === "function") showToast("Выберите направление.");
+          if (typeof showToast === "function")
+            showToast("Выберите направление.");
           return false;
         }
         if (timeSelect && !timeSelect.value) {
-          if (typeof showToast === "function") showToast("Выберите удобное время.");
+          if (typeof showToast === "function")
+            showToast("Выберите удобное время.");
           return false;
         }
         if (!selectedDateStr) {
-          if (typeof showToast === "function") showToast("Выберите дату поездки в календаре.");
+          if (typeof showToast === "function")
+            showToast("Выберите дату поездки в календаре.");
           return false;
         }
         return true;
@@ -163,9 +171,12 @@ document.addEventListener("DOMContentLoaded", () => {
           focusFirstInvalid(nameEl);
           return false;
         }
-        const peopleCount = Number(document.getElementById("bookPeopleCount")?.value || 0);
+        const peopleCount = Number(
+          document.getElementById("bookPeopleCount")?.value || 0,
+        );
         if (!peopleCount || peopleCount < 1) {
-          if (typeof showToast === "function") showToast("Укажите хотя бы одного путешественника.");
+          if (typeof showToast === "function")
+            showToast("Укажите хотя бы одного путешественника.");
           return false;
         }
         return true;
@@ -219,10 +230,9 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
       },
-      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
     );
 
     targets.forEach((el) => observer.observe(el));
   })();
-
 });

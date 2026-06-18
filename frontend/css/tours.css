@@ -334,11 +334,15 @@ section:not(.hero-section) {
   opacity: 0.28;
   filter: grayscale(0.7);
   pointer-events: none;
-  transition: opacity 0.35s ease, filter 0.35s ease;
+  transition:
+    opacity 0.35s ease,
+    filter 0.35s ease;
 }
 
 .tour-card--match {
-  box-shadow: 0 0 0 2px var(--accent-liquid), 0 12px 30px rgba(0, 0, 0, 0.45);
+  box-shadow:
+    0 0 0 2px var(--accent-liquid),
+    0 12px 30px rgba(0, 0, 0, 0.45);
 }
 
 /* ─── WEEKLY SCHEDULE ───────────────────────────────────── */
@@ -399,8 +403,13 @@ section:not(.hero-section) {
   animation: dayGlowPulse 4s ease-in-out infinite;
 }
 @keyframes dayGlowPulse {
-  0%, 100% { box-shadow: 0 0 0 rgba(var(--accent-rgb), 0); }
-  50%      { box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.22); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(var(--accent-rgb), 0);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.22);
+  }
 }
 
 /* The current day gets the solid accent fill + a "Сегодня" badge */
@@ -430,7 +439,9 @@ section:not(.hero-section) {
   white-space: nowrap;
 }
 @media (prefers-reduced-motion: reduce) {
-  .day-glow { animation: none; }
+  .day-glow {
+    animation: none;
+  }
 }
 
 /* ── DAILY TOURS COLUMN ── */
@@ -440,8 +451,8 @@ section:not(.hero-section) {
   gap: 12px;
   min-width: 200px;
   padding: 14px;
-  background: rgba(var(--accent-rgb),0.04);
-  border: 1px dashed rgba(var(--accent-rgb),0.25);
+  background: rgba(var(--accent-rgb), 0.04);
+  border: 1px dashed rgba(var(--accent-rgb), 0.25);
   border-radius: 14px;
 }
 .daily-col-header {
@@ -450,10 +461,12 @@ section:not(.hero-section) {
   justify-content: center;
   gap: 6px;
 }
-.daily-icon { font-size: 1rem; }
+.daily-icon {
+  font-size: 1rem;
+}
 .schedule-tour-card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 12px;
   padding: 14px 14px 16px;
   cursor: pointer;
@@ -462,7 +475,7 @@ section:not(.hero-section) {
   overflow: hidden;
 }
 .schedule-tour-card::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -473,8 +486,8 @@ section:not(.hero-section) {
   transition: opacity 0.2s;
 }
 .schedule-tour-card:hover {
-  background: rgba(255,255,255,0.09);
-  border-color: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-3px);
 }
 .schedule-tour-card:hover::before {
@@ -496,11 +509,11 @@ section:not(.hero-section) {
 }
 .schedule-tour-price {
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
 }
 .schedule-tour-duration {
   font-size: 0.74rem;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255, 255, 255, 0.35);
   margin-top: 5px;
 }
 .week-col-empty {
@@ -509,8 +522,8 @@ section:not(.hero-section) {
   justify-content: center;
   padding: 26px 12px;
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.15);
-  border: 1px dashed rgba(255,255,255,0.08);
+  color: rgba(255, 255, 255, 0.15);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   text-align: center;
   line-height: 1.4;
@@ -526,15 +539,21 @@ section:not(.hero-section) {
   color: #fff;
   margin: 56px 0 24px;
   padding-top: 32px;
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
-.weekend-icon { font-size: 1.4rem; }
+.weekend-icon {
+  font-size: 1.4rem;
+}
 .weekend-block {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  background: linear-gradient(135deg, rgba(var(--accent-rgb),0.06), rgba(255,255,255,0.02));
-  border: 1px solid rgba(var(--accent-rgb),0.15);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--accent-rgb), 0.06),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px solid rgba(var(--accent-rgb), 0.15);
   border-radius: 18px;
   padding: 24px;
 }
@@ -556,7 +575,7 @@ section:not(.hero-section) {
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
 }
 .schedule-legend-dot {
   width: 9px;

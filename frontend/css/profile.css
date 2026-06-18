@@ -101,7 +101,9 @@
   border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
   padding-bottom: 1px;
   cursor: pointer;
-  transition: color 0.3s, border-color 0.3s;
+  transition:
+    color 0.3s,
+    border-color 0.3s;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -630,12 +632,24 @@
   animation-name: bookingStepInBack;
 }
 @keyframes bookingStepInFwd {
-  from { opacity: 0; transform: translateX(18px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 @keyframes bookingStepInBack {
-  from { opacity: 0; transform: translateX(-18px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .booking-step.is-active,
@@ -728,9 +742,15 @@
   border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-1px);
 }
-.social-btn--vk     { color: #0077ff; }
-.social-btn--max    { color: #ff3333; }
-.social-btn--google { color: #4285f4; }
+.social-btn--vk {
+  color: #0077ff;
+}
+.social-btn--max {
+  color: #ff3333;
+}
+.social-btn--google {
+  color: #4285f4;
+}
 
 .logout-btn {
   flex-shrink: 0;

@@ -530,6 +530,35 @@
       </div>
     </div>
 
+    <div
+      class="modal-cooperation"
+      id="cooperationModal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Сотрудничество"
+    >
+      <div class="cooperation-modal-container">
+        <button
+          class="modal-close-btn"
+          id="closeCooperationBtn"
+          aria-label="Закрыть"
+        >
+          &times;
+        </button>
+        <h3 class="modal-title">Сотрудничество</h3>
+        <p>
+          Приглашаем к сотрудничеству руководителей и сопровождающих
+          туристических групп, корпоративных клиентов, учителей школ и
+          вузов, а также туристические компании-агенты. Будем рады видеть
+          вас среди наших постоянных партнёров!
+        </p>
+        <div class="cooperation-footer-row">
+          <span class="cooperation-bonus">🎁 Для агентов действует бонусная программа</span>
+          <a href="tel:+79147196120" class="btn-cooperation">Связаться с нами</a>
+        </div>
+      </div>
+    </div>
+
     <aside class="side-profile" id="sideProfile" aria-label="Личный кабинет">
       <button class="modal-close-btn" id="closeProfileBtn" aria-label="Закрыть">
         &times;
@@ -1279,22 +1308,6 @@
           </div>
         </div>
       </section>
-
-      <section class="section-cooperation" id="cooperation" aria-labelledby="coopH2">
-        <div class="cooperation-content">
-          <h2 id="coopH2" data-reveal>Сотрудничество</h2>
-          <p data-reveal>
-            Приглашаем к сотрудничеству руководителей и сопровождающих
-            туристических групп, корпоративных клиентов, учителей школ и
-            вузов, а также туристические компании-агенты. Будем рады
-            видеть вас среди наших постоянных партнёров!
-          </p>
-          <div class="cooperation-footer-row" data-reveal>
-            <span class="cooperation-bonus">🎁 Для агентов действует бонусная программа</span>
-            <a href="tel:+79147196120" class="btn-cooperation">Связаться с нами</a>
-          </div>
-        </div>
-      </section>
     </div>
 
     <footer class="main-footer" style="position: relative">
@@ -1334,6 +1347,11 @@
             <li class="footer-list-item">
               <span class="footer-icon" aria-hidden="true">📍</span>
               692919, г. Находка, пр-кт Мира, 6
+            </li>
+            <li class="footer-list-item">
+              <button class="footer-link-btn" id="openCooperationBtn" type="button">
+                <span class="footer-icon" aria-hidden="true">🤝</span>Сотрудничество
+              </button>
             </li>
           </ul>
         </div>

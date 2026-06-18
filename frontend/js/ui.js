@@ -999,6 +999,17 @@ document.addEventListener("DOMContentLoaded", () => {
     el.addEventListener("click", () => setReviewFormRating(Number(el.dataset.value)));
   });
 
+  document.getElementById("openCooperationBtn")?.addEventListener("click", () => {
+    document.getElementById("cooperationModal").classList.add("open");
+  });
+  document.getElementById("closeCooperationBtn")?.addEventListener("click", () => {
+    document.getElementById("cooperationModal").classList.remove("open");
+  });
+  document.getElementById("cooperationModal")?.addEventListener("click", (e) => {
+    if (e.target === document.getElementById("cooperationModal"))
+      document.getElementById("cooperationModal").classList.remove("open");
+  });
+
   document.querySelectorAll(".auth-tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".auth-tab-btn").forEach((b) => {

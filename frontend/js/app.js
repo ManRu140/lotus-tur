@@ -87,12 +87,20 @@ async function checkExistingSession() {
       loadProfileData();
     }
   } catch {
-    // No valid session cookie (or it expired) — clear the optimistic
-    // cache so a stale name doesn't linger in the UI.
+    // Session cookie exists but the token is expired or invalid on the
+    // backend. Clear everything so we don't keep making 401 requests
+    // on this page load (bookings, achievements, profile/me all check
+    // isUserLoggedIn, so this prevents the cascade of 401s).
     localStorage.removeItem("username");
     localStorage.removeItem("avatar_url");
     localStorage.removeItem("full_name");
     isUserLoggedIn = false;
+    // Best-effort: tell the server to clear the cookies too so the
+    // stale csrf_token doesn't keep triggering this on every reload.
+    fetch(API_BASE + "/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    }).catch(() => {});
   }
 }
 

@@ -1,3 +1,14 @@
+// Escape user/API-supplied strings before inserting into innerHTML.
+// Defined first so it's available to all rendering functions below.
+function escHtml(s) {
+  if (s == null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 const mockUserTours = [
   {
     id: "askold",
@@ -221,22 +232,22 @@ function renderTours(tours) {
     card.dataset.id = tour.id;
 
     const scheduleHtml = tour.schedule
-      ? `<div style="font-size:0.7rem;color:rgba(255,255,255,0.5);margin-bottom:6px;letter-spacing:0.3px">${tour.schedule}${tour.departure ? " · " + tour.departure : ""}${tour.duration ? " · " + tour.duration : ""}</div>`
+      ? `<div style="font-size:0.7rem;color:rgba(255,255,255,0.5);margin-bottom:6px;letter-spacing:0.3px">${escHtml(tour.schedule)}${tour.departure ? " · " + escHtml(tour.departure) : ""}${tour.duration ? " · " + escHtml(tour.duration) : ""}</div>`
       : "";
     card.innerHTML = `
-      <div class="tour-img-placeholder" style="background-image:url('${tour.img}')"></div>
+      <div class="tour-img-placeholder" style="background-image:url('${encodeURI(tour.img || "")}')"></div>
       <div class="tour-static-title">
-        <span class="tour-card-tag-inline">${tour.tag}</span>
-        <p class="tour-name">${tour.name}</p>
+        <span class="tour-card-tag-inline">${escHtml(tour.tag)}</span>
+        <p class="tour-name">${escHtml(tour.name)}</p>
       </div>
       <div class="tour-hover-info">
-        <span class="tour-tag" style="color:var(--accent-liquid)">${tour.tag}</span>
-        <h3 class="tour-name">${tour.name}</h3>
+        <span class="tour-tag" style="color:var(--accent-liquid)">${escHtml(tour.tag)}</span>
+        <h3 class="tour-name">${escHtml(tour.name)}</h3>
         ${scheduleHtml}
-        <p class="tour-desc">${tour.desc}</p>
+        <p class="tour-desc">${escHtml(tour.desc)}</p>
         <div class="tour-meta">
-          <span class="tour-price">${tour.price} <span>₽/чел</span></span>
-          <button class="tour-btn" data-action="openTourDetail" data-id="${tour.id}">
+          <span class="tour-price">${escHtml(String(tour.price))} <span>₽/чел</span></span>
+          <button class="tour-btn" data-action="openTourDetail" data-id="${escHtml(tour.id)}">
             Подробнее
           </button>
         </div>
@@ -303,12 +314,12 @@ function openTourDetail(tourId) {
       <div class="tour-detail-body">
         <button class="tour-detail-close" id="closeTourDetail" aria-label="Закрыть">&times;</button>
         <div>
-          <span class="tour-detail-tag">${tour.tag}</span>
-          <h2 class="tour-detail-title">${tour.name}</h2>
+          <span class="tour-detail-tag">${escHtml(tour.tag)}</span>
+          <h2 class="tour-detail-title">${escHtml(tour.name)}</h2>
         </div>
-        <p class="tour-detail-desc">${tour.desc}</p>
+        <p class="tour-detail-desc">${escHtml(tour.desc)}</p>
         <div class="tour-detail-info-row">
-          <div class="tour-detail-info-chip">💰 <span>Цена: <strong>${tour.price} ₽</strong>/чел</span></div>
+          <div class="tour-detail-info-chip">💰 <span>Цена: <strong>${escHtml(String(tour.price))} ₽</strong>/чел</span></div>
           <div class="tour-detail-info-chip">📍 <span>Приморский Край</span></div>
           <div class="tour-detail-info-chip">👥 <span>Группы до <strong>12</strong> чел</span></div>
         </div>
@@ -331,7 +342,7 @@ function openTourDetail(tourId) {
           <div class="tour-detail-calendar">
             <div id="detailCalendarPlaceholder"></div>
           </div>
-          <button class="btn-book-detail" id="btnBookFromDetail" data-id="${tour.id}">
+          <button class="btn-book-detail" id="btnBookFromDetail" data-id="${escHtml(tour.id)}">
             Забронировать →
           </button>
         </div>
@@ -776,14 +787,6 @@ function applyTranslations(lang) {
 // in a way it didn't for the old static copy: author_name/text can be
 // real visitor input. Same rule as the admin panel — never interpolate
 // it into innerHTML unescaped.
-function escHtml(s) {
-  if (s == null) return "";
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
 
 const REVIEW_AVATAR_COLORS = [
   "#1a4f5c", "#3b2f5c", "#2a4a2a", "#4a3a1a",

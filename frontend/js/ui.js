@@ -31,20 +31,25 @@ const tourSlides = {
     "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
   ],
-  triozerye: [
+  "triozerye-classic": [
     "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
   ],
-  okunevaya: [
+  "okunevaya-jeep": [
     "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
   ],
-  "sea-cruise": [
+  "boats-yachts": [
     "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
     "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=900&q=80",
+  ],
+  "spokoinaya-jeep": [
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=900&q=80",
+    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
   ],
   safari: [
     "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=900&q=80",
@@ -450,8 +455,9 @@ function buildCalendar(placeholderId, bookedDates, onSelect) {
     const isBooked = bSet.has(dateStr);
     const isSelected = dateStr === selectedDateStr;
     let cls = "cal-day ";
-    if (isPast || isBooked) cls += "booked-out";
+    if (isBooked) cls += "booked-out";
     else if (isSelected) cls += "selected";
+    else if (isPast) cls += "past-day";
     else cls += "available";
     daysHtml += `<div class="${cls}" data-date="${dateStr}">${d}</div>`;
   }
@@ -470,7 +476,7 @@ function buildCalendar(placeholderId, bookedDates, onSelect) {
     </div>
   `;
 
-  el.querySelectorAll(".cal-day.available").forEach((day) => {
+  el.querySelectorAll(".cal-day.available, .cal-day.past-day").forEach((day) => {
     day.addEventListener("click", () => {
       selectedDateStr = day.dataset.date;
       buildCalendar(placeholderId, bookedDates, onSelect);
@@ -822,6 +828,29 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btn) btn.disabled = true;
 
     const contactEl = document.querySelector('input[name="bookContact"]:checked');
+    const tgUsername = document.getElementById("bookTgUsername")?.value.trim() || "";
+
+    // Validate Telegram username if selected
+    if (contactEl && contactEl.value === "telegram" && !tgUsername) {
+      const tgInput = document.getElementById("bookTgUsername");
+      const tgErr   = document.getElementById("tgFieldError");
+      if (tgInput) { tgInput.classList.add("input-error"); tgInput.focus(); }
+      if (tgErr)   tgErr.style.display = "flex";
+      if (btn) btn.disabled = false;
+      return;
+    }
+    // Validate phone for Max contact
+    if (contactEl && contactEl.value === "phone") {
+      const phoneEl = document.getElementById("bookPhone");
+      if (phoneEl && !phoneEl.value.trim()) {
+        phoneEl.style.borderColor = "#ef4444";
+        phoneEl.focus();
+        showToast("Введите номер телефона для связи через Макса.", "error");
+        if (btn) btn.disabled = false;
+        return;
+      }
+    }
+
     const payload = {
       first_name: document.getElementById("bookName").value.trim(),
       phone: document.getElementById("bookPhone").value.trim(),
@@ -831,6 +860,7 @@ document.addEventListener("DOMContentLoaded", () => {
       preferred_time: document.getElementById("bookTime").value,
       people_count: Number(document.getElementById("bookPeopleCount").value),
       contact_method: contactEl ? contactEl.value : "",
+      tg_username: tgUsername || null,
       comment: document.getElementById("bookMessage").value.trim() || null,
     };
 
@@ -856,6 +886,77 @@ document.addEventListener("DOMContentLoaded", () => {
     } finally {
       if (btn) btn.disabled = false;
     }
+  });
+
+  /* ── People counter ── */
+  const pctrCounts = { cntAdults: 0, cntTeens: 0, cntKids: 0, cntSeniors: 0 };
+  document.querySelectorAll(".pctr-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.dataset.target;
+      const isPlus   = btn.dataset.dir === "1";
+      const min      = Number(btn.dataset.min ?? 0);
+      if (isPlus) {
+        pctrCounts[targetId]++;
+      } else {
+        if (pctrCounts[targetId] > min) pctrCounts[targetId]--;
+      }
+      const el = document.getElementById(targetId);
+      if (el) el.textContent = pctrCounts[targetId];
+      const total = pctrCounts.cntAdults + pctrCounts.cntTeens + pctrCounts.cntKids + pctrCounts.cntSeniors;
+      const hidden = document.getElementById("bookPeopleCount");
+      if (hidden) hidden.value = total;
+    });
+  });
+
+  /* ── Contact sub-panels ── */
+  function showContactPanel(value) {
+    ["subWhatsapp","subTelegram","subMax"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "none";
+    });
+    if (value === "whatsapp") {
+      const el = document.getElementById("subWhatsapp");
+      if (el) el.style.display = "block";
+    } else if (value === "telegram") {
+      const el = document.getElementById("subTelegram");
+      if (el) el.style.display = "block";
+    } else if (value === "phone") {
+      const el = document.getElementById("subMax");
+      // validate phone already in form — if empty, highlight
+      const phoneEl = document.getElementById("bookPhone");
+      if (el) el.style.display = "block";
+      if (phoneEl && !phoneEl.value.trim()) {
+        phoneEl.style.borderColor = "#ef4444";
+        phoneEl.setAttribute("title", "Введите номер телефона для звонка от Макса");
+      }
+    }
+  }
+
+  document.querySelectorAll('input[name="bookContact"]').forEach((radio) => {
+    radio.addEventListener("change", () => showContactPanel(radio.value));
+  });
+
+  /* ── Telegram help toggle ── */
+  document.getElementById("tgHelpToggle")?.addEventListener("click", () => {
+    const box = document.getElementById("tgHelpBox");
+    if (!box) return;
+    const isOpen = box.style.display === "block";
+    box.style.display = isOpen ? "none" : "block";
+    document.getElementById("tgHelpToggle").textContent = isOpen
+      ? "Как найти свой юзернейм? →"
+      : "Скрыть подсказку ↑";
+  });
+
+  document.getElementById("bookTgUsername")?.addEventListener("input", () => {
+    document.getElementById("bookTgUsername").classList.remove("input-error");
+    const tgErr = document.getElementById("tgFieldError");
+    if (tgErr) tgErr.style.display = "none";
+  });
+
+  /* ── bookPhone border reset on input ── */
+  document.getElementById("bookPhone")?.addEventListener("input", (e) => {
+    e.target.style.borderColor = "";
+    e.target.removeAttribute("title");
   });
 
   document.getElementById("btnCopy")?.addEventListener("click", () => {

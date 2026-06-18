@@ -434,13 +434,11 @@ async function saveNicknameToAPI(newUsername) {
 /* ─── WEEKLY SCHEDULE ─────────────────────────────── */
 (function buildSchedule() {
   const DAYS = [
-    { key: "Понедельник", short: "Пн" },
-    { key: "Вторник",     short: "Вт" },
-    { key: "Среда",       short: "Ср" },
-    { key: "Четверг",     short: "Чт" },
-    { key: "Пятница",     short: "Пт" },
-    { key: "Суббота",     short: "Сб" },
-    { key: "Воскресенье", short: "Вс" },
+    { key: "Понедельник", full: "Понедельник" },
+    { key: "Вторник",     full: "Вторник" },
+    { key: "Среда",       full: "Среда" },
+    { key: "Четверг",     full: "Четверг" },
+    { key: "Пятница",     full: "Пятница" },
   ];
 
   const todayIdx = (new Date().getDay() + 6) % 7; // 0=Пн
@@ -448,46 +446,90 @@ async function saveNicknameToAPI(newUsername) {
   const grid = document.getElementById("weekGrid");
   if (!grid || typeof toursData === "undefined") return;
 
+  function makeTourCard(t) {
+    const card = document.createElement("div");
+    card.className = "schedule-tour-card";
+    card.innerHTML =
+      '<div class="schedule-tour-time">' + (t.departure !== "Ежедневно" ? t.departure : "По расписанию") + '</div>' +
+      '<div class="schedule-tour-name">' + t.name + '</div>' +
+      '<div class="schedule-tour-price">от ' + t.price + ' ₽</div>' +
+      '<div class="schedule-tour-duration">' + t.duration + '</div>';
+    card.addEventListener("click", function() {
+      const bookSelect = document.getElementById("bookTourSelect");
+      if (bookSelect) {
+        bookSelect.value = t.id;
+        const modal = document.getElementById("bookingModal");
+        if (modal) modal.style.display = "flex";
+      }
+    });
+    return card;
+  }
+
+  // Будние дни Пн–Пт — показываем только туры, привязанные именно к этому дню
   DAYS.forEach(function(day, i) {
     const col = document.createElement("div");
     col.className = "week-col";
 
     const header = document.createElement("div");
-    header.className = "week-day-header" + (i === todayIdx ? " today" : "");
-    header.textContent = day.short;
+    header.className = "week-day-header" + (i === todayIdx ? " today" : "") + " day-glow";
+    header.textContent = day.full;
     if (i === todayIdx) header.title = "Сегодня";
     col.appendChild(header);
 
     const toursForDay = toursData.filter(function(t) {
-      return t.schedule === day.key || t.schedule === "Ежедневно";
+      return t.schedule === day.key;
     });
 
     if (toursForDay.length === 0) {
       const empty = document.createElement("div");
       empty.className = "week-col-empty";
-      empty.textContent = "Выходной";
+      empty.textContent = "Нет отдельных туров";
       col.appendChild(empty);
     } else {
       toursForDay.forEach(function(t) {
-        const card = document.createElement("div");
-        card.className = "schedule-tour-card";
-        card.innerHTML =
-          '<div class="schedule-tour-time">' + (t.departure !== "Ежедневно" ? t.departure : "По расписанию") + '</div>' +
-          '<div class="schedule-tour-name">' + t.name + '</div>' +
-          '<div class="schedule-tour-price">от ' + t.price + ' ₽</div>' +
-          '<div class="schedule-tour-duration">' + t.duration + '</div>';
-        card.addEventListener("click", function() {
-          const bookSelect = document.getElementById("bookTourSelect");
-          if (bookSelect) {
-            bookSelect.value = t.id;
-            const modal = document.getElementById("bookingModal");
-            if (modal) modal.style.display = "flex";
-          }
-        });
-        col.appendChild(card);
+        col.appendChild(makeTourCard(t));
       });
     }
 
     grid.appendChild(col);
   });
+
+  // Колонка "Каждый день" — туры, доступные ежедневно
+  const dailyCol = document.getElementById("dailyToursCol");
+  if (dailyCol) {
+    const dailyTours = toursData.filter(function(t) { return t.schedule === "Ежедневно"; });
+    dailyTours.forEach(function(t) {
+      dailyCol.appendChild(makeTourCard(t));
+    });
+  }
+
+  // Отдельная плашка "Выходные туры" — Субота + Воскресенье вместе
+  const weekendWrap = document.getElementById("weekendBlock");
+  if (weekendWrap) {
+    const satTours = toursData.filter(function(t) {
+      return t.schedule === "Суббота";
+    });
+    const sunTours = toursData.filter(function(t) {
+      return t.schedule === "Воскресенье";
+    });
+
+    const satCol = document.createElement("div");
+    satCol.className = "weekend-col";
+    const satHeader = document.createElement("div");
+    satHeader.className = "weekend-day-header" + (todayIdx === 5 ? " today" : "");
+    satHeader.textContent = "Суббота";
+    satCol.appendChild(satHeader);
+    satTours.forEach(function(t) { satCol.appendChild(makeTourCard(t)); });
+
+    const sunCol = document.createElement("div");
+    sunCol.className = "weekend-col";
+    const sunHeader = document.createElement("div");
+    sunHeader.className = "weekend-day-header" + (todayIdx === 6 ? " today" : "");
+    sunHeader.textContent = "Воскресенье";
+    sunCol.appendChild(sunHeader);
+    sunTours.forEach(function(t) { sunCol.appendChild(makeTourCard(t)); });
+
+    weekendWrap.appendChild(satCol);
+    weekendWrap.appendChild(sunCol);
+  }
 })();

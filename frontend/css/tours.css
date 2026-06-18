@@ -344,52 +344,78 @@ section:not(.hero-section) {
 /* ─── WEEKLY SCHEDULE ───────────────────────────────────── */
 .schedule-section {
   background: var(--bg-dark);
-  padding: 80px 5% 60px;
+  padding: 90px 5% 70px;
   position: relative;
 }
 .schedule-section .section-sub {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--accent-liquid);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .schedule-section h2 {
-  font-size: 2rem;
+  font-size: 2.4rem;
   font-weight: 800;
   color: #fff;
-  margin-bottom: 48px;
+  margin-bottom: 56px;
+}
+.week-grid-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: start;
 }
 .week-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
 }
 .week-col {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
-.week-day-header {
+.week-day-header,
+.weekend-day-header,
+.daily-col-header {
   text-align: center;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  margin-bottom: 4px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  color: var(--bg-dark);
+  padding: 10px 8px;
+  margin-bottom: 6px;
+  background: var(--accent-liquid);
+  border-radius: 8px;
+  box-shadow: 0 0 14px rgba(0,242,254,0.35);
 }
-.week-day-header.today {
-  color: var(--accent-liquid);
+
+/* ── DAILY TOURS COLUMN ── */
+.daily-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 200px;
+  padding: 14px;
+  background: rgba(0,242,254,0.04);
+  border: 1px dashed rgba(0,242,254,0.25);
+  border-radius: 14px;
 }
+.daily-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.daily-icon { font-size: 1rem; }
 .schedule-tour-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 10px;
-  padding: 10px 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 12px;
+  padding: 14px 14px 16px;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
@@ -401,58 +427,87 @@ section:not(.hero-section) {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 3px;
+  width: 4px;
   background: var(--accent-liquid);
   opacity: 0;
   transition: opacity 0.2s;
 }
 .schedule-tour-card:hover {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(255,255,255,0.15);
-  transform: translateY(-2px);
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,255,255,0.2);
+  transform: translateY(-3px);
 }
 .schedule-tour-card:hover::before {
   opacity: 1;
 }
 .schedule-tour-time {
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--accent-liquid);
   letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .schedule-tour-name {
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #fff;
-  line-height: 1.3;
-  margin-bottom: 4px;
+  line-height: 1.35;
+  margin-bottom: 6px;
 }
 .schedule-tour-price {
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.4);
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
 }
 .schedule-tour-duration {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.3);
-  margin-top: 4px;
+  font-size: 0.74rem;
+  color: rgba(255,255,255,0.35);
+  margin-top: 5px;
 }
 .week-col-empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 10px;
-  font-size: 0.72rem;
-  color: rgba(255,255,255,0.12);
-  border: 1px dashed rgba(255,255,255,0.06);
-  border-radius: 10px;
+  padding: 26px 12px;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.15);
+  border: 1px dashed rgba(255,255,255,0.08);
+  border-radius: 12px;
   text-align: center;
   line-height: 1.4;
 }
+
+/* ── WEEKEND BLOCK ── */
+.weekend-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 56px 0 24px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.weekend-icon { font-size: 1.4rem; }
+.weekend-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background: linear-gradient(135deg, rgba(0,242,254,0.06), rgba(255,255,255,0.02));
+  border: 1px solid rgba(0,242,254,0.15);
+  border-radius: 18px;
+  padding: 24px;
+}
+.weekend-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .schedule-legend {
   display: flex;
   gap: 20px;
-  margin-top: 28px;
+  margin-top: 32px;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -460,22 +515,31 @@ section:not(.hero-section) {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.35);
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.4);
 }
 .schedule-legend-dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: var(--accent-liquid);
 }
 @media (max-width: 900px) {
+  .week-grid-wrap {
+    grid-template-columns: 1fr;
+  }
   .week-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .daily-col {
+    min-width: 0;
+  }
+  .weekend-block {
+    grid-template-columns: 1fr;
   }
 }
 @media (max-width: 560px) {
   .week-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
 }

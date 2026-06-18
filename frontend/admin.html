@@ -178,12 +178,16 @@
     /* ── WEEKLY SCHEDULE ── */
     .week-admin{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
     .wday{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:10px 8px}
-    .wday-hd{font-size:.68rem;font-weight:700;color:var(--muted);text-align:center;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid var(--border);letter-spacing:.5px}
+    .wday-hd{font-size:.62rem;font-weight:700;color:var(--muted);text-align:center;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid var(--border);letter-spacing:.3px}
     .wday-hd.today{color:var(--accent)}
     .wday-tour{font-size:.72rem;padding:6px 8px;border-radius:6px;border-left:2px solid var(--accent);background:rgba(63,208,202,.06);margin-bottom:5px;line-height:1.3}
     .wday-tour .tour-nm{font-weight:600;color:var(--text)}
     .wday-tour .tour-t{color:var(--muted);font-size:.66rem}
     .wday-none{font-size:.7rem;color:rgba(255,255,255,.12);text-align:center;padding:10px 0}
+    .wday-tour-actions{margin-top:6px}
+    .sched-day-select{width:100%;font-size:.66rem;padding:4px 6px;border-radius:5px;border:1px solid var(--border);background:rgba(0,0,0,.25);color:var(--text);cursor:pointer}
+    .sched-day-select:hover{border-color:var(--accent)}
+    .wday-tour.is-daily{border-left-color:#888}
 
     /* ── NOTIFICATIONS PAGE ── */
     .notif-item{display:flex;gap:12px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
@@ -248,7 +252,6 @@
     <button class="ni" data-page="tours" onclick="go('tours')"><span class="ico">🏔</span>Туры</button>
     <button class="ni" data-page="users" onclick="go('users')"><span class="ico">👥</span>Пользователи</button>
     <button class="ni" data-page="admins" onclick="go('admins')"><span class="ico">🔐</span>Администраторы</button>
-    <button class="ni" data-page="notifications" onclick="go('notifications')"><span class="ico">🔔</span>Уведомления</button>
   </nav>
   <div class="sb-bot">
     <div class="admin-chip">
@@ -313,10 +316,21 @@
 
   <!-- SCHEDULE -->
   <div class="page" id="page-schedule">
-    <div class="topbar"><div><h1>Расписание</h1><div class="sub">Туры по дням недели</div></div></div>
-    <div class="card">
-      <div class="card-hd"><h3>Неделя пн–вс</h3></div>
+    <div class="topbar">
+      <div><h1>Конструктор расписания</h1><div class="sub">Назначьте день недели для каждого тура — изменения сразу появятся на сайте</div></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="loadTours().then(buildScheduleAdmin)">🔄 Обновить</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-hd"><h3>Будние дни</h3></div>
       <div style="padding:16px"><div class="week-admin" id="weekAdmin"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><h3>🌅 Выходные туры</h3></div>
+      <div style="padding:16px"><div class="week-admin" id="weekendAdmin" style="grid-template-columns:repeat(2,1fr)"></div></div>
     </div>
   </div>
 
@@ -436,19 +450,6 @@
     </div>
   </div>
 
-  <!-- NOTIFICATIONS -->
-  <div class="page" id="page-notifications">
-    <div class="topbar">
-      <div><h1>Уведомления</h1><div class="sub" id="notifCount"></div></div>
-      <div class="topbar-actions">
-        <button class="btn btn-ghost" onclick="markAllNotifsRead()">✓ Прочитать все</button>
-        <button class="btn btn-ghost" onclick="loadNotifications()">🔄 Обновить</button>
-      </div>
-    </div>
-    <div class="card" id="notifList">
-      <div class="loading-row"><div class="spin"></div></div>
-    </div>
-  </div>
 
 </main>
 
@@ -487,6 +488,16 @@
       <div class="field"><label>URL изображения</label><input type="text" id="tImg" placeholder="https://..." /></div>
       <div class="field"><label>Описание</label><textarea id="tDesc" placeholder="Описание тура…"></textarea></div>
       <div id="tImgPreview" style="margin-top:8px"></div>
+
+      <!-- Booked dates manager -->
+      <div class="field" style="margin-top:16px">
+        <label style="display:flex;align-items:center;justify-content:space-between">
+          <span>🔴 Заблокированные даты</span>
+          <span style="font-size:.72rem;color:var(--muted);font-weight:400">Красные в календаре</span>
+        </label>
+        <div id="bookedDatesCalWrap" style="margin-top:8px"></div>
+        <div id="bookedDatesList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeMT()">Отмена</button>
@@ -629,7 +640,6 @@ function go(name) {
     users: loadUsers,
     admins: loadAdmins,
     schedule: buildScheduleAdmin,
-    notifications: loadNotifications,
   };
   if (loaders[name]) loaders[name]();
 }
@@ -752,44 +762,79 @@ async function loadAnalytics() {
 }
 
 // ── SCHEDULE ADMIN ──
-function buildScheduleAdmin() {
-  const DAYS = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"];
-  const SHORTS = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-  const todayIdx = (new Date().getDay() + 6) % 7;
-  const grid = $("weekAdmin");
+// ── SCHEDULE BUILDER ──
+const SCHED_DAYS = ["Понедельник","Вторник","Среда","Четверг","Пятница"];
+const SCHED_WEEKEND = ["Суббота","Воскресенье"];
+let scheduleToursCache = [];
+
+async function buildScheduleAdmin() {
+  // Берём актуальные туры (с бэкенда, если есть, иначе из локального кэша allTours)
+  try {
+    scheduleToursCache = (typeof allTours !== "undefined" && allTours.length) ? allTours : await api("/api/tours");
+  } catch (e) {
+    scheduleToursCache = (typeof allTours !== "undefined") ? allTours : [];
+  }
+  renderScheduleGrid("weekAdmin", SCHED_DAYS, true);
+  renderScheduleGrid("weekendAdmin", SCHED_WEEKEND, false);
+}
+
+function renderScheduleGrid(gridId, days, includeToday) {
+  const grid = $(gridId);
   if (!grid) return;
   grid.innerHTML = "";
-  const TOURS_SCHEDULE = [
-    { name: "Сафари Парк", day: "Понедельник", time: "09:00", price: "5 100" },
-    { name: "Вл-к: Нагорный парк + Маяк", day: "Понедельник", time: "07:00", price: "4 000" },
-    { name: "Бухта Триозерье", day: "Ежедневно", time: "11:00", price: "3 000" },
-    { name: "Бухта Окуневая", day: "Ежедневно", time: "11:00", price: "3 500" },
-    { name: "Морская прогулка на катере", day: "Ежедневно", time: "По расп.", price: "3 000" },
-    { name: "Приморский Океанариум", day: "Вторник", time: "08:00", price: "3 500" },
-    { name: "Ливадийское побережье", day: "Среда", time: "По запросу", price: "3 500" },
-    { name: "Ботсад + зоопарк + б.Стеклянная", day: "Среда", time: "08:00", price: "5 500" },
-    { name: "Музей ДВ + пешеходная экскурсия", day: "Четверг", time: "07:00", price: "6 500" },
-    { name: "Пик Сестра", day: "Пятница", time: "06:00", price: "4 500" },
-    { name: "Остров Путятин", day: "Суббота", time: "08:30", price: "8 500" },
-    { name: "Остров Аскольд", day: "Воскресенье", time: "09:00", price: "7 500" },
-  ];
-  DAYS.forEach((day, i) => {
+  const allDayNames = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"];
+  const todayIdx = (new Date().getDay() + 6) % 7;
+
+  days.forEach((day) => {
+    const dayIdx = allDayNames.indexOf(day);
     const col = document.createElement("div");
     col.className = "wday";
     const hd = document.createElement("div");
-    hd.className = "wday-hd" + (i === todayIdx ? " today" : "");
-    hd.textContent = SHORTS[i];
+    hd.className = "wday-hd" + (includeToday && dayIdx === todayIdx ? " today" : "");
+    hd.textContent = day;
     col.appendChild(hd);
-    const tours = TOURS_SCHEDULE.filter(t => t.day === day || t.day === "Ежедневно");
-    if (!tours.length) {
-      col.innerHTML += '<div class="wday-none">—</div>';
+
+    const toursForDay = scheduleToursCache.filter(t => t.schedule === day || t.schedule === "Ежедневно");
+
+    if (!toursForDay.length) {
+      const none = document.createElement("div");
+      none.className = "wday-none";
+      none.textContent = "Нет туров";
+      col.appendChild(none);
     } else {
-      tours.forEach(t => {
-        col.innerHTML += `<div class="wday-tour"><div class="tour-nm">${escHtml(t.name)}</div><div class="tour-t">${t.time} · от ${t.price}₽</div></div>`;
+      toursForDay.forEach(t => {
+        const item = document.createElement("div");
+        item.className = "wday-tour" + (t.schedule === "Ежедневно" ? " is-daily" : "");
+        item.innerHTML = `
+          <div class="tour-nm">${escHtml(t.name)}${t.schedule === "Ежедневно" ? ' <span style="opacity:.5;font-size:.6rem">(ежедн.)</span>' : ''}</div>
+          <div class="tour-t">${escHtml(t.departure || t.time || "")} · от ${escHtml(String(t.price))}₽</div>
+          <div class="wday-tour-actions">
+            <select class="sched-day-select" data-tour-id="${t.id}" onchange="changeTourDay(this)">
+              ${allDayNames.map(d => `<option value="${d}" ${t.schedule===d?'selected':''}>${d}</option>`).join("")}
+              <option value="Ежедневно" ${t.schedule==="Ежедневно"?'selected':''}>Ежедневно</option>
+              <option value="По запросу" ${t.schedule==="По запросу"?'selected':''}>По запросу</option>
+            </select>
+          </div>`;
+        col.appendChild(item);
       });
     }
     grid.appendChild(col);
   });
+}
+
+async function changeTourDay(selectEl) {
+  const tourId = selectEl.dataset.tourId;
+  const newDay = selectEl.value;
+  const tour = scheduleToursCache.find(t => String(t.id) === String(tourId));
+  if (!tour) return;
+  tour.schedule = newDay;
+  try {
+    await api(`/api/admin/tours/${tourId}`, { method: "PATCH", body: JSON.stringify({ schedule: newDay }) });
+    toast(`«${tour.name}» перенесён на: ${newDay}`);
+  } catch (e) {
+    toast("Сохранено локально (бэкенд не подтвердил): " + e.message);
+  }
+  buildScheduleAdmin();
 }
 
 // ── BOOKINGS ──
@@ -931,6 +976,61 @@ async function loadTours() {
   }
 }
 
+let adminBookedDates = new Set();
+let adminCalYear = new Date().getFullYear();
+let adminCalMonth = new Date().getMonth();
+const RU_MONTHS_ADMIN = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+
+function buildAdminCalendar() {
+  const wrap = $("bookedDatesCalWrap");
+  if (!wrap) return;
+  const daysInMonth = new Date(adminCalYear, adminCalMonth + 1, 0).getDate();
+  const firstDay = (new Date(adminCalYear, adminCalMonth, 1).getDay() + 6) % 7;
+  let days = "";
+  for (let i = 0; i < firstDay; i++) days += `<div style="aspect-ratio:1;"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${adminCalYear}-${String(adminCalMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const isBooked = adminBookedDates.has(ds);
+    days += `<div onclick="toggleAdminDate('${ds}')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;${isBooked ? 'background:rgba(239,68,68,.3);color:#fca5a5;border:1px solid rgba(239,68,68,.5)' : 'background:rgba(255,255,255,.05);color:#fff;border:1px solid rgba(255,255,255,.1)'};">${d}</div>`;
+  }
+  wrap.innerHTML = `
+    <div style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <button type="button" onclick="adminCalNav(-1)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:.9rem">‹</button>
+        <span style="font-size:.82rem;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px">${RU_MONTHS_ADMIN[adminCalMonth]} ${adminCalYear}</span>
+        <button type="button" onclick="adminCalNav(1)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:.9rem">›</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:.62rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:6px">
+        <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">${days}</div>
+      <p style="font-size:.7rem;color:rgba(255,255,255,.35);margin-top:8px">Нажмите на дату, чтобы пометить/снять блокировку (красный = занято)</p>
+    </div>`;
+  renderAdminBookedList();
+}
+
+function toggleAdminDate(ds) {
+  if (adminBookedDates.has(ds)) adminBookedDates.delete(ds);
+  else adminBookedDates.add(ds);
+  buildAdminCalendar();
+}
+function adminCalNav(dir) {
+  adminCalMonth += dir;
+  if (adminCalMonth < 0) { adminCalMonth = 11; adminCalYear--; }
+  if (adminCalMonth > 11) { adminCalMonth = 0; adminCalYear++; }
+  buildAdminCalendar();
+}
+function renderAdminBookedList() {
+  const list = $("bookedDatesList");
+  if (!list) return;
+  if (!adminBookedDates.size) { list.innerHTML = `<span style="font-size:.75rem;color:rgba(255,255,255,.3)">Нет заблокированных дат</span>`; return; }
+  list.innerHTML = [...adminBookedDates].sort().map(ds => `
+    <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(239,68,68,.18);border:1px solid rgba(239,68,68,.35);border-radius:6px;padding:3px 9px;font-size:.72rem;color:#fca5a5">
+      ${ds}
+      <button type="button" onclick="toggleAdminDate('${ds}')" style="background:none;border:none;color:#fca5a5;cursor:pointer;font-size:.85rem;line-height:1;padding:0">×</button>
+    </span>`).join("");
+}
+
 function openTourModal(id = null, data = null) {
   editTourId = id;
   $("mTTitle").textContent = id ? "Редактировать тур" : "Добавить тур";
@@ -938,10 +1038,15 @@ function openTourModal(id = null, data = null) {
   $("tName").value = data?.name || ""; $("tTag").value = data?.tag || "";
   $("tPrice").value = data?.price || ""; $("tImg").value = data?.img_url || "";
   $("tDesc").value = data?.description || "";
+  // Init booked dates from tour data
+  adminBookedDates = new Set(data?.booked_dates || data?.bookedDates || []);
+  adminCalYear = new Date().getFullYear();
+  adminCalMonth = new Date().getMonth();
   // Show image preview
   const prev = $("tImgPreview");
   prev.innerHTML = data?.img_url ? `<img src="${data.img_url}" alt="preview" style="max-width:100%;max-height:120px;border-radius:8px;object-fit:cover" onerror="this.remove()">` : "";
   $("mTour").classList.add("open");
+  setTimeout(() => buildAdminCalendar(), 50);
 }
 // Live image preview
 $("tImg").addEventListener("input", function() {
@@ -959,7 +1064,8 @@ async function saveTour() {
       tag: $("tTag").value.trim(),
       price: parseInt($("tPrice").value),
       img_url: $("tImg").value.trim(),
-      description: $("tDesc").value.trim()
+      description: $("tDesc").value.trim(),
+      booked_dates: [...adminBookedDates].sort()
     };
     if (!payload.name || !payload.tag || !payload.price || !payload.id) {
       toast("Заполните обязательные поля (ID, название, тег, цена)", "err");
@@ -1130,55 +1236,6 @@ async function grantAdmin() {
     loadUsers();
     loadAdmins();
   } catch (e) { msg.style.color = "var(--danger)"; msg.textContent = e.message; }
-}
-
-// ── NOTIFICATIONS ──
-async function loadNotifications() {
-  $("notifList").innerHTML = '<div class="loading-row"><div class="spin"></div></div>';
-  $("notifCount").textContent = "";
-  try {
-    const notifs = await api("/api/notifications?limit=100");
-    const unreadCount = notifs.filter(n => !n.is_read).length;
-    $("notifCount").textContent = `${notifs.length} уведомлений${unreadCount > 0 ? `, ${unreadCount} непрочитанных` : ""}`;
-    if (!notifs.length) {
-      $("notifList").innerHTML = '<div class="empty"><span class="ico">🔔</span>Уведомлений нет</div>';
-      return;
-    }
-    const typeIcons = { booking: "🎒", achievement: "🏆", promo: "🎁", system: "⚙️" };
-    $("notifList").innerHTML = notifs.map(n => `
-      <div class="notif-item ${n.is_read ? "" : "unread"}" id="notif-${n.id}">
-        <div class="notif-icon">${typeIcons[n.type] || "🔔"}</div>
-        <div class="notif-body" style="flex:1">
-          <div class="n-title">${escHtml(n.title)}</div>
-          <div class="n-text">${escHtml(n.body)}</div>
-          <div class="n-time">${fmtFull(n.created_at)}</div>
-        </div>
-        ${!n.is_read ? `<button class="btn btn-ghost" style="font-size:.68rem;padding:4px 8px;flex-shrink:0" onclick="markNotifRead(${n.id})">✓</button>` : '<span style="color:rgba(255,255,255,.15);font-size:.72rem;flex-shrink:0">Прочитано</span>'}
-      </div>`).join("");
-  } catch (e) {
-    $("notifList").innerHTML = `<div class="empty"><span class="ico">⚠️</span>${escHtml(e.message)}</div>`;
-  }
-}
-
-async function markNotifRead(id) {
-  try {
-    await api(`/api/notifications/${id}/read`, { method: "POST" });
-    const el = $(`notif-${id}`);
-    if (el) {
-      el.classList.remove("unread");
-      const btn = el.querySelector("button");
-      if (btn) btn.replaceWith(Object.assign(document.createElement("span"), { textContent: "Прочитано", style: "color:rgba(255,255,255,.15);font-size:.72rem;flex-shrink:0" }));
-    }
-    loadNotifications();
-  } catch (e) { toast(e.message, "err"); }
-}
-
-async function markAllNotifsRead() {
-  try {
-    await api("/api/notifications/read-all", { method: "POST" });
-    toast("Все уведомления прочитаны");
-    loadNotifications();
-  } catch (e) { toast(e.message, "err"); }
 }
 
 // ── UTILS ──

@@ -39,8 +39,10 @@ AsyncSessionLocal = async_sessionmaker(
 
 async def init_db() -> None:
     import app.models  # noqa: F401
+    from app.db.migrations import run_lightweight_migrations
 
     async with engine.begin() as conn:
+        await run_lightweight_migrations(conn)
         await conn.run_sync(Base.metadata.create_all)
 
     async with AsyncSessionLocal() as session:

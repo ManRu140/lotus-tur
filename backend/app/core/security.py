@@ -1,9 +1,17 @@
 from datetime import datetime, timedelta, timezone
 
-from jose import JWTError, jwt
+import jwt
+from jwt import InvalidTokenError
 from passlib.context import CryptContext
 
 from app.core.config import settings
+
+# SECURITY NOTE: we use PyJWT, not python-jose. python-jose <=3.3.0 has a
+# critical auth-bypass (CVE-2025-61152): tokens with header {"alg":"none"}
+# were accepted with NO signature check at all, regardless of the
+# `algorithms=[...]` allow-list passed by the caller. PyJWT's jwt.decode()
+# strictly validates the token's alg against the `algorithms=` allow-list
+# and rejects "none" unless explicitly added to that list (we never do).
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
 
@@ -43,10 +51,12 @@ def create_access_token(user_id: int) -> str:
 
 def decode_access_token(token: str) -> int | None:
     try:
+        # algorithms= is mandatory here — PyJWT will reject any token whose
+        # header alg is not exactly in this list (including "none").
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         sub = payload.get("sub")
         if sub is None:
             return None
         return int(sub)
-    except (JWTError, ValueError):
+    except (InvalidTokenError, ValueError):
         return None

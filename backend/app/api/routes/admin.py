@@ -1,19 +1,49 @@
+import re
 from datetime import datetime
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.core.deps import require_admin
+from app.core.deps import require_admin, require_staff
+from app.core.security import hash_password, validate_password_strength
+from app.core.validators import SLUG_PATTERN, validate_http_url
 from app.db.session import get_session
 from app.models.booking import Booking
 from app.models.tour import Tour
 from app.models.user import User
+from app.services.audit_service import log_admin_action
 
 router = APIRouter()
+
+ALLOWED_SCHEDULE_VALUES = {
+    "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье",
+    "Ежедневно", "По запросу",
+}
+
+
+def _validate_schedule_value(v: str) -> str:
+    v = (v or "").strip()
+    if v not in ALLOWED_SCHEDULE_VALUES:
+        raise ValueError(
+            f"Расписание должно быть одним из: {', '.join(sorted(ALLOWED_SCHEDULE_VALUES))}"
+        )
+    return v
+
+
+_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def _validate_date_list(dates: list[str]) -> list[str]:
+    if len(dates) > 500:
+        raise ValueError("Слишком много дат")
+    for d in dates:
+        if not _DATE_RE.match(d):
+            raise ValueError(f"Некорректный формат даты: {d!r} (ожидается YYYY-MM-DD)")
+    return sorted(set(dates))
 
 
 class AdminUserOut(BaseModel):
@@ -23,6 +53,7 @@ class AdminUserOut(BaseModel):
     full_name: Optional[str]
     is_active: bool
     is_admin: bool
+    role: str
     is_oauth: bool
     created_at: datetime
     bookings_count: int = 0
@@ -54,26 +85,90 @@ class AdminTourOut(BaseModel):
     description: str
     price: int
     img_url: str
+    schedule: str
+    booked_dates: list[str] = Field(default_factory=list)
     bookings_count: int = 0
 
     model_config = {"from_attributes": True}
 
 
 class AdminTourCreate(BaseModel):
-    id: str
-    tag: str
-    name: str
-    description: str
-    price: int
-    img_url: str
+    id: str = Field(min_length=1, max_length=64, pattern=SLUG_PATTERN,
+                     description="Только латиница/цифры/_/- (как slug)")
+    tag: str = Field(min_length=1, max_length=64)
+    name: str = Field(min_length=1, max_length=128)
+    description: str = Field(min_length=1, max_length=4000)
+    price: int = Field(ge=0, le=10_000_000)
+    img_url: str = Field(max_length=512)
+    schedule: str = Field(default="По запросу", max_length=32)
+    booked_dates: list[str] = Field(default_factory=list)
+
+    @field_validator("booked_dates")
+    @classmethod
+    def _validate_booked_dates(cls, v: list[str]) -> list[str]:
+        return _validate_date_list(v)
+
+    @field_validator("tag", "name", "description")
+    @classmethod
+    def _strip(cls, v: str) -> str:
+        # Defence in depth against the admin.html injection bug: even
+        # though the frontend now escapes attributes correctly, quotes
+        # and angle brackets simply have no place in these fields.
+        v = v.strip()
+        if re.search(r"[\"'<>]", v):
+            raise ValueError("Поле не должно содержать символы \" ' < >")
+        return v
+
+    @field_validator("schedule")
+    @classmethod
+    def _validate_schedule(cls, v: str) -> str:
+        return _validate_schedule_value(v)
+
+    @field_validator("img_url")
+    @classmethod
+    def _validate_img_url(cls, v: str) -> str:
+        return validate_http_url(v, field_name="img_url")
 
 
 class AdminTourUpdate(BaseModel):
-    tag: Optional[str] = None
-    name: Optional[str] = None
-    description: Optional[str] = None
-    price: Optional[int] = None
-    img_url: Optional[str] = None
+    tag: Optional[str] = Field(default=None, min_length=1, max_length=64)
+    name: Optional[str] = Field(default=None, min_length=1, max_length=128)
+    description: Optional[str] = Field(default=None, min_length=1, max_length=4000)
+    price: Optional[int] = Field(default=None, ge=0, le=10_000_000)
+    img_url: Optional[str] = Field(default=None, max_length=512)
+    schedule: Optional[str] = Field(default=None, max_length=32)
+    booked_dates: Optional[list[str]] = None
+
+    @field_validator("booked_dates")
+    @classmethod
+    def _validate_booked_dates(cls, v: Optional[list[str]]) -> Optional[list[str]]:
+        if v is None:
+            return v
+        return _validate_date_list(v)
+
+    @field_validator("tag", "name", "description")
+    @classmethod
+    def _strip(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        v = v.strip()
+        if re.search(r"[\"'<>]", v):
+            raise ValueError("Поле не должно содержать символы \" ' < >")
+        return v
+
+    @field_validator("schedule")
+    @classmethod
+    def _validate_schedule(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        return _validate_schedule_value(v)
+
+    @field_validator("img_url")
+    @classmethod
+    def _validate_img_url(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        return validate_http_url(v, field_name="img_url")
 
 
 class AdminStatsOut(BaseModel):
@@ -94,6 +189,30 @@ class UserToggleActiveRequest(BaseModel):
     is_active: bool
 
 
+VALID_ROLES = {"user", "moderator", "admin"}
+
+
+class UserRoleUpdateRequest(BaseModel):
+    role: str
+
+    @field_validator("role")
+    @classmethod
+    def _validate_role(cls, v: str) -> str:
+        v = (v or "").strip().lower()
+        if v not in VALID_ROLES:
+            raise ValueError(f"Роль должна быть одной из: {', '.join(sorted(VALID_ROLES))}")
+        return v
+
+
+class AdminPasswordResetRequest(BaseModel):
+    new_password: str = Field(min_length=8, max_length=128)
+
+    @field_validator("new_password")
+    @classmethod
+    def _check_strength(cls, v: str) -> str:
+        return validate_password_strength(v)
+
+
 class BookingStatusUpdate(BaseModel):
     status: str
 
@@ -106,6 +225,7 @@ def _build_user_out(user: User, bookings_count: int) -> AdminUserOut:
         full_name=user.full_name,
         is_active=user.is_active,
         is_admin=user.is_admin,
+        role=getattr(user, "role", "admin" if user.is_admin else "user"),
         is_oauth=user.is_oauth,
         created_at=user.created_at,
         bookings_count=bookings_count,
@@ -114,7 +234,7 @@ def _build_user_out(user: User, bookings_count: int) -> AdminUserOut:
 
 @router.get("/stats", response_model=AdminStatsOut, summary="Общая статистика")
 async def get_stats(
-    _: User = Depends(require_admin),
+    _: User = Depends(require_staff),
     session: AsyncSession = Depends(get_session),
 ) -> AdminStatsOut:
     """Возвращает ключевые метрики одним составным запросом."""
@@ -160,7 +280,7 @@ async def list_users(
     search: Optional[str] = Query(None, description="Поиск по имени или email"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_staff),
     session: AsyncSession = Depends(get_session),
 ) -> list[AdminUserOut]:
     """Список пользователей с числом бронирований — без N+1 запросов."""
@@ -184,6 +304,18 @@ async def list_users(
     return [_build_user_out(user, cnt) for user, cnt in rows]
 
 
+def _apply_role(user: User, role: str) -> None:
+    """Single place where role <-> is_admin are kept in sync.
+
+    Every endpoint that changes a user's privilege level must go through
+    this helper rather than setting `is_admin` or `role` directly, or the
+    two columns can drift apart and `require_admin` (which still reads
+    `is_admin`) could disagree with `require_staff` (which reads `role`).
+    """
+    user.role = role
+    user.is_admin = (role == "admin")
+
+
 @router.patch(
     "/users/{user_id}/toggle-active",
     response_model=AdminUserOut,
@@ -192,7 +324,8 @@ async def list_users(
 async def toggle_user_active(
     user_id: int,
     data: UserToggleActiveRequest,
-    admin: User = Depends(require_admin),
+    request: Request,
+    admin: User = Depends(require_staff),
     session: AsyncSession = Depends(get_session),
 ) -> AdminUserOut:
     if user_id == admin.id:
@@ -206,6 +339,12 @@ async def toggle_user_active(
     user.is_active = data.is_active
     await session.commit()
     await session.refresh(user)
+    await log_admin_action(
+        session, admin, action="user.block" if not data.is_active else "user.unblock",
+        target_type="user", target_id=user.id,
+        details=f"Пользователь «{user.username}»: {'блокирован' if not data.is_active else 'разблокирован'}",
+        request=request,
+    )
     cnt = (
         await session.execute(select(func.count(Booking.id)).where(Booking.user_id == user.id))
     ).scalar_one()
@@ -215,14 +354,19 @@ async def toggle_user_active(
 @router.patch(
     "/users/{user_id}/toggle-admin",
     response_model=AdminUserOut,
-    summary="Выдать / отозвать права администратора",
+    summary="Выдать / отозвать права администратора (устарело, используйте /role)",
 )
 async def toggle_user_admin(
     user_id: int,
     data: UserToggleAdminRequest,
+    request: Request,
     admin: User = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ) -> AdminUserOut:
+    """Kept for backward compatibility with older frontend builds.
+    New code should call PATCH /users/{id}/role instead, which supports
+    the full user/moderator/admin range.
+    """
     if user_id == admin.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -231,13 +375,91 @@ async def toggle_user_admin(
     user = await session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
-    user.is_admin = data.is_admin
+    _apply_role(user, "admin" if data.is_admin else "user")
     await session.commit()
     await session.refresh(user)
+    await log_admin_action(
+        session, admin, action="user.role_change", target_type="user", target_id=user.id,
+        details=f"Пользователь «{user.username}»: роль → {user.role}", request=request,
+    )
     cnt = (
         await session.execute(select(func.count(Booking.id)).where(Booking.user_id == user.id))
     ).scalar_one()
     return _build_user_out(user, cnt)
+
+
+@router.patch(
+    "/users/{user_id}/role",
+    response_model=AdminUserOut,
+    summary="Изменить роль пользователя (user / moderator / admin)",
+)
+async def update_user_role(
+    user_id: int,
+    data: UserRoleUpdateRequest,
+    request: Request,
+    admin: User = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+) -> AdminUserOut:
+    if user_id == admin.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Нельзя изменить собственную роль",
+        )
+    user = await session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+
+    old_role = getattr(user, "role", "admin" if user.is_admin else "user")
+    _apply_role(user, data.role)
+    await session.commit()
+    await session.refresh(user)
+    await log_admin_action(
+        session, admin, action="user.role_change", target_type="user", target_id=user.id,
+        details=f"Пользователь «{user.username}»: роль {old_role} → {data.role}", request=request,
+    )
+    cnt = (
+        await session.execute(select(func.count(Booking.id)).where(Booking.user_id == user.id))
+    ).scalar_one()
+    return _build_user_out(user, cnt)
+
+
+@router.post(
+    "/users/{user_id}/reset-password",
+    summary="Сбросить пароль пользователя (admin-only)",
+    responses={404: {"description": "Не найден"}},
+)
+async def reset_user_password(
+    user_id: int,
+    data: AdminPasswordResetRequest,
+    request: Request,
+    admin: User = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+) -> dict:
+    """Sets a new password chosen by the admin and marks the account so a
+    future "change your password" UI on the public site could prompt the
+    user — that public-facing enforcement is NOT implemented here, only
+    the data plumbing for it (`force_password_change`).
+
+    The new password is never logged or echoed back beyond this response;
+    relay it to the user out-of-band (phone/email), not via the audit log.
+    """
+    user = await session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+    if user.is_oauth:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="У этого пользователя вход только через OAuth — у него нет пароля для сброса",
+        )
+
+    user.hashed_password = hash_password(data.new_password)
+    user.force_password_change = True
+    await session.commit()
+    await log_admin_action(
+        session, admin, action="user.password_reset", target_type="user", target_id=user.id,
+        details=f"Сброшен пароль пользователя «{user.username}»", request=request,
+    )
+    return {"detail": f"Пароль пользователя «{user.username}» обновлён"}
 
 
 @router.get("/bookings", response_model=list[AdminBookingOut], summary="Все бронирования")
@@ -245,7 +467,7 @@ async def list_bookings(
     status_filter: Optional[str] = Query(None, alias="status"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_staff),
     session: AsyncSession = Depends(get_session),
 ) -> list[AdminBookingOut]:
     q = (
@@ -285,7 +507,8 @@ async def list_bookings(
 async def update_booking_status(
     booking_id: int,
     data: BookingStatusUpdate,
-    _: User = Depends(require_admin),
+    request: Request,
+    admin: User = Depends(require_staff),
     session: AsyncSession = Depends(get_session),
 ) -> AdminBookingOut:
     allowed = {"booked", "started", "completed", "cancelled"}
@@ -303,9 +526,14 @@ async def update_booking_status(
     if not booking:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Бронирование не найдено")
 
+    old_status = booking.status
     booking.status = data.status
     await session.commit()
     await session.refresh(booking)
+    await log_admin_action(
+        session, admin, action="booking.status_change", target_type="booking",
+        target_id=booking.id, details=f"Статус: {old_status} → {data.status}", request=request,
+    )
     return AdminBookingOut(
         id=booking.id,
         user_id=booking.user_id,
@@ -324,7 +552,7 @@ async def update_booking_status(
 
 @router.get("/tours", response_model=list[AdminTourOut], summary="Все туры (с кол-вом бронирований)")
 async def list_tours_admin(
-    _: User = Depends(require_admin),
+    _: User = Depends(require_staff),
     session: AsyncSession = Depends(get_session),
 ) -> list[AdminTourOut]:
     """Туры с агрегированным счётчиком активных броней — без N+1 запросов."""
@@ -350,6 +578,8 @@ async def list_tours_admin(
             description=t.description,
             price=t.price,
             img_url=t.img_url,
+            schedule=t.schedule,
+            booked_dates=t.booked_dates_list,
             bookings_count=cnt,
         )
         for t, cnt in rows
@@ -359,7 +589,8 @@ async def list_tours_admin(
 @router.post("/tours", response_model=AdminTourOut, status_code=201, summary="Создать тур")
 async def create_tour(
     data: AdminTourCreate,
-    _: User = Depends(require_admin),
+    request: Request,
+    admin: User = Depends(require_staff),
     session: AsyncSession = Depends(get_session),
 ) -> AdminTourOut:
     if await session.get(Tour, data.id):
@@ -371,10 +602,16 @@ async def create_tour(
         description=data.description,
         price=data.price,
         img_url=data.img_url,
+        schedule=data.schedule,
+        booked_dates=",".join(data.booked_dates) if data.booked_dates else None,
     )
     session.add(tour)
     await session.commit()
     await session.refresh(tour)
+    await log_admin_action(
+        session, admin, action="tour.create", target_type="tour",
+        target_id=tour.id, details=f"Создан тур «{tour.name}»", request=request,
+    )
     return AdminTourOut(
         id=tour.id,
         tag=tour.tag,
@@ -382,6 +619,8 @@ async def create_tour(
         description=tour.description,
         price=tour.price,
         img_url=tour.img_url,
+        schedule=tour.schedule,
+        booked_dates=tour.booked_dates_list,
         bookings_count=0,
     )
 
@@ -390,7 +629,8 @@ async def create_tour(
 async def update_tour(
     tour_id: str,
     data: AdminTourUpdate,
-    _: User = Depends(require_admin),
+    request: Request,
+    admin: User = Depends(require_staff),
     session: AsyncSession = Depends(get_session),
 ) -> AdminTourOut:
     tour = await session.get(Tour, tour_id)
@@ -406,8 +646,16 @@ async def update_tour(
         tour.price = data.price
     if data.img_url is not None:
         tour.img_url = data.img_url
+    if data.schedule is not None:
+        tour.schedule = data.schedule
+    if data.booked_dates is not None:
+        tour.booked_dates = ",".join(data.booked_dates) if data.booked_dates else None
     await session.commit()
     await session.refresh(tour)
+    await log_admin_action(
+        session, admin, action="tour.update", target_type="tour",
+        target_id=tour.id, details=f"Обновлён тур «{tour.name}»", request=request,
+    )
     cnt = (
         await session.execute(
             select(func.count(Booking.id)).where(
@@ -422,6 +670,8 @@ async def update_tour(
         description=tour.description,
         price=tour.price,
         img_url=tour.img_url,
+        schedule=tour.schedule,
+        booked_dates=tour.booked_dates_list,
         bookings_count=cnt,
     )
 
@@ -429,11 +679,17 @@ async def update_tour(
 @router.delete("/tours/{tour_id}", status_code=204, summary="Удалить тур")
 async def delete_tour(
     tour_id: str,
-    _: User = Depends(require_admin),
+    request: Request,
+    admin: User = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ) -> None:
     tour = await session.get(Tour, tour_id)
     if not tour:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Тур не найден")
+    tour_name = tour.name
     await session.delete(tour)
     await session.commit()
+    await log_admin_action(
+        session, admin, action="tour.delete", target_type="tour",
+        target_id=tour_id, details=f"Удалён тур «{tour_name}»", request=request,
+    )

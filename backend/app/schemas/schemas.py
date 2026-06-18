@@ -60,6 +60,7 @@ class TourOut(BaseModel):
     description: str
     price: int
     img_url: str
+    schedule: str
     booked_dates: list[str]
 
     model_config = {"from_attributes": True}
@@ -73,6 +74,7 @@ class TourOut(BaseModel):
             description=tour.description,
             price=tour.price,
             img_url=tour.img_url,
+            schedule=tour.schedule,
             booked_dates=tour.booked_dates_list,
         )
 

@@ -1,16 +1,32 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from app.api.routes import admin, auth, bookings, notifications, profile, promo, tours
+from app.api.routes import (
+    admin,
+    admin_content,
+    admin_logs,
+    admin_media,
+    admin_settings,
+    auth,
+    bookings,
+    notifications,
+    profile,
+    promo,
+    public_content,
+    tours,
+)
 from app.core.config import settings
 from app.db.session import init_db
 from app.middleware.csrf import CSRFMiddleware
+from app.middleware.maintenance import MaintenanceModeMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 
 logging.basicConfig(
@@ -41,6 +57,7 @@ app = FastAPI(
 
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(CSRFMiddleware)
+app.add_middleware(MaintenanceModeMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 app.add_middleware(
@@ -52,6 +69,11 @@ app.add_middleware(
     expose_headers=["X-CSRF-Token"],
     max_age=600,
 )
+
+# Serves uploaded media (see admin_media.py). The directory is created on
+# import of admin_media, so it exists by the time we mount it here.
+_STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
 
 @app.exception_handler(IntegrityError)
 async def integrity_error_handler(request: Request, exc: IntegrityError):
@@ -69,13 +91,18 @@ async def sqlalchemy_error_handler(request: Request, exc: SQLAlchemyError):
         content={"detail": "Внутренняя ошибка сервера, попробуйте позже"},
     )
 
-app.include_router(auth.router,          prefix="/api/auth",          tags=["Auth"])
-app.include_router(tours.router,         prefix="/api/tours",         tags=["Tours"])
-app.include_router(bookings.router,      prefix="/api/bookings",      tags=["Bookings"])
-app.include_router(profile.router,       prefix="/api/profile",       tags=["Profile"])
-app.include_router(promo.router,         prefix="/api/promo",         tags=["Promo"])
-app.include_router(notifications.router, prefix="/api/notifications", tags=["Notifications"])
-app.include_router(admin.router,         prefix="/api/admin",         tags=["Admin"])
+app.include_router(auth.router,           prefix="/api/auth",          tags=["Auth"])
+app.include_router(tours.router,          prefix="/api/tours",         tags=["Tours"])
+app.include_router(bookings.router,       prefix="/api/bookings",      tags=["Bookings"])
+app.include_router(profile.router,        prefix="/api/profile",       tags=["Profile"])
+app.include_router(promo.router,          prefix="/api/promo",         tags=["Promo"])
+app.include_router(notifications.router,  prefix="/api/notifications", tags=["Notifications"])
+app.include_router(public_content.router, prefix="/api",               tags=["Public Content"])
+app.include_router(admin.router,          prefix="/api/admin",         tags=["Admin"])
+app.include_router(admin_content.router,  prefix="/api/admin",         tags=["Admin Content"])
+app.include_router(admin_settings.router, prefix="/api/admin",         tags=["Admin Settings"])
+app.include_router(admin_logs.router,     prefix="/api/admin",         tags=["Admin Logs"])
+app.include_router(admin_media.router,    prefix="/api/admin/media",   tags=["Admin Media"])
 
 @app.get("/", include_in_schema=False)
 async def root():

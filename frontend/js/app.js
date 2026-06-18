@@ -16,11 +16,14 @@ function getCookie(name) {
 }
 
 async function apiFetch(path, options = {}) {
-  const token = localStorage.getItem("access_token");
+  // SECURITY FIX: no longer reads a token from localStorage and sends it
+  // as a Bearer header. The backend already accepts the httpOnly
+  // `access_token` cookie (see app/core/deps.py), which JS can never
+  // read — keeping a copy of the JWT in localStorage only gave any
+  // future XSS bug a portable, long-lived credential to steal for free.
   const csrfToken = getCookie("csrf_token");
   const headers = {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
     ...options.headers,
   };
@@ -37,13 +40,16 @@ async function apiFetch(path, options = {}) {
 }
 
 async function checkExistingSession() {
-  const savedToken = localStorage.getItem("access_token");
+  // We can no longer check "is there a token in localStorage" (good —
+  // that token doesn't exist on the client anymore at all). The cached
+  // username/avatar/full_name below are just for an optimistic instant
+  // paint before the network call below resolves; they are not secrets
+  // and were never the actual credential.
   const savedName = localStorage.getItem("username");
   const savedAvatar = localStorage.getItem("avatar_url");
   const savedFull = localStorage.getItem("full_name");
 
-  if (savedToken && savedName) {
-    isUserLoggedIn = true;
+  if (savedName) {
     const nameEl = document.getElementById("profileName");
     if (nameEl) nameEl.textContent = savedFull || savedName;
     const subEl = document.getElementById("profileSub");
@@ -51,8 +57,6 @@ async function checkExistingSession() {
     const avatarEl = document.getElementById("profileAvatar");
     if (avatarEl && savedAvatar) avatarEl.src = savedAvatar;
   }
-
-  if (!savedToken) return;
 
   try {
     const data = await apiFetch("/api/auth/me");
@@ -72,7 +76,8 @@ async function checkExistingSession() {
       loadProfileData();
     }
   } catch {
-    localStorage.removeItem("access_token");
+    // No valid session cookie (or it expired) — clear the optimistic
+    // cache so a stale name doesn't linger in the UI.
     localStorage.removeItem("username");
     localStorage.removeItem("avatar_url");
     localStorage.removeItem("full_name");
@@ -256,7 +261,6 @@ async function handleAuthSubmit(e) {
 }
 
 function _applyLoginData(data) {
-  localStorage.setItem("access_token", data.access_token);
   localStorage.setItem("username", data.username);
   if (data.avatar_url) localStorage.setItem("avatar_url", data.avatar_url);
   if (data.full_name) localStorage.setItem("full_name", data.full_name);
@@ -280,7 +284,6 @@ function handleLogout() {
   }).catch(() => {});
 
   isUserLoggedIn = false;
-  localStorage.removeItem("access_token");
   localStorage.removeItem("username");
   localStorage.removeItem("avatar_url");
   localStorage.removeItem("full_name");

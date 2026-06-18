@@ -1,0 +1,43 @@
+"""Process-local sliding-window rate limiter.
+
+IMPORTANT OPERATIONAL CAVEAT: this state lives in this process's memory
+only. It resets on every restart/redeploy and is NOT shared across
+multiple worker processes or horizontally scaled instances. For a single
+Railway instance running one worker, this is a reasonable, zero-
+dependency way to slow down brute force/credential stuffing. If you ever
+run multiple workers or instances, replace the in-memory dict with a
+shared store (e.g. Redis — `slowapi` with a redis backend is a drop-in
+option) so attempts are actually counted globally, or this limiter will
+undercount and give attackers `max_attempts` tries per worker.
+"""
+
+import asyncio
+import time
+from collections import defaultdict
+
+from fastapi import HTTPException, status
+
+
+class InMemoryRateLimiter:
+    def __init__(self, max_attempts: int, window_seconds: int):
+        self.max_attempts = max_attempts
+        self.window_seconds = window_seconds
+        self._attempts: dict[str, list[float]] = defaultdict(list)
+        self._lock = asyncio.Lock()
+
+    async def check(self, key: str) -> None:
+        """Raise 429 if `key` has exceeded the limit; otherwise record
+        this attempt and return normally.
+        """
+        now = time.monotonic()
+        async with self._lock:
+            fresh = [t for t in self._attempts[key] if now - t < self.window_seconds]
+            if len(fresh) >= self.max_attempts:
+                self._attempts[key] = fresh
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail=f"Слишком много попыток. Повторите через {self.window_seconds} секунд.",
+                    headers={"Retry-After": str(self.window_seconds)},
+                )
+            fresh.append(now)
+            self._attempts[key] = fresh

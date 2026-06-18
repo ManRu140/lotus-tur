@@ -15,6 +15,13 @@ class Tour(Base):
     price: Mapped[int] = mapped_column(Integer)
     img_url: Mapped[str] = mapped_column(String(512))
 
+    # Day of the week this tour normally runs on (e.g. "Понедельник",
+    # "Ежедневно", "По запросу"). Previously referenced by the admin UI's
+    # weekly-schedule view but never actually persisted — PATCH requests
+    # carrying `schedule` were silently dropped because neither this
+    # column nor AdminTourUpdate declared the field (audit finding #7).
+    schedule: Mapped[str] = mapped_column(String(32), default="По запросу")
+
     booked_dates: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     bookings: Mapped[list[Booking]] = relationship(

@@ -1,6 +1,5 @@
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cookies import get_token_from_cookie
@@ -45,5 +44,16 @@ async def get_current_active_user(user: User = Depends(get_current_user)) -> Use
 
 async def require_admin(user: User = Depends(get_current_active_user)) -> User:
     if not getattr(user, "is_admin", False):
+        raise _FORBIDDEN_EXC
+    return user
+
+async def require_staff(user: User = Depends(get_current_active_user)) -> User:
+    """Admin OR moderator. Use this for day-to-day operational endpoints
+    (bookings, content, tours) that moderators should be able to touch.
+    Keep using `require_admin` for sensitive endpoints moderators should
+    NOT reach: user role changes, password resets, site settings, and
+    reading the full audit log.
+    """
+    if getattr(user, "role", "user") not in ("admin", "moderator"):
         raise _FORBIDDEN_EXC
     return user

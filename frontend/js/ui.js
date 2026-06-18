@@ -889,7 +889,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ── People counter ── */
-  const pctrCounts = { cntAdults: 0, cntTeens: 0, cntKids: 0, cntSeniors: 0 };
+  const pctrCounts = { cntAdults: 1, cntTeens: 0, cntKids: 0, cntSeniors: 0 };
   document.querySelectorAll(".pctr-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const targetId = btn.dataset.target;

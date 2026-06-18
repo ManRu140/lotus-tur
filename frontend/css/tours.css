@@ -19,9 +19,9 @@ section:not(.hero-section) {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 242, 254, 0.25) 30%,
-    rgba(0, 242, 254, 0.45) 50%,
-    rgba(0, 242, 254, 0.25) 70%,
+    rgba(var(--accent-rgb), 0.25) 30%,
+    rgba(var(--accent-rgb), 0.45) 50%,
+    rgba(var(--accent-rgb), 0.25) 70%,
     transparent 100%
   );
   pointer-events: none;
@@ -380,17 +380,57 @@ section:not(.hero-section) {
 .week-day-header,
 .weekend-day-header,
 .daily-col-header {
+  position: relative;
   text-align: center;
   font-size: 1rem;
   font-weight: 800;
   letter-spacing: 0.5px;
   text-transform: none;
-  color: var(--bg-dark);
+  color: var(--text-light-main);
   padding: 10px 8px;
   margin-bottom: 6px;
-  background: var(--accent-liquid);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
-  box-shadow: 0 0 14px rgba(0,242,254,0.35);
+}
+
+/* Subtle ambient pulse used on weekday headers */
+.day-glow {
+  animation: dayGlowPulse 4s ease-in-out infinite;
+}
+@keyframes dayGlowPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(var(--accent-rgb), 0); }
+  50%      { box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.22); }
+}
+
+/* The current day gets the solid accent fill + a "Сегодня" badge */
+.week-day-header.today,
+.weekend-day-header.today {
+  background: var(--accent-liquid);
+  color: var(--bg-dark);
+  border-color: var(--accent-liquid);
+  box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.45);
+  padding-bottom: 22px;
+}
+.week-day-header.today::after,
+.weekend-day-header.today::after {
+  content: "Сегодня";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-dark);
+  color: var(--accent-liquid);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 2px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .day-glow { animation: none; }
 }
 
 /* ── DAILY TOURS COLUMN ── */
@@ -400,8 +440,8 @@ section:not(.hero-section) {
   gap: 12px;
   min-width: 200px;
   padding: 14px;
-  background: rgba(0,242,254,0.04);
-  border: 1px dashed rgba(0,242,254,0.25);
+  background: rgba(var(--accent-rgb),0.04);
+  border: 1px dashed rgba(var(--accent-rgb),0.25);
   border-radius: 14px;
 }
 .daily-col-header {
@@ -493,8 +533,8 @@ section:not(.hero-section) {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  background: linear-gradient(135deg, rgba(0,242,254,0.06), rgba(255,255,255,0.02));
-  border: 1px solid rgba(0,242,254,0.15);
+  background: linear-gradient(135deg, rgba(var(--accent-rgb),0.06), rgba(255,255,255,0.02));
+  border: 1px solid rgba(var(--accent-rgb),0.15);
   border-radius: 18px;
   padding: 24px;
 }

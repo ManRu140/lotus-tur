@@ -91,7 +91,7 @@
   z-index: 5;
   transition: background 0.2s;
 }
-.slider-btn:hover { background: rgba(0,242,254,0.3); border-color: var(--accent-liquid); }
+.slider-btn:hover { background: rgba(var(--accent-rgb),0.3); border-color: var(--accent-liquid); }
 .slider-btn--prev { left: 14px; }
 .slider-btn--next { right: 14px; }
 
@@ -163,8 +163,8 @@
 .tour-detail-info-chip strong { color: #fff; font-weight: 700; }
 
 .tour-detail-booking {
-  background: rgba(0,242,254,0.05);
-  border: 1px solid rgba(0,242,254,0.2);
+  background: rgba(var(--accent-rgb),0.05);
+  border: 1px solid rgba(var(--accent-rgb),0.2);
   border-radius: 16px;
   padding: 24px;
   display: flex;
@@ -227,7 +227,7 @@
 .btn-book-detail:hover {
   background: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,242,254,0.25);
+  box-shadow: 0 6px 20px rgba(var(--accent-rgb),0.25);
 }
 
 .tour-detail-calendar {
@@ -241,15 +241,16 @@
 .modal-booking {
   position: fixed;
   inset: 0;
-  z-index: 2500;
+  background: rgba(15, 20, 22, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  z-index: 3000;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(5,11,20,0.8);
-  backdrop-filter: blur(6px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .modal-auth.open,
 .modal-booking.open {
@@ -305,7 +306,7 @@
   padding: 10px 14px;
   transition: border-color 0.2s;
 }
-.people-counter-row:hover { border-color: rgba(0,242,254,0.3); }
+.people-counter-row:hover { border-color: rgba(var(--accent-rgb),0.3); }
 .people-counter-info { display: flex; flex-direction: column; gap: 2px; }
 .people-counter-label { font-size: 0.85rem; font-weight: 600; color: #fff; }
 .people-counter-sub { font-size: 0.7rem; color: rgba(255,255,255,0.45); }
@@ -332,8 +333,8 @@
 }
 .contact-sub-hint {
   font-size: 0.8rem; color: rgba(255,255,255,0.5);
-  background: rgba(0,242,254,0.05);
-  border: 1px solid rgba(0,242,254,0.15);
+  background: rgba(var(--accent-rgb),0.05);
+  border: 1px solid rgba(var(--accent-rgb),0.15);
   border-radius: 10px; padding: 10px 14px; margin: 0;
 }
 .tg-input-wrap { position: relative; }
@@ -359,8 +360,8 @@
 }
 .tg-help-box {
   margin-top: 10px;
-  background: rgba(0,242,254,0.05);
-  border: 1px solid rgba(0,242,254,0.2);
+  background: rgba(var(--accent-rgb),0.05);
+  border: 1px solid rgba(var(--accent-rgb),0.2);
   border-radius: 10px; padding: 14px 16px;
   font-size: 0.8rem; color: rgba(255,255,255,0.7); line-height: 1.7;
 }

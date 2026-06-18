@@ -404,27 +404,6 @@
   transition: background 0.3s;
 }
 
-.modal-auth,
-.modal-booking {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 20, 22, 0.7);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  z-index: 3000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-}
-.modal-auth.open,
-.modal-booking.open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
 .auth-container,
 .booking-container {
   background: rgba(26, 34, 38, 0.9);
@@ -560,6 +539,154 @@
   background: #fff;
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ── BOOKING WIZARD: progress stepper ── */
+.booking-progress {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+.booking-progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+.booking-progress-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.booking-progress-label {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+.booking-progress-line {
+  flex: 1 1 auto;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 14px 6px 0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+}
+.booking-progress-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent-liquid);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.booking-progress-line.is-filled::after {
+  transform: scaleX(1);
+}
+.booking-progress-step.is-active .booking-progress-circle,
+.booking-progress-step.is-done .booking-progress-circle {
+  background: var(--accent-liquid);
+  border-color: var(--accent-liquid);
+  color: var(--bg-dark);
+}
+.booking-progress-step.is-active .booking-progress-label,
+.booking-progress-step.is-done .booking-progress-label {
+  color: var(--text-light-main);
+}
+.booking-progress-step.is-done .booking-progress-circle {
+  font-size: 0;
+}
+.booking-progress-step.is-done .booking-progress-circle::after {
+  content: "✓";
+  font-size: 0.85rem;
+}
+
+/* ── BOOKING WIZARD: step panels ── */
+.booking-step {
+  display: none;
+  flex-direction: column;
+  gap: 18px;
+}
+.booking-step.is-active {
+  display: flex;
+  animation: bookingStepInFwd 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.booking-step.is-active.dir-back {
+  animation-name: bookingStepInBack;
+}
+@keyframes bookingStepInFwd {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes bookingStepInBack {
+  from { opacity: 0; transform: translateX(-18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .booking-step.is-active,
+  .booking-step.is-active.dir-back {
+    animation: none;
+  }
+}
+
+/* ── BOOKING WIZARD: navigation actions ── */
+.booking-step-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+.btn-step-back,
+.btn-step-next {
+  flex: 1;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.btn-step-back {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.8);
+}
+.btn-step-back:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.btn-step-next {
+  background: var(--accent-liquid);
+  border: none;
+  color: var(--bg-dark);
+}
+.btn-step-next:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+.booking-step-actions .btn-step-submit {
+  flex: 1;
+  margin-top: 0;
+}
+.btn-step-back[hidden],
+.btn-step-next[hidden],
+.btn-step-submit[hidden] {
+  display: none;
 }
 
 .social-title {

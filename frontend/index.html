@@ -30,168 +30,198 @@
       aria-labelledby="bookModalTitle"
     >
       <div class="booking-container">
-        <button class="close-profile" id="closeBookingBtn" aria-label="Закрыть">
+        <button class="modal-close-btn" id="closeBookingBtn" aria-label="Закрыть">
           &times;
         </button>
         <h3 class="modal-title" id="bookModalTitle">Бронирование тура</h3>
 
+        <div class="booking-progress" id="bookingProgress" role="group" aria-label="Шаги бронирования">
+          <div class="booking-progress-step is-active" data-step-dot="1">
+            <span class="booking-progress-circle">1</span>
+            <span class="booking-progress-label">Маршрут</span>
+          </div>
+          <div class="booking-progress-line"></div>
+          <div class="booking-progress-step" data-step-dot="2">
+            <span class="booking-progress-circle">2</span>
+            <span class="booking-progress-label">Поездка</span>
+          </div>
+          <div class="booking-progress-line"></div>
+          <div class="booking-progress-step" data-step-dot="3">
+            <span class="booking-progress-circle">3</span>
+            <span class="booking-progress-label">Контакты</span>
+          </div>
+        </div>
+
         <form class="booking-form" id="bookingForm" novalidate>
-          <div class="form-group-block">
-            <label for="bookName">ФИО полностью</label>
-            <input
-              type="text"
-              id="bookName"
-              placeholder="Иванов Иван Александрович"
-              required
-            />
+
+          <div class="booking-step is-active" data-step="1">
+            <div class="form-row-grid">
+              <div class="form-group-block">
+                <label for="bookTourSelect">Выбор направления</label>
+                <select id="bookTourSelect" required></select>
+              </div>
+              <div class="form-group-block">
+                <label for="bookTime">Удобное время</label>
+                <select id="bookTime" required>
+                  <option value="09:00">Утро (09:00)</option>
+                  <option value="14:00">День (14:00)</option>
+                  <option value="19:00">Вечер (19:00)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group-block">
+              <label>Дата поездки</label>
+              <div id="miniCalendarPlaceholder"></div>
+            </div>
           </div>
 
-          <div class="form-row-grid">
+          <div class="booking-step" data-step="2">
             <div class="form-group-block">
-              <label for="bookPhone">Телефон</label>
+              <label for="bookName">ФИО полностью</label>
               <input
-                type="tel"
-                id="bookPhone"
-                placeholder="+7 (999) 000-00-00"
+                type="text"
+                id="bookName"
+                placeholder="Иванов Иван Александрович"
                 required
               />
             </div>
+
             <div class="form-group-block">
-              <label for="bookEmail">E-mail</label>
-              <input
-                type="email"
-                id="bookEmail"
-                placeholder="example@mail.ru"
-                required
-              />
+              <label>Количество человек</label>
+              <div class="people-counter-grid">
+                <div class="people-counter-row">
+                  <div class="people-counter-info">
+                    <span class="people-counter-label">Взрослые</span>
+                    <span class="people-counter-sub">18–59 лет</span>
+                  </div>
+                  <div class="people-counter">
+                    <button type="button" class="pctr-btn" data-target="cntAdults" data-min="0">−</button>
+                    <span class="pctr-val" id="cntAdults">1</span>
+                    <button type="button" class="pctr-btn" data-target="cntAdults" data-dir="1">+</button>
+                  </div>
+                </div>
+                <div class="people-counter-row">
+                  <div class="people-counter-info">
+                    <span class="people-counter-label">Подростки</span>
+                    <span class="people-counter-sub">12–17 лет</span>
+                  </div>
+                  <div class="people-counter">
+                    <button type="button" class="pctr-btn" data-target="cntTeens" data-min="0">−</button>
+                    <span class="pctr-val" id="cntTeens">0</span>
+                    <button type="button" class="pctr-btn" data-target="cntTeens" data-dir="1">+</button>
+                  </div>
+                </div>
+                <div class="people-counter-row">
+                  <div class="people-counter-info">
+                    <span class="people-counter-label">Дети</span>
+                    <span class="people-counter-sub">до 12 лет</span>
+                  </div>
+                  <div class="people-counter">
+                    <button type="button" class="pctr-btn" data-target="cntKids" data-min="0">−</button>
+                    <span class="pctr-val" id="cntKids">0</span>
+                    <button type="button" class="pctr-btn" data-target="cntKids" data-dir="1">+</button>
+                  </div>
+                </div>
+                <div class="people-counter-row">
+                  <div class="people-counter-info">
+                    <span class="people-counter-label">Пожилые</span>
+                    <span class="people-counter-sub">60+ лет</span>
+                  </div>
+                  <div class="people-counter">
+                    <button type="button" class="pctr-btn" data-target="cntSeniors" data-min="0">−</button>
+                    <span class="pctr-val" id="cntSeniors">0</span>
+                    <button type="button" class="pctr-btn" data-target="cntSeniors" data-dir="1">+</button>
+                  </div>
+                </div>
+              </div>
+              <input type="hidden" id="bookPeopleCount" value="1" />
             </div>
-          </div>
 
-          <div class="form-row-grid">
             <div class="form-group-block">
-              <label for="bookTourSelect">Выбор направления</label>
-              <select id="bookTourSelect" required></select>
+              <label for="bookMessage">Пожелания к туру</label>
+              <textarea
+                id="bookMessage"
+                placeholder="Например: трансфер, питание..."
+              ></textarea>
             </div>
+          </div>
+
+          <div class="booking-step" data-step="3">
+            <div class="form-row-grid">
+              <div class="form-group-block">
+                <label for="bookPhone">Телефон</label>
+                <input
+                  type="tel"
+                  id="bookPhone"
+                  placeholder="+7 (999) 000-00-00"
+                  required
+                />
+              </div>
+              <div class="form-group-block">
+                <label for="bookEmail">E-mail</label>
+                <input
+                  type="email"
+                  id="bookEmail"
+                  placeholder="example@mail.ru"
+                  required
+                />
+              </div>
+            </div>
+
             <div class="form-group-block">
-              <label for="bookTime">Удобное время</label>
-              <select id="bookTime" required>
-                <option value="09:00">Утро (09:00)</option>
-                <option value="14:00">День (14:00)</option>
-                <option value="19:00">Вечер (19:00)</option>
-              </select>
+              <label>Способ связи</label>
+              <div class="contact-method-group" role="radiogroup" aria-label="Способ связи">
+                <label class="contact-method-option">
+                  <input type="radio" name="bookContact" value="whatsapp" required />
+                  <span class="contact-method-pill">WhatsApp</span>
+                </label>
+                <label class="contact-method-option">
+                  <input type="radio" name="bookContact" value="telegram" required />
+                  <span class="contact-method-pill">Telegram</span>
+                </label>
+                <label class="contact-method-option">
+                  <input type="radio" name="bookContact" value="phone" required />
+                  <span class="contact-method-pill">MAX</span>
+                </label>
+              </div>
+
+              <!-- WhatsApp sub-panel: uses bookPhone already in form -->
+              <div class="contact-sub-panel" id="subWhatsapp" style="display:none">
+                <p class="contact-sub-hint">Мы напишем вам на WhatsApp по номеру, указанному выше.</p>
+              </div>
+
+              <!-- Telegram sub-panel -->
+              <div class="contact-sub-panel" id="subTelegram" style="display:none">
+                <div class="tg-input-wrap">
+                  <input type="text" id="bookTgUsername" placeholder="@username" class="tg-username-input" autocomplete="off" />
+                  <span class="tg-field-error" id="tgFieldError" style="display:none">⚠ Введите ваш Telegram-юзернейм</span>
+                </div>
+                <button type="button" class="tg-help-toggle" id="tgHelpToggle">Как найти свой юзернейм? →</button>
+                <div class="tg-help-box" id="tgHelpBox" style="display:none">
+                  <strong>Как узнать юзернейм в Telegram:</strong>
+                  <ol>
+                    <li>Откройте Telegram и нажмите на своё фото (вверху слева)</li>
+                    <li>Перейдите в <strong>Настройки</strong></li>
+                    <li>Найдите строку <strong>«Имя пользователя»</strong> — это и есть ваш @username</li>
+                    <li>Если его нет — создайте прямо там</li>
+                  </ol>
+                </div>
+              </div>
+
+              <!-- Макс sub-panel: uses bookPhone already in form, no extra field needed -->
+              <div class="contact-sub-panel" id="subMax" style="display:none">
+                <p class="contact-sub-hint">Макс напишет вам на номер, указанный в поле «Телефон» выше.</p>
+              </div>
             </div>
           </div>
 
-          <div id="miniCalendarPlaceholder"></div>
-
-          <div class="form-group-block">
-            <label for="bookMessage">Пожелания к туру</label>
-            <textarea
-              id="bookMessage"
-              placeholder="Например: трансфер, питание..."
-            ></textarea>
+          <div class="booking-step-actions">
+            <button type="button" class="btn-step-back" id="bookBackBtn" hidden>&larr; Назад</button>
+            <button type="button" class="btn-step-next" id="bookNextBtn">Далее &rarr;</button>
+            <button type="submit" class="booking-submit btn-step-submit" id="bookSubmitBtn" hidden>
+              Подтвердить заказ
+            </button>
           </div>
-
-          <div class="form-group-block">
-            <label>Количество человек</label>
-            <div class="people-counter-grid">
-              <div class="people-counter-row">
-                <div class="people-counter-info">
-                  <span class="people-counter-label">Взрослые</span>
-                  <span class="people-counter-sub">18–59 лет</span>
-                </div>
-                <div class="people-counter">
-                  <button type="button" class="pctr-btn" data-target="cntAdults" data-min="0">−</button>
-                  <span class="pctr-val" id="cntAdults">0</span>
-                  <button type="button" class="pctr-btn" data-target="cntAdults" data-dir="1">+</button>
-                </div>
-              </div>
-              <div class="people-counter-row">
-                <div class="people-counter-info">
-                  <span class="people-counter-label">Подростки</span>
-                  <span class="people-counter-sub">12–17 лет</span>
-                </div>
-                <div class="people-counter">
-                  <button type="button" class="pctr-btn" data-target="cntTeens" data-min="0">−</button>
-                  <span class="pctr-val" id="cntTeens">0</span>
-                  <button type="button" class="pctr-btn" data-target="cntTeens" data-dir="1">+</button>
-                </div>
-              </div>
-              <div class="people-counter-row">
-                <div class="people-counter-info">
-                  <span class="people-counter-label">Дети</span>
-                  <span class="people-counter-sub">до 12 лет</span>
-                </div>
-                <div class="people-counter">
-                  <button type="button" class="pctr-btn" data-target="cntKids" data-min="0">−</button>
-                  <span class="pctr-val" id="cntKids">0</span>
-                  <button type="button" class="pctr-btn" data-target="cntKids" data-dir="1">+</button>
-                </div>
-              </div>
-              <div class="people-counter-row">
-                <div class="people-counter-info">
-                  <span class="people-counter-label">Пожилые</span>
-                  <span class="people-counter-sub">60+ лет</span>
-                </div>
-                <div class="people-counter">
-                  <button type="button" class="pctr-btn" data-target="cntSeniors" data-min="0">−</button>
-                  <span class="pctr-val" id="cntSeniors">0</span>
-                  <button type="button" class="pctr-btn" data-target="cntSeniors" data-dir="1">+</button>
-                </div>
-              </div>
-            </div>
-            <input type="hidden" id="bookPeopleCount" value="1" />
-          </div>
-
-          <div class="form-group-block">
-            <label>Способ связи</label>
-            <div class="contact-method-group" role="radiogroup" aria-label="Способ связи">
-              <label class="contact-method-option">
-                <input type="radio" name="bookContact" value="whatsapp" required />
-                <span class="contact-method-pill">WhatsApp</span>
-              </label>
-              <label class="contact-method-option">
-                <input type="radio" name="bookContact" value="telegram" required />
-                <span class="contact-method-pill">Telegram</span>
-              </label>
-              <label class="contact-method-option">
-                <input type="radio" name="bookContact" value="phone" required />
-                <span class="contact-method-pill">MAX</span>
-              </label>
-            </div>
-
-            <!-- WhatsApp sub-panel: uses bookPhone already in form -->
-            <div class="contact-sub-panel" id="subWhatsapp" style="display:none">
-              <p class="contact-sub-hint">Мы напишем вам на WhatsApp по номеру, указанному выше.</p>
-            </div>
-
-            <!-- Telegram sub-panel -->
-            <div class="contact-sub-panel" id="subTelegram" style="display:none">
-              <div class="tg-input-wrap">
-                <input type="text" id="bookTgUsername" placeholder="@username" class="tg-username-input" autocomplete="off" />
-                <span class="tg-field-error" id="tgFieldError" style="display:none">⚠ Введите ваш Telegram-юзернейм</span>
-              </div>
-              <button type="button" class="tg-help-toggle" id="tgHelpToggle">Как найти свой юзернейм? →</button>
-              <div class="tg-help-box" id="tgHelpBox" style="display:none">
-                <strong>Как узнать юзернейм в Telegram:</strong>
-                <ol>
-                  <li>Откройте Telegram и нажмите на своё фото (вверху слева)</li>
-                  <li>Перейдите в <strong>Настройки</strong></li>
-                  <li>Найдите строку <strong>«Имя пользователя»</strong> — это и есть ваш @username</li>
-                  <li>Если его нет — создайте прямо там</li>
-                </ol>
-              </div>
-            </div>
-
-            <!-- Макс sub-panel: uses bookPhone already in form, no extra field needed -->
-            <div class="contact-sub-panel" id="subMax" style="display:none">
-              <p class="contact-sub-hint">Макс напишет вам на номер, указанный в поле «Телефон» выше.</p>
-            </div>
-          </div>
-
-          <button type="submit" class="booking-submit" id="bookSubmitBtn">
-            Подтвердить заказ
-          </button>
         </form>
       </div>
     </div>
@@ -204,7 +234,7 @@
       aria-label="Авторизация"
     >
       <div class="auth-container">
-        <button class="close-profile" id="closeAuthBtn" aria-label="Закрыть">
+        <button class="modal-close-btn" id="closeAuthBtn" aria-label="Закрыть">
           &times;
         </button>
 
@@ -284,7 +314,7 @@
     </div>
 
     <aside class="side-profile" id="sideProfile" aria-label="Личный кабинет">
-      <button class="close-profile" id="closeProfileBtn" aria-label="Закрыть">
+      <button class="modal-close-btn" id="closeProfileBtn" aria-label="Закрыть">
         &times;
       </button>
 
@@ -476,31 +506,72 @@
             </svg>
           </button>
         </div>
+
+        <button
+          class="burger-btn"
+          id="burgerBtn"
+          type="button"
+          aria-label="Открыть меню"
+          aria-expanded="false"
+          aria-controls="mobileNavMenu"
+        >
+          <span></span><span></span><span></span>
+        </button>
       </div>
 
+      <nav
+        class="mobile-nav-menu"
+        id="mobileNavMenu"
+        aria-label="Мобильное меню"
+        aria-hidden="true"
+      >
+        <a href="#schedule" class="nav-link nav-target" id="mm3">Расписание</a>
+        <a href="#tours-anchor" class="nav-link nav-target" id="mm2">Туры</a>
+        <a href="#" class="nav-link nav-target" data-action="openBookingGeneral" id="mm4">Забронировать</a>
+        <a href="#about" class="nav-link nav-target" id="mm1">О нас</a>
+        <div class="mobile-nav-footer">
+          <button class="lang-switch nav-target" id="mobileLangBtn" type="button" aria-label="Сменить язык">RU</button>
+          <button class="profile-btn nav-target" id="mobileProfileTrigger" type="button" aria-label="Профиль">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </button>
+        </div>
+      </nav>
+
       <div class="hero-content">
-        <h1 id="heroH1">Приморский Край</h1>
-        <p id="heroP">
+        <span class="hero-eyebrow hero-anim" style="--d:0s">Лотос-Тур · Находка</span>
+        <h1 id="heroH1" class="hero-anim" style="--d:0.08s">Приморский Край</h1>
+        <p id="heroP" class="hero-anim" style="--d:0.16s">
           Откройте первозданную магию Дальнего Востока: дикие скалы над
           бирюзовыми бухтами, туман, плывущий по сопкам, безлюдные острова и
           солёный ветер Японского моря. Приморье уже ждёт — отправляйтесь за ним
           вместе с нами.
         </p>
-        <button
-          class="btn-book"
-          id="heroBtn"
-          type="button"
-        >
-          В путь &rarr;
-        </button>
+        <div class="hero-cta-row hero-anim" style="--d:0.24s">
+          <button
+            class="btn-book"
+            id="heroBtn"
+            type="button"
+          >
+            В путь &rarr;
+          </button>
+          <div class="hero-trust" aria-hidden="true">
+            <span class="hero-trust-stars">★★★★★</span>
+            <span class="hero-trust-text">5000+ путешественников · с 2015 года</span>
+          </div>
+        </div>
       </div>
-      <div></div>
+      <button class="scroll-cue hero-anim" id="scrollCueBtn" type="button" style="--d:0.5s" aria-label="Прокрутить вниз">
+        <span class="scroll-cue-mouse"><span class="scroll-cue-wheel"></span></span>
+      </button>
     </header>
 
     <!-- WEEKLY SCHEDULE — первым после hero -->
     <section class="schedule-section" id="schedule" aria-label="Расписание туров">
-      <div class="section-sub">Расписание</div>
-      <h2>Туры на каждый день</h2>
+      <div class="section-sub" data-reveal>Расписание</div>
+      <h2 data-reveal>Туры на каждый день</h2>
       <div class="week-grid-wrap">
         <div class="week-grid" id="weekGrid"></div>
         <div class="daily-col">
@@ -527,7 +598,7 @@
 
     <div id="tours-anchor">
       <section class="tours-section" aria-labelledby="txtToursTitle">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <div class="section-title-block">
             <span class="tour-card-tag-inline" id="txtToursSub"
               >Наши направления</span
@@ -576,14 +647,14 @@
           <path d="M0,0 C360,60 1080,0 1440,40 L1440,0 Z" fill="var(--bg-dark)"/>
         </svg>
       </div>
-      <div>
+      <div data-reveal>
         <h2 id="sec1H2">Шаг за шагом<br />к новым<br />горизонтам</h2>
       </div>
-      <div class="image-grid">
+      <div class="image-grid" data-reveal>
         <div class="img-box img-box--forest"></div>
         <div class="img-box img-box--sport"></div>
       </div>
-      <div class="text-block" id="sec1Txt">
+      <div class="text-block" id="sec1Txt" data-reveal>
         Лотос тур — клуб для тех, кто выбирает дорогу. Таёжные тропы,
         морские маршруты вдоль скалистых берегов, восхождения на сопки и сплавы
         по рекам Приморья — каждый поход ведут инструкторы, для которых эти места
@@ -602,7 +673,7 @@
           <path d="M0,30 C360,60 900,0 1440,45 L1440,0 L0,0 Z" fill="rgba(10,18,26,1)"/>
         </svg>
       </div>
-      <h2>Отзывы</h2>
+      <h2 data-reveal>Отзывы</h2>
       <div class="marquee-fix-wrapper" id="marqueeWrapper">
         <div id="marquee-line">
           <article class="review-card-item">
@@ -791,31 +862,31 @@
     <div class="section-about-wrap">
       <section class="section-about" id="about" aria-labelledby="sec2H2">
         <div class="about-content">
-          <h2 id="sec2H2" style="color:var(--text-light-main)">О нас</h2>
-          <p id="sec2P1" style="color:var(--text-light-muted)">
+          <h2 id="sec2H2" data-reveal>О нас</h2>
+          <p id="sec2P1" data-reveal>
             Лотос-тур открывает Приморье по-настоящему с 2015 года. Наши
             маршруты — это живые истории: рассвет над бухтой Триозерье, тюлени
             у острова Аскольд, цветение лотосов на Путятине и панорама Японского
             моря с вершины сопки Сестра.
           </p>
-          <p id="sec2P2" style="color:var(--text-light-muted)">
+          <p id="sec2P2" data-reveal>
             Каждый трек мы знаем наизусть — гиды сами прокладывали эти тропы и
             год за годом делают их лучше. Мы водим небольшие группы, чтобы вы
             чувствовали себя не туристом, а первооткрывателем своего Дальнего
             Востока.
           </p>
-          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:28px">
-            <div style="text-align:center;padding:18px 22px;border:1px solid var(--border-light);border-radius:14px;flex:1;min-width:90px;background:rgba(255,255,255,0.04)">
-              <div style="font-size:1.8rem;font-weight:800;color:var(--accent-liquid)">20+</div>
-              <div style="font-size:0.75rem;color:var(--text-light-muted);margin-top:4px">лет на рынке</div>
+          <div class="about-stats" data-reveal>
+            <div class="about-stat">
+              <div class="about-stat-num">20+</div>
+              <div class="about-stat-label">лет на рынке</div>
             </div>
-            <div style="text-align:center;padding:18px 22px;border:1px solid var(--border-light);border-radius:14px;flex:1;min-width:90px;background:rgba(255,255,255,0.04)">
-              <div style="font-size:1.8rem;font-weight:800;color:var(--accent-liquid)">24+</div>
-              <div style="font-size:0.75rem;color:var(--text-light-muted);margin-top:4px">маршрутов</div>
+            <div class="about-stat">
+              <div class="about-stat-num">24+</div>
+              <div class="about-stat-label">маршрутов</div>
             </div>
-            <div style="text-align:center;padding:18px 22px;border:1px solid var(--border-light);border-radius:14px;flex:1;min-width:90px;background:rgba(255,255,255,0.04)">
-              <div style="font-size:1.8rem;font-weight:800;color:var(--accent-liquid)">5000+</div>
-              <div style="font-size:0.75rem;color:var(--text-light-muted);margin-top:4px">путешественников</div>
+            <div class="about-stat">
+              <div class="about-stat-num">5000+</div>
+              <div class="about-stat-label">путешественников</div>
             </div>
           </div>
         </div>
@@ -877,5 +948,6 @@
     <script src="js/translations.js"></script>
     <script src="js/app.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/booking-wizard.js"></script>
   </body>
 </html>

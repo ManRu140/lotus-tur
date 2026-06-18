@@ -456,10 +456,12 @@ async function saveNicknameToAPI(newUsername) {
       '<div class="schedule-tour-duration">' + t.duration + '</div>';
     card.addEventListener("click", function() {
       const bookSelect = document.getElementById("bookTourSelect");
-      if (bookSelect) {
-        bookSelect.value = t.id;
+      if (bookSelect) bookSelect.value = t.id;
+      if (typeof openBookingGeneral === "function") {
+        openBookingGeneral();
+      } else {
         const modal = document.getElementById("bookingModal");
-        if (modal) modal.style.display = "flex";
+        if (modal) modal.classList.add("open");
       }
     });
     return card;

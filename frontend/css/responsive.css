@@ -237,6 +237,24 @@ nav,
   align-items: center;
 }
 
+.mobile-nav-footer .lang-switch,
+.mobile-nav-footer .profile-btn {
+  min-height: 48px;
+  font-size: 0.95rem;
+  padding: 0 22px;
+}
+.mobile-nav-footer .profile-btn {
+  width: 48px;
+  padding: 0;
+  border-radius: 50%;
+  justify-content: center;
+}
+.mobile-nav-footer .profile-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 /* -- Герой ------------------------------------------------------------ */
 
 header {
@@ -267,6 +285,29 @@ header {
   justify-content: center;
   padding: 16px 24px;
   font-size: 1rem;
+}
+
+.hero-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 1.8px;
+}
+
+.hero-cta-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.hero-trust {
+  align-items: center;
+  text-align: center;
+}
+.hero-trust-text {
+  white-space: normal;
+}
+
+.scroll-cue {
+  display: none;
 }
 
 /* -- Секция "О нас" --------------------------------------------------- */
@@ -621,6 +662,20 @@ header {
     max-width: 650px;
     margin-top: 25vh;
     margin-bottom: 15vh;
+  }
+
+  .hero-cta-row {
+    flex-direction: row;
+    align-items: center;
+  }
+  .hero-trust {
+    text-align: left;
+  }
+  .hero-trust-text {
+    white-space: nowrap;
+  }
+  .scroll-cue {
+    display: block;
   }
 
   .section-dark,

@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     VK_CLIENT_SECRET: str = ""
     VK_REDIRECT_URI: str = ""
 
+    # First-run admin bootstrap. Set these as env vars on Railway before
+    # first deploy. Seed creates the account on first startup if it doesn't
+    # exist yet; changing the vars after that has no effect (use the admin
+    # panel's "Reset password" to change it).
+    ADMIN_USERNAME: str = "admin"
+    ADMIN_PASSWORD: str = ""  # empty = skip seeding (safe default)
+
     FRONTEND_URL: str = "https://agile-intuition-production.up.railway.app"
 
     CORS_ORIGINS: list[str] = [

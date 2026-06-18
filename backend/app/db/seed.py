@@ -3,9 +3,12 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
+from app.core.security import hash_password
 from app.models.tour import Tour
 from app.models.achievement import Achievement
 from app.models.review import Review
+from app.models.user import User
 
 TOURS_SEED = [
     {
@@ -439,6 +442,31 @@ HISTORICAL_REVIEWS_SEED = [
 
 
 async def seed_initial_data(session: AsyncSession) -> None:
+    # ── Bootstrap admin user ───────────────────────────────────────────
+    # Runs only when ADMIN_PASSWORD is set (non-empty) in the environment.
+    # On Railway: set ADMIN_USERNAME + ADMIN_PASSWORD as env vars before
+    # first deploy. The account is created once and never overwritten, so
+    # changing the env vars later has no effect — use Admin → Users to
+    # reset the password after the initial login.
+    if settings.ADMIN_PASSWORD:
+        existing_admin = (
+            await session.execute(
+                select(User).where(User.username == settings.ADMIN_USERNAME)
+            )
+        ).scalar_one_or_none()
+        if not existing_admin:
+            admin_user = User(
+                username=settings.ADMIN_USERNAME,
+                email=f"{settings.ADMIN_USERNAME}@lotos-tour.local",
+                hashed_password=hash_password(settings.ADMIN_PASSWORD),
+                full_name="Администратор",
+                is_active=True,
+                is_admin=True,
+                role="admin",
+            )
+            session.add(admin_user)
+            await session.flush()  # give the user an id before continuing
+
     existing_ids_result = await session.execute(select(Tour.id))
     existing_ids = {row[0] for row in existing_ids_result.all()}
     for data in TOURS_SEED:

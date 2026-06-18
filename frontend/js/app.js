@@ -40,11 +40,22 @@ async function apiFetch(path, options = {}) {
 }
 
 async function checkExistingSession() {
-  // We can no longer check "is there a token in localStorage" (good —
-  // that token doesn't exist on the client anymore at all). The cached
-  // username/avatar/full_name below are just for an optimistic instant
-  // paint before the network call below resolves; they are not secrets
-  // and were never the actual credential.
+  // The `access_token` is httpOnly so JS can never read it, but the
+  // `csrf_token` cookie IS readable and is only set when a session
+  // exists. Skipping the /api/auth/me request when it's absent avoids
+  // a noisy 401 in the browser console for every anonymous visitor
+  // (the browser logs the failed fetch before our catch() can run,
+  // which looks alarming even though it's completely expected behaviour).
+  if (!getCookie("csrf_token")) {
+    // Clear any stale localStorage state left from a previous session
+    // that ended (cookie expired/cleared) so the UI doesn't show a
+    // phantom logged-in name.
+    localStorage.removeItem("username");
+    localStorage.removeItem("avatar_url");
+    localStorage.removeItem("full_name");
+    return;
+  }
+
   const savedName = localStorage.getItem("username");
   const savedAvatar = localStorage.getItem("avatar_url");
   const savedFull = localStorage.getItem("full_name");

@@ -770,6 +770,157 @@ function applyTranslations(lang) {
   if (langBtn) langBtn.textContent = lang;
 }
 
+// ── REVIEWS ──
+// Reviews now come from the API (GET /api/reviews) instead of being
+// hardcoded in this file's markup, so this escaping helper matters here
+// in a way it didn't for the old static copy: author_name/text can be
+// real visitor input. Same rule as the admin panel — never interpolate
+// it into innerHTML unescaped.
+function escHtml(s) {
+  if (s == null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+const REVIEW_AVATAR_COLORS = [
+  "#1a4f5c", "#3b2f5c", "#2a4a2a", "#4a3a1a",
+  "#22525c", "#194a5c", "#5c2a3a", "#3a4a5c",
+];
+
+function reviewAvatarColor(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  return REVIEW_AVATAR_COLORS[hash % REVIEW_AVATAR_COLORS.length];
+}
+
+function reviewInitials(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "?";
+  return (parts[0][0] + (parts[1] ? parts[1][0] : "")).toUpperCase();
+}
+
+function buildReviewCardHtml(r, hidden) {
+  const tourLabel = r.tour_name ? escHtml(r.tour_name) : "Лотос Тур";
+  const sourceTag = r.source === "2gis" ? " · 2ГИС" : "";
+  return `
+    <article class="review-card-item"${hidden ? ' aria-hidden="true"' : ""}>
+      <div class="review-stars" aria-label="${r.rating} звёзд">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</div>
+      <p class="review-text">«${escHtml(r.text)}»</p>
+      <div class="review-author">
+        <div class="review-avatar" style="background:${reviewAvatarColor(r.author_name)}">${escHtml(reviewInitials(r.author_name))}</div>
+        <div>
+          <span class="review-name">${escHtml(r.author_name)}</span>
+          <span class="review-tour">${tourLabel}${sourceTag}</span>
+        </div>
+      </div>
+    </article>`;
+}
+
+async function loadAndRenderReviews() {
+  const line = document.getElementById("marquee-line");
+  if (!line) return;
+  const wrap = document.getElementById("marqueeWrapper");
+  const summaryEl = document.getElementById("reviewsSummary");
+  try {
+    const data = await apiFetch("/api/reviews?limit=30");
+    const list = data.reviews || [];
+
+    if (summaryEl) {
+      summaryEl.innerHTML = data.stats && data.stats.total_count
+        ? `<span class="reviews-summary-stars">★ ${data.stats.average_rating.toFixed(1)}</span> на основе ${data.stats.total_count} отзывов`
+        : "";
+    }
+
+    if (!list.length) {
+      if (wrap) wrap.style.display = "none";
+      return;
+    }
+    // The CSS marquee animation translates by exactly -50% of the track
+    // width, assuming the content is duplicated — rendering the list
+    // twice (second copy aria-hidden) is what makes the scroll loop
+    // seamlessly regardless of how many real reviews exist.
+    line.innerHTML =
+      list.map((r) => buildReviewCardHtml(r, false)).join("") +
+      list.map((r) => buildReviewCardHtml(r, true)).join("");
+  } catch (e) {
+    console.error("Не удалось загрузить отзывы:", e);
+  }
+}
+
+let reviewFormRating = 0;
+
+function setReviewFormRating(value) {
+  reviewFormRating = value;
+  document.querySelectorAll("#reviewStarPicker .star-picker-star").forEach((el) => {
+    el.classList.toggle("is-active", Number(el.dataset.value) <= value);
+  });
+}
+
+function populateReviewTourSelect() {
+  const sel = document.getElementById("reviewTourSelect");
+  if (!sel || typeof toursData === "undefined") return;
+  sel.innerHTML =
+    '<option value="">Без привязки к туру</option>' +
+    toursData.map((t) => `<option value="${t.id}">${escHtml(t.name)}</option>`).join("");
+}
+
+function openReviewForm() {
+  const modal = document.getElementById("reviewFormModal");
+  if (!modal) return;
+  const statusEl = document.getElementById("reviewFormStatus");
+  statusEl.textContent = "";
+  statusEl.className = "review-form-status";
+  document.getElementById("reviewAuthorName").value = "";
+  document.getElementById("reviewText").value = "";
+  document.getElementById("reviewSubmitForm").style.display = "";
+  setReviewFormRating(0);
+  populateReviewTourSelect();
+  modal.classList.add("open");
+}
+function closeReviewForm() {
+  document.getElementById("reviewFormModal")?.classList.remove("open");
+}
+
+async function submitReviewForm(e) {
+  e.preventDefault();
+  const statusEl = document.getElementById("reviewFormStatus");
+  const name = document.getElementById("reviewAuthorName").value.trim();
+  const text = document.getElementById("reviewText").value.trim();
+  const tourId = document.getElementById("reviewTourSelect").value || null;
+
+  if (!name || !text || !reviewFormRating) {
+    statusEl.textContent = "Заполните имя, оценку и текст отзыва.";
+    statusEl.className = "review-form-status is-error";
+    return;
+  }
+
+  const btn = document.getElementById("reviewSubmitBtn");
+  btn.disabled = true;
+  try {
+    await apiFetch("/api/reviews", {
+      method: "POST",
+      body: JSON.stringify({
+        author_name: name,
+        rating: reviewFormRating,
+        text,
+        tour_id: tourId,
+      }),
+    });
+    document.getElementById("reviewSubmitForm").style.display = "none";
+    statusEl.textContent =
+      "Спасибо! Отзыв отправлен на проверку и появится на сайте после одобрения модератором.";
+    statusEl.className = "review-form-status is-success";
+  } catch (err) {
+    statusEl.textContent = err.message || "Не удалось отправить отзыв. Попробуйте позже.";
+    statusEl.className = "review-form-status is-error";
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const savedFull = localStorage.getItem("full_name");
   const savedName = localStorage.getItem("username");
@@ -788,6 +939,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderTours(toursData.slice(0, 7));
 
   populateTourSelect();
+  loadAndRenderReviews();
 
   initProfileTabs();
   initTourFilters();
@@ -835,6 +987,16 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("bookingModal")?.addEventListener("click", (e) => {
     if (e.target === document.getElementById("bookingModal"))
       document.getElementById("bookingModal").classList.remove("open");
+  });
+
+  document.getElementById("closeReviewFormBtn")?.addEventListener("click", closeReviewForm);
+  document.getElementById("reviewFormModal")?.addEventListener("click", (e) => {
+    if (e.target === document.getElementById("reviewFormModal")) closeReviewForm();
+  });
+  document.getElementById("openReviewFormBtn")?.addEventListener("click", openReviewForm);
+  document.getElementById("reviewSubmitForm")?.addEventListener("submit", submitReviewForm);
+  document.querySelectorAll("#reviewStarPicker .star-picker-star").forEach((el) => {
+    el.addEventListener("click", () => setReviewFormRating(Number(el.dataset.value)));
   });
 
   document.querySelectorAll(".auth-tab-btn").forEach((btn) => {

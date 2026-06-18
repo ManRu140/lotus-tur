@@ -14,6 +14,7 @@ from app.api.routes import (
     admin_content,
     admin_logs,
     admin_media,
+    admin_reviews,
     admin_settings,
     auth,
     bookings,
@@ -21,6 +22,7 @@ from app.api.routes import (
     profile,
     promo,
     public_content,
+    reviews,
     tours,
 )
 from app.core.config import settings
@@ -98,11 +100,13 @@ app.include_router(profile.router,        prefix="/api/profile",       tags=["Pr
 app.include_router(promo.router,          prefix="/api/promo",         tags=["Promo"])
 app.include_router(notifications.router,  prefix="/api/notifications", tags=["Notifications"])
 app.include_router(public_content.router, prefix="/api",               tags=["Public Content"])
+app.include_router(reviews.router,        prefix="/api",               tags=["Reviews"])
 app.include_router(admin.router,          prefix="/api/admin",         tags=["Admin"])
 app.include_router(admin_content.router,  prefix="/api/admin",         tags=["Admin Content"])
 app.include_router(admin_settings.router, prefix="/api/admin",         tags=["Admin Settings"])
 app.include_router(admin_logs.router,     prefix="/api/admin",         tags=["Admin Logs"])
 app.include_router(admin_media.router,    prefix="/api/admin/media",   tags=["Admin Media"])
+app.include_router(admin_reviews.router,  prefix="/api/admin",         tags=["Admin Reviews"])
 
 @app.get("/", include_in_schema=False)
 async def root():

@@ -66,6 +66,7 @@ textarea {
 .side-profile,
 .modal-auth,
 .modal-booking,
+.modal-review,
 .nav-container,
 .mobile-nav-menu {
   will-change: transform, opacity;
@@ -911,14 +912,16 @@ header {
   }
 
   .modal-auth,
-  .modal-booking {
+  .modal-booking,
+  .modal-review {
     align-items: flex-start;
     padding-top: 10px;
     overflow-y: auto;
   }
 
   .auth-container,
-  .booking-container {
+  .booking-container,
+  .review-form-container {
     max-height: 90svh;
     overflow-y: auto;
   }
@@ -984,12 +987,14 @@ header {
   }
 
   .modal-auth,
-  .modal-booking {
+  .modal-booking,
+  .modal-review {
     background: rgba(15, 20, 22, 0.92);
   }
 
   .auth-container,
-  .booking-container {
+  .booking-container,
+  .review-form-container {
     background: rgba(26, 34, 38, 0.98);
   }
 }

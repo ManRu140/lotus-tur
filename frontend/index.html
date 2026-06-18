@@ -461,6 +461,75 @@
       </div>
     </div>
 
+    <div
+      class="modal-review"
+      id="reviewFormModal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Оставить отзыв"
+    >
+      <div class="review-form-container">
+        <button
+          class="modal-close-btn"
+          id="closeReviewFormBtn"
+          aria-label="Закрыть"
+        >
+          &times;
+        </button>
+        <h3 class="modal-title">Оставить отзыв</h3>
+
+        <form id="reviewSubmitForm" novalidate>
+          <div class="form-group-block">
+            <label for="reviewAuthorName">Ваше имя</label>
+            <input
+              type="text"
+              id="reviewAuthorName"
+              placeholder="Анна К."
+              maxlength="120"
+              required
+            />
+          </div>
+
+          <div class="form-group-block">
+            <label>Оценка</label>
+            <div
+              class="star-picker"
+              id="reviewStarPicker"
+              role="radiogroup"
+              aria-label="Оценка от 1 до 5"
+            >
+              <span class="star-picker-star" data-value="1">★</span>
+              <span class="star-picker-star" data-value="2">★</span>
+              <span class="star-picker-star" data-value="3">★</span>
+              <span class="star-picker-star" data-value="4">★</span>
+              <span class="star-picker-star" data-value="5">★</span>
+            </div>
+          </div>
+
+          <div class="form-group-block">
+            <label for="reviewTourSelect">Тур (необязательно)</label>
+            <select id="reviewTourSelect"></select>
+          </div>
+
+          <div class="form-group-block">
+            <label for="reviewText">Ваш отзыв</label>
+            <textarea
+              id="reviewText"
+              placeholder="Расскажите, как прошла поездка…"
+              maxlength="4000"
+              required
+            ></textarea>
+          </div>
+
+          <button type="submit" class="auth-submit" id="reviewSubmitBtn">
+            Отправить отзыв
+          </button>
+        </form>
+
+        <p class="review-form-status" id="reviewFormStatus"></p>
+      </div>
+    </div>
+
     <aside class="side-profile" id="sideProfile" aria-label="Личный кабинет">
       <button class="modal-close-btn" id="closeProfileBtn" aria-label="Закрыть">
         &times;
@@ -1163,189 +1232,17 @@
           />
         </svg>
       </div>
-      <h2 data-reveal>Отзывы</h2>
-      <div class="marquee-fix-wrapper" id="marqueeWrapper">
-        <div id="marquee-line">
-          <article class="review-card-item">
-            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
-            <p class="review-text">
-              "Тур на остров Аскольд — лучшее, что я делал в жизни. Гиды
-              профессиональные, атмосфера потрясающая."
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--ik">ИК</div>
-              <div>
-                <span class="review-name">Игорь К.</span>
-                <span class="review-tour">Остров Аскольд</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="review-card-item">
-            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
-            <p class="review-text">
-              "Бухта Триозерье — сказка! Вода чистейшая, инструкторы заботливые.
-              Обязательно вернёмся снова."
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--ap">АП</div>
-              <div>
-                <span class="review-name">Анна П.</span>
-                <span class="review-tour">Бухта Триозерье</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="review-card-item">
-            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
-            <p class="review-text">
-              "Морской сафари-тур — адреналин, нерпы и брызги океана. Никаких
-              слов, только эмоции!"
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--sm">СМ</div>
-              <div>
-                <span class="review-name">Сергей М.</span>
-                <span class="review-tour">Морской Сафари-тур</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="review-card-item">
-            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
-            <p class="review-text">
-              "Остров Петрова — мистика и тишина. Тисовая роща, древние тайны.
-              Настоящее путешествие во времени."
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--on">ОН</div>
-              <div>
-                <span class="review-name">Ольга Н.</span>
-                <span class="review-tour">Остров Петрова</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="review-card-item">
-            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
-            <p class="review-text">
-              "Пик Сестра буквально открыл мне глаза на красоту Приморья. Закат
-              оттуда — это что-то нереальное."
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--ds">ДС</div>
-              <div>
-                <span class="review-name">Дмитрий С.</span>
-                <span class="review-tour">Пик Сестра</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="review-card-item">
-            <div class="review-stars" aria-label="5 звёзд">★★★★★</div>
-            <p class="review-text">
-              "Сафари-парк превзошел все ожидания. Видели тигра в 10 метрах от
-              нас — незабываемо!"
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--ev">ЕВ</div>
-              <div>
-                <span class="review-name">Елена В.</span>
-                <span class="review-tour">Сафари-парк</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="review-card-item" aria-hidden="true">
-            <div class="review-stars">★★★★★</div>
-            <p class="review-text">
-              "Тур на остров Аскольд — лучшее, что я делал в жизни. Гиды
-              профессиональные, атмосфера потрясающая."
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--ik">ИК</div>
-              <div>
-                <span class="review-name">Игорь К.</span>
-                <span class="review-tour">Остров Аскольд</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="review-card-item" aria-hidden="true">
-            <div class="review-stars">★★★★★</div>
-            <p class="review-text">
-              "Бухта Триозерье — сказка! Вода чистейшая, инструкторы заботливые.
-              Обязательно вернёмся снова."
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--ap">АП</div>
-              <div>
-                <span class="review-name">Анна П.</span>
-                <span class="review-tour">Бухта Триозерье</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="review-card-item" aria-hidden="true">
-            <div class="review-stars">★★★★★</div>
-            <p class="review-text">
-              "Морской сафари-тур — адреналин, нерпы и брызги океана. Никаких
-              слов, только эмоции!"
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--sm">СМ</div>
-              <div>
-                <span class="review-name">Сергей М.</span>
-                <span class="review-tour">Морской Сафари-тур</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="review-card-item" aria-hidden="true">
-            <div class="review-stars">★★★★★</div>
-            <p class="review-text">
-              "Остров Петрова — мистика и тишина. Тисовая роща, древние тайны.
-              Настоящее путешествие во времени."
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--on">ОН</div>
-              <div>
-                <span class="review-name">Ольга Н.</span>
-                <span class="review-tour">Остров Петрова</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="review-card-item" aria-hidden="true">
-            <div class="review-stars">★★★★★</div>
-            <p class="review-text">
-              "Пик Сестра буквально открыл мне глаза на красоту Приморья. Закат
-              оттуда — это что-то нереальное."
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--ds">ДС</div>
-              <div>
-                <span class="review-name">Дмитрий С.</span>
-                <span class="review-tour">Пик Сестра</span>
-              </div>
-            </div>
-          </article>
-
-          <article class="review-card-item" aria-hidden="true">
-            <div class="review-stars">★★★★★</div>
-            <p class="review-text">
-              "Сафари-парк превзошел все ожидания. Видели тигра в 10 метрах от
-              нас — незабываемо!"
-            </p>
-            <div class="review-author">
-              <div class="review-avatar review-avatar--ev">ЕВ</div>
-              <div>
-                <span class="review-name">Елена В.</span>
-                <span class="review-tour">Сафари-парк</span>
-              </div>
-            </div>
-          </article>
+      <div class="reviews-heading-row" data-reveal>
+        <h2>Отзывы</h2>
+        <div class="reviews-heading-actions">
+          <span class="reviews-summary" id="reviewsSummary"></span>
+          <button class="btn-leave-review" id="openReviewFormBtn" type="button">
+            Оставить отзыв
+          </button>
         </div>
+      </div>
+      <div class="marquee-fix-wrapper" id="marqueeWrapper">
+        <div id="marquee-line"></div>
       </div>
     </section>
 
@@ -1354,16 +1251,17 @@
         <div class="about-content">
           <h2 id="sec2H2" data-reveal>О нас</h2>
           <p id="sec2P1" data-reveal>
-            Лотос-тур открывает Приморье по-настоящему с 2015 года. Наши
-            маршруты — это живые истории: рассвет над бухтой Триозерье, тюлени у
-            острова Аскольд, цветение лотосов на Путятине и панорама Японского
-            моря с вершины сопки Сестра.
+            Лотос-тур работает в Находке с 2002 года и уже больше двадцати
+            лет показывает гостям настоящее Приморье: рассвет над бухтой
+            Триозерье, тюлени у острова Аскольд, цветение лотосов на
+            Путятине и панорама Японского моря с вершины сопки Сестра.
           </p>
           <p id="sec2P2" data-reveal>
-            Каждый трек мы знаем наизусть — гиды сами прокладывали эти тропы и
-            год за годом делают их лучше. Мы водим небольшие группы, чтобы вы
-            чувствовали себя не туристом, а первооткрывателем своего Дальнего
-            Востока.
+            Мы специализируемся на экологическом туризме — водопады,
+            пещеры, древние городища, сопки и необитаемые острова Южного
+            Приморья. В компании работают опытные гиды и экскурсоводы, а
+            маршруты неоднократно отмечались наградами городского конкурса
+            «Лидеры тур индустрии Находки».
           </p>
           <div class="about-stats" data-reveal>
             <div class="about-stat">
@@ -1378,6 +1276,22 @@
               <div class="about-stat-num">5000+</div>
               <div class="about-stat-label">путешественников</div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-cooperation" id="cooperation" aria-labelledby="coopH2">
+        <div class="cooperation-content">
+          <h2 id="coopH2" data-reveal>Сотрудничество</h2>
+          <p data-reveal>
+            Приглашаем к сотрудничеству руководителей и сопровождающих
+            туристических групп, корпоративных клиентов, учителей школ и
+            вузов, а также туристические компании-агенты. Будем рады
+            видеть вас среди наших постоянных партнёров!
+          </p>
+          <div class="cooperation-footer-row" data-reveal>
+            <span class="cooperation-bonus">🎁 Для агентов действует бонусная программа</span>
+            <a href="tel:+79147196120" class="btn-cooperation">Связаться с нами</a>
           </div>
         </div>
       </section>

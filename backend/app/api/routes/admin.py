@@ -13,6 +13,7 @@ from app.core.security import hash_password, validate_password_strength
 from app.core.validators import SLUG_PATTERN, validate_http_url
 from app.db.session import get_session
 from app.models.booking import Booking
+from app.models.review import Review
 from app.models.tour import Tour
 from app.models.user import User
 from app.services.audit_service import log_admin_action
@@ -179,6 +180,7 @@ class AdminStatsOut(BaseModel):
     cancelled_bookings: int
     total_tours: int
     revenue_estimate: int
+    pending_reviews: int = 0
 
 
 class UserToggleAdminRequest(BaseModel):
@@ -264,6 +266,10 @@ async def get_stats(
     )
     revenue = revenue_result.scalar_one() or 0
 
+    pending_reviews = (
+        await session.execute(select(func.count(Review.id)).where(Review.is_published.is_(False)))
+    ).scalar_one()
+
     return AdminStatsOut(
         total_users=u.total or 0,
         active_users=u.active or 0,
@@ -272,6 +278,7 @@ async def get_stats(
         cancelled_bookings=b.cancelled or 0,
         total_tours=total_tours,
         revenue_estimate=revenue,
+        pending_reviews=pending_reviews,
     )
 
 

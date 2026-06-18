@@ -994,12 +994,79 @@
         object-fit: cover;
       }
 
+      .mobile-topbar {
+        display: none;
+      }
+      .sidebar-backdrop {
+        display: none;
+      }
+
       @media (max-width: 900px) {
-        #sidebar {
-          display: none;
+        .mobile-topbar {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 56px;
+          padding: 0 16px;
+          background: var(--surface);
+          border-bottom: 1px solid var(--border);
+          z-index: 150;
         }
+        .mobile-topbar .sb-dot {
+          width: 30px;
+          height: 30px;
+          font-size: 1rem;
+        }
+        .mobile-topbar .brand {
+          font-weight: 800;
+          font-size: 0.9rem;
+        }
+        .burger-btn {
+          width: 38px;
+          height: 38px;
+          border-radius: 8px;
+          border: 1px solid var(--border);
+          background: var(--surface2);
+          color: var(--text);
+          font-size: 1.1rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        #sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.25s ease;
+          z-index: 200;
+          box-shadow: 8px 0 30px rgba(0, 0, 0, 0.4);
+        }
+        #sidebar.mobile-open {
+          transform: translateX(0);
+        }
+        .sidebar-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.55);
+          z-index: 190;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.25s ease;
+        }
+        .sidebar-backdrop.show {
+          display: block;
+          opacity: 1;
+          pointer-events: auto;
+        }
+
         #main {
           margin-left: 0;
+          padding: 72px 14px 24px;
         }
         .grid-2 {
           grid-template-columns: 1fr;
@@ -1007,10 +1074,28 @@
         .week-admin {
           grid-template-columns: repeat(3, 1fr);
         }
+        .topbar {
+          gap: 12px;
+        }
+        .topbar-actions {
+          width: 100%;
+        }
+        .topbar-actions .btn {
+          flex: 1;
+        }
+        .modal-foot {
+          flex-wrap: wrap;
+        }
       }
     </style>
   </head>
   <body>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="mobile-topbar">
+      <button class="burger-btn" id="burgerBtn" aria-label="Открыть меню">☰</button>
+      <div class="sb-dot">🌸</div>
+      <div class="brand">Лотос Тур</div>
+    </div>
     <!-- AUTH -->
     <div id="authOverlay">
       <div class="auth-box">
@@ -1064,6 +1149,14 @@
         </button>
         <button class="ni" data-page="tours" onclick="go('tours')">
           <span class="ico">🏔</span>Туры
+        </button>
+        <button class="ni" data-page="reviews" onclick="go('reviews')">
+          <span class="ico">⭐</span>Отзывы
+          <span
+            id="reviewsPendingBadge"
+            class="badge badge-cancelled"
+            style="margin-left: auto; display: none; font-size: 0.65rem; padding: 1px 6px"
+          ></span>
         </button>
         <button class="ni" data-page="users" onclick="go('users')">
           <span class="ico">👥</span>Пользователи
@@ -1274,6 +1367,53 @@
                     <div class="loading-row"><div class="spin"></div></div>
                   </td>
                 </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- REVIEWS -->
+      <div class="page" id="page-reviews">
+        <div class="topbar">
+          <div>
+            <h1>Отзывы</h1>
+            <div class="sub" id="reviewsCount"></div>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-ghost" onclick="loadReviews()">🔄</button>
+            <button class="btn btn-accent" onclick="openReviewModal()">+ Добавить отзыв</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="toolbar">
+            <select class="filter-select" id="rvFilterStatus" onchange="loadReviews()">
+              <option value="">Все статусы</option>
+              <option value="pending">На проверке</option>
+              <option value="published">Опубликованные</option>
+            </select>
+            <select class="filter-select" id="rvFilterSource" onchange="loadReviews()">
+              <option value="">Любой источник</option>
+              <option value="site">С сайта</option>
+              <option value="2gis">2ГИС</option>
+            </select>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Автор</th>
+                  <th>Оценка</th>
+                  <th>Текст</th>
+                  <th>Тур</th>
+                  <th>Источник</th>
+                  <th>Статус</th>
+                  <th>Дата</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody id="rvBody">
+                <tr><td colspan="8"><div class="loading-row"><div class="spin"></div></div></td></tr>
               </tbody>
             </table>
           </div>
@@ -1876,6 +2016,61 @@
       </div>
     </div>
 
+    <!-- MODAL: review -->
+    <div class="modal-bg" id="mReview">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3 id="mReviewTitle">Добавить отзыв</h3>
+          <button class="modal-close" onclick="closeMReview()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="field">
+            <label>Имя автора *</label>
+            <input type="text" id="rvAuthorName" placeholder="Анна К." />
+          </div>
+          <div class="field">
+            <label>Оценка *</label>
+            <select id="rvRating">
+              <option value="5">★★★★★ (5)</option>
+              <option value="4">★★★★☆ (4)</option>
+              <option value="3">★★★☆☆ (3)</option>
+              <option value="2">★★☆☆☆ (2)</option>
+              <option value="1">★☆☆☆☆ (1)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Текст отзыва *</label>
+            <textarea id="rvText" style="min-height:120px" placeholder="Текст отзыва…"></textarea>
+          </div>
+          <div class="field">
+            <label>Источник</label>
+            <select id="rvSource" onchange="onReviewSourceChange()">
+              <option value="site">Сайт / вручную</option>
+              <option value="2gis">2ГИС (скопировано вручную)</option>
+            </select>
+          </div>
+          <div class="field" id="rvSourceUrlField" style="display:none">
+            <label>Ссылка на отзыв в 2ГИС</label>
+            <input type="text" id="rvSourceUrl" placeholder="https://2gis.ru/.../tab/reviews/..." />
+          </div>
+          <div class="field">
+            <label>Тур (необязательно)</label>
+            <select id="rvTourId">
+              <option value="">— Без привязки к туру —</option>
+            </select>
+          </div>
+          <div class="field" style="display:flex;align-items:center;gap:8px">
+            <input type="checkbox" id="rvPublished" style="width:auto" checked />
+            <label style="margin:0;text-transform:none;font-size:.85rem">Опубликован (виден на сайте)</label>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-ghost" onclick="closeMReview()">Отмена</button>
+          <button class="btn btn-accent" id="rvSaveBtn" onclick="saveReview()">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
     <div id="toast"></div>
 
     <script>
@@ -2067,6 +2262,7 @@
           banners: loadBanners,
           settings: loadSettings,
           logs: loadLogs,
+          reviews: loadReviews,
         };
         if (loaders[name]) loaders[name]();
       }
@@ -2086,6 +2282,7 @@
               ["Активных броней", s.active_bookings, "c-warn"],
               ["Отменено", s.cancelled_bookings, "c-danger"],
               ["Туров", s.total_tours, "c-accent"],
+              ["Отзывов на проверке", s.pending_reviews || 0, "c-warn"],
             ]
               .map(
                 ([l, v, c]) =>
@@ -2093,6 +2290,14 @@
               )
               .join("") +
             `<div class="stat c-success" style="grid-column:span 2"><div class="lbl">Выручка (оценка)</div><div class="val">${(s.revenue_estimate || 0).toLocaleString("ru-RU")} ₽</div></div>`;
+
+          const badge = $("reviewsPendingBadge");
+          if (s.pending_reviews > 0) {
+            badge.textContent = s.pending_reviews;
+            badge.style.display = "inline-block";
+          } else {
+            badge.style.display = "none";
+          }
 
           const [rb, ru] = await Promise.all([
             api("/api/admin/bookings?limit=6"),
@@ -3295,6 +3500,186 @@
         }
       }
 
+      // ── REVIEWS ──
+      let allReviews = [];
+      let editReviewId = null;
+      const REVIEW_SOURCE_LABELS = { site: "Сайт", "2gis": "2ГИС" };
+
+      function starsHtml(rating) {
+        return "★".repeat(rating) + "☆".repeat(5 - rating);
+      }
+
+      async function loadReviews() {
+        $("rvBody").innerHTML =
+          '<tr><td colspan="8"><div class="loading-row"><div class="spin"></div></div></td></tr>';
+        try {
+          const params = new URLSearchParams();
+          const statusFilter = $("rvFilterStatus").value;
+          if (statusFilter === "pending") params.set("is_published", "false");
+          if (statusFilter === "published") params.set("is_published", "true");
+          const sourceFilter = $("rvFilterSource").value;
+          if (sourceFilter) params.set("source", sourceFilter);
+
+          allReviews = await api("/api/admin/reviews?" + params.toString());
+          $("reviewsCount").textContent = `${allReviews.length} отзывов`;
+          renderReviews(allReviews);
+          refreshPendingReviewsBadge();
+        } catch (e) {
+          $("rvBody").innerHTML =
+            `<tr><td colspan="8"><div class="empty"><span class="ico">⚠️</span>${escHtml(e.message)}</div></td></tr>`;
+        }
+      }
+
+      // Keeps the sidebar badge in sync without a dedicated endpoint —
+      // dashboard stats already return pending_reviews (see loadDashboard),
+      // but the badge needs to update right after an approve/reject too,
+      // so we also derive it locally from whatever's currently in view.
+      async function refreshPendingReviewsBadge() {
+        try {
+          const stats = await api("/api/admin/stats");
+          const badge = $("reviewsPendingBadge");
+          if (stats.pending_reviews > 0) {
+            badge.textContent = stats.pending_reviews;
+            badge.style.display = "inline-block";
+          } else {
+            badge.style.display = "none";
+          }
+        } catch {
+          /* non-critical — badge just stays as-is */
+        }
+      }
+
+      function renderReviews(list) {
+        $("rvBody").innerHTML = list.length
+          ? list
+              .map(
+                (r) => `
+      <tr>
+        <td style="font-weight:600">${escHtml(r.author_name)}</td>
+        <td class="td-m" style="white-space:nowrap;color:#f5b942">${starsHtml(r.rating)}</td>
+        <td style="max-width:280px;font-size:.8rem">${escHtml(r.text.length > 140 ? r.text.slice(0, 140) + "…" : r.text)}</td>
+        <td class="td-m">${r.tour_name ? escHtml(r.tour_name) : "—"}</td>
+        <td>${r.source === "2gis" ? '<span class="badge badge-oauth">2ГИС</span>' : '<span class="badge badge-user">Сайт</span>'}</td>
+        <td>${r.is_published ? '<span class="badge badge-completed">Опубликован</span>' : '<span class="badge badge-cancelled">На проверке</span>'}</td>
+        <td class="td-m">${fmt(r.created_at)}</td>
+        <td style="white-space:nowrap">
+          <button class="btn ${r.is_published ? "btn-ghost" : "btn-success"}" data-action="toggle-review" data-id="${r.id}" data-next="${!r.is_published}" style="font-size:.68rem;padding:4px 8px">${r.is_published ? "Скрыть" : "Одобрить"}</button>
+          <button class="btn btn-ghost" data-action="edit-review" data-id="${r.id}" style="font-size:.68rem;padding:4px 8px;margin-left:3px">✏</button>
+          <button class="btn btn-danger" data-action="delete-review" data-id="${r.id}" style="font-size:.68rem;padding:4px 8px;margin-left:3px">🗑</button>
+        </td>
+      </tr>`,
+              )
+              .join("")
+          : '<tr><td colspan="8"><div class="empty"><span class="ico">⭐</span>Отзывов нет</div></td></tr>';
+      }
+
+      $("rvBody").addEventListener("click", async (e) => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        const review = allReviews.find((r) => String(r.id) === btn.dataset.id);
+        if (!review) return;
+        if (btn.dataset.action === "edit-review") {
+          openReviewModal(review);
+        } else if (btn.dataset.action === "delete-review") {
+          deleteReview(review.id, review.author_name);
+        } else if (btn.dataset.action === "toggle-review") {
+          try {
+            await api(`/api/admin/reviews/${review.id}`, {
+              method: "PATCH",
+              body: JSON.stringify({ is_published: btn.dataset.next === "true" }),
+            });
+            toast(btn.dataset.next === "true" ? "Отзыв опубликован" : "Отзыв скрыт");
+            loadReviews();
+          } catch (err) {
+            toast(err.message, "err");
+          }
+        }
+      });
+
+      async function _populateReviewTourSelect(selectedTourId) {
+        const sel = $("rvTourId");
+        try {
+          const tours = allTours && allTours.length ? allTours : await api("/api/tours");
+          sel.innerHTML =
+            '<option value="">— Без привязки к туру —</option>' +
+            tours.map((t) => `<option value="${escHtml(t.id)}">${escHtml(t.name)}</option>`).join("");
+        } catch {
+          sel.innerHTML = '<option value="">— Без привязки к туру —</option>';
+        }
+        sel.value = selectedTourId || "";
+      }
+
+      function onReviewSourceChange() {
+        $("rvSourceUrlField").style.display = $("rvSource").value === "2gis" ? "" : "none";
+      }
+
+      async function openReviewModal(review = null) {
+        editReviewId = review ? review.id : null;
+        $("mReviewTitle").textContent = review ? "Редактировать отзыв" : "Добавить отзыв";
+        $("rvAuthorName").value = review?.author_name || "";
+        $("rvRating").value = String(review?.rating || 5);
+        $("rvText").value = review?.text || "";
+        $("rvSource").value = review?.source || "site";
+        $("rvSourceUrl").value = review?.source_url || "";
+        $("rvPublished").checked = review ? review.is_published : true;
+        onReviewSourceChange();
+        await _populateReviewTourSelect(review?.tour_id);
+        $("mReview").classList.add("open");
+      }
+      function closeMReview() {
+        $("mReview").classList.remove("open");
+        editReviewId = null;
+      }
+
+      async function saveReview() {
+        $("rvSaveBtn").disabled = true;
+        try {
+          const payload = {
+            author_name: $("rvAuthorName").value.trim(),
+            rating: parseInt($("rvRating").value, 10),
+            text: $("rvText").value.trim(),
+            source: $("rvSource").value,
+            source_url: $("rvSource").value === "2gis" ? $("rvSourceUrl").value.trim() || null : null,
+            tour_id: $("rvTourId").value || null,
+            is_published: $("rvPublished").checked,
+          };
+          if (!payload.author_name || !payload.text) {
+            toast("Заполните имя автора и текст отзыва", "err");
+            return;
+          }
+          if (editReviewId) {
+            await api(`/api/admin/reviews/${editReviewId}`, {
+              method: "PATCH",
+              body: JSON.stringify(payload),
+            });
+            toast("Отзыв обновлён");
+          } else {
+            await api("/api/admin/reviews", {
+              method: "POST",
+              body: JSON.stringify(payload),
+            });
+            toast("Отзыв добавлен");
+          }
+          closeMReview();
+          loadReviews();
+        } catch (e) {
+          toast(e.message, "err");
+        } finally {
+          $("rvSaveBtn").disabled = false;
+        }
+      }
+
+      async function deleteReview(id, authorName) {
+        if (!confirm(`Удалить отзыв от «${authorName}»?`)) return;
+        try {
+          await api(`/api/admin/reviews/${id}`, { method: "DELETE" });
+          toast("Отзыв удалён");
+          loadReviews();
+        } catch (e) {
+          toast(e.message, "err");
+        }
+      }
+
       // ── SITE SETTINGS ──
       async function loadSettings() {
         try {
@@ -3415,6 +3800,23 @@
         return typeof url === "string" && /^https?:\/\//i.test(url);
       }
 
+      // ── MOBILE SIDEBAR DRAWER ──
+      function closeMobileSidebar() {
+        $("sidebar").classList.remove("mobile-open");
+        $("sidebarBackdrop").classList.remove("show");
+      }
+      $("burgerBtn")?.addEventListener("click", () => {
+        $("sidebar").classList.add("mobile-open");
+        $("sidebarBackdrop").classList.add("show");
+      });
+      $("sidebarBackdrop")?.addEventListener("click", closeMobileSidebar);
+      // Navigating to a page on a phone should close the drawer so the
+      // content underneath is actually visible — without this the only
+      // way off the current page was the (now off-canvas) sidebar itself.
+      document.querySelectorAll("#sidebar .ni").forEach((btn) => {
+        btn.addEventListener("click", closeMobileSidebar);
+      });
+
       // ── CLOSE MODALS ON BG CLICK ──
       [
         $("mBooking"),
@@ -3423,6 +3825,7 @@
         $("mResetPwd"),
         $("mContent"),
         $("mBanner"),
+        $("mReview"),
       ].forEach((m) => {
         if (m)
           m.addEventListener("click", (e) => {
@@ -3440,6 +3843,7 @@
             $("mResetPwd"),
             $("mContent"),
             $("mBanner"),
+            $("mReview"),
           ].forEach((m) => {
             if (m) m.classList.remove("open");
           });

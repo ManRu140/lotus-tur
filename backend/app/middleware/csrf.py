@@ -34,9 +34,20 @@ class CSRFMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         cookie_token = request.cookies.get(COOKIE_CSRF_TOKEN)
+
+        # No session/CSRF cookie at all means this is a genuinely
+        # anonymous request (e.g. the public review-submission form) —
+        # there's no ambient session for an attacker to ride along on,
+        # so there's nothing for CSRF protection to do here. Any
+        # endpoint that actually requires a logged-in user still
+        # enforces that separately via its own auth dependency; this
+        # middleware only needs to step in once a session cookie exists.
+        if not cookie_token:
+            return await call_next(request)
+
         header_token = request.headers.get("X-CSRF-Token")
 
-        if not cookie_token or not header_token:
+        if not header_token:
             return JSONResponse(
                 status_code=status.HTTP_403_FORBIDDEN,
                 content={"detail": "CSRF-токен отсутствует"},

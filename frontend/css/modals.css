@@ -254,7 +254,8 @@
 }
 
 .modal-auth,
-.modal-booking {
+.modal-booking,
+.modal-review {
   position: fixed;
   inset: 0;
   background: rgba(15, 20, 22, 0.7);
@@ -269,7 +270,8 @@
   transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .modal-auth.open,
-.modal-booking.open {
+.modal-booking.open,
+.modal-review.open {
   opacity: 1;
   pointer-events: auto;
 }

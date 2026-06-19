@@ -1,10 +1,10 @@
 const translations = {
   RU: {
+    txtLogo: "Лотос тур",
     m1: "О нас",
     m2: "Туры",
-    m3: "Галерея",
+    m3: "Расписание",
     m4: "Забронировать",
-    txtLogo: "Пора в поход",
     heroH1: "Приморский Край",
     heroBtn: "В путь →",
     txtToursSub: "Наши направления",
@@ -29,11 +29,11 @@ const translations = {
     bookModalTitle: "Бронирование тура",
   },
   EN: {
+    txtLogo: "Lotus tur",
     m1: "About",
     m2: "Tours",
-    m3: "Gallery",
+    m3: "Schedule",
     m4: "Book now",
-    txtLogo: "Time to hike",
     heroH1: "Primorsky Krai",
     heroBtn: "Let's go →",
     txtToursSub: "Our Destinations",

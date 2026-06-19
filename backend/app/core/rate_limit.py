@@ -24,6 +24,14 @@ class InMemoryRateLimiter:
         self.window_seconds = window_seconds
         self._attempts: dict[str, list[float]] = defaultdict(list)
         self._lock = asyncio.Lock()
+        # SECURITY/RELIABILITY: keys are only ever trimmed when that same
+        # key is hit again — a key for an IP/username pair that's never
+        # seen twice stays in the dict forever, growing unbounded under
+        # normal internet traffic (let alone an attacker deliberately
+        # spraying unique IPs/usernames to exhaust memory). We bound this
+        # by sweeping fully-expired keys out periodically.
+        self._last_sweep = time.monotonic()
+        self._sweep_interval = max(window_seconds, 60)
 
     async def check(self, key: str) -> None:
         """Raise 429 if `key` has exceeded the limit; otherwise record
@@ -31,6 +39,8 @@ class InMemoryRateLimiter:
         """
         now = time.monotonic()
         async with self._lock:
+            self._sweep_if_due(now)
+
             fresh = [t for t in self._attempts[key] if now - t < self.window_seconds]
             if len(fresh) >= self.max_attempts:
                 self._attempts[key] = fresh
@@ -41,3 +51,19 @@ class InMemoryRateLimiter:
                 )
             fresh.append(now)
             self._attempts[key] = fresh
+
+    def _sweep_if_due(self, now: float) -> None:
+        """Drop any key whose every recorded attempt has aged out of the
+        window. Must be called with `self._lock` already held. O(n) over
+        all tracked keys, so it's throttled to run at most once per
+        window instead of on every request.
+        """
+        if now - self._last_sweep < self._sweep_interval:
+            return
+        self._last_sweep = now
+        expired = [
+            k for k, attempts in self._attempts.items()
+            if not attempts or now - attempts[-1] >= self.window_seconds
+        ]
+        for k in expired:
+            del self._attempts[k]

@@ -1,12 +1,17 @@
 // Escape user/API-supplied strings before inserting into innerHTML.
 // Defined first so it's available to all rendering functions below.
+// SECURITY: also escapes ' (not just "), so this stays safe even if a
+// future call site interpolates into a single-quoted HTML attribute —
+// every current call site happens to use double quotes, but that's an
+// invariant this function shouldn't silently depend on.
 function escHtml(s) {
   if (s == null) return "";
   return String(s)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 const mockUserTours = [

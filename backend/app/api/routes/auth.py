@@ -29,6 +29,15 @@ _ALLOWED_OAUTH_REDIRECTS = {f"{settings.FRONTEND_URL}/auth/google/callback"}
 
 
 def _client_ip(request: Request) -> str:
+    # ASSUMPTION: this process always sits behind Railway's edge proxy,
+    # which sets X-Forwarded-For itself and doesn't forward a
+    # client-supplied one through unchanged. If this is ever deployed
+    # without a trusted reverse proxy in front of it (bare-metal,
+    # different host, local dev exposed directly), any client can spoof
+    # this header to bypass the per-IP rate limiter and forge IPs in the
+    # audit log — at that point this needs to validate the header
+    # against a known-trusted proxy IP list, or be removed in favour of
+    # `request.client.host` alone.
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
         return forwarded.split(",")[0].strip()

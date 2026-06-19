@@ -2623,7 +2623,7 @@
       <td><div style="font-size:.78rem">${escHtml(b.first_name || "—")}</div><div class="td-m">${escHtml(b.phone || "")}</div></td>
       <td>${badge(b.status)}</td>
       <td style="white-space:nowrap">
-        <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="openMB(${b.id},'${b.status}')">✏ Статус</button>
+        <button class="btn btn-ghost" style="font-size:.72rem;padding:5px 10px" onclick="openMB(${b.id},'${escHtml(b.status).replace(/'/g, "\\'")}')">✏ Статус</button>
       </td>
     </tr>`,
               )

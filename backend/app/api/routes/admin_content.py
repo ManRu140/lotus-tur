@@ -27,6 +27,25 @@ router = APIRouter()
 _KEY_PATTERN = r"^[a-z0-9_\-]+$"
 _ALLOWED_BLOCK_TYPES = {"block", "page"}
 
+# SECURITY WARNING — ContentBlock.body is intentionally NOT run through
+# `_no_unsafe_chars` like title/Tour.name/banner text are. It's meant to
+# hold rich-text/HTML for full pages (hence the 50_000-char limit), so
+# blanket-blocking `<`/`>` would break the feature outright.
+#
+# This makes `body` raw, attacker-controllable-if-the-admin-account-is-
+# compromised HTML. It is currently safe ONLY because nothing on the
+# public frontend renders it yet (see GET /api/content/{key} in
+# public_content.py — confirmed unused by frontend/js/*.js as of this
+# audit). The moment any frontend code does
+# `el.innerHTML = contentBlock.body`, this becomes a stored-XSS hole
+# reachable by anyone with `require_staff` (moderator) access.
+#
+# Before wiring this up to any renderer: sanitize with an allow-list
+# HTML sanitizer (e.g. `nh3` — Rust-backed, fast, actively maintained
+# Python binding for ammonia) either here at write-time or on the
+# frontend at render-time with DOMPurify. Do NOT render `body` via
+# innerHTML/dangerouslySetInnerHTML without one of those in place.
+
 
 def _no_unsafe_chars(v: str, field_name: str) -> str:
     # Same defence-in-depth rule as the Tour schemas in admin.py: the

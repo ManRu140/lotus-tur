@@ -48,14 +48,14 @@ const tourSlides = {
     "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
   ],
   "triozerye-classic": [
-    "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
+    "img/tours/3_ozera_1.webp",
+    "img/tours/3_ozera_2.webp",
+    "img/tours/3_ozera_3.webp",
   ],
   "okunevaya-jeep": [
-    "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
+    "img/tours/okunev_1.webp",
+    "img/tours/okunev_2.webp",
+    "img/tours/okunev_3.webp",
   ],
   "boats-yachts": [
     "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=900&q=80",
@@ -68,9 +68,9 @@ const tourSlides = {
     "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
   ],
   safari: [
-    "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80",
+    "img/tours/safari_1.webp",
+    "img/tours/safari_2.webp",
+    "img/tours/safari_3.webp",
   ],
   ocean: [
     "https://images.unsplash.com/photo-1497449493050-aad1e7cad165?auto=format&fit=crop&w=900&q=80",

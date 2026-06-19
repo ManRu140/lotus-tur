@@ -29,6 +29,18 @@ class RegisterRequest(BaseModel):
     def normalize_username(cls, v: str) -> str:
         return v.strip()
 
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        # Without this, "User@gmail.com" and "user@gmail.com" pass the
+        # DB's unique constraint as two different accounts even though
+        # virtually every real mail provider treats the local part
+        # case-insensitively in practice — silently defeating the
+        # dedup the unique constraint is there for. Lowercasing at the
+        # boundary keeps one canonical form everywhere downstream
+        # (lookups in auth_service, OAuth linking, the unique index).
+        return v.lower()
+
     @field_validator("password")
     @classmethod
     def check_password_strength(cls, v: str) -> str:

@@ -7,7 +7,10 @@ from app.db.base import Base
 
 _url = settings.DATABASE_URL
 
-# * Normalize Railway postgres:// URL to asyncpg driver
+# * Normalize Railway's postgres:// URL to the psycopg3 (async-capable)
+#   driver. Historically this normalized to asyncpg instead — if you see
+#   references to asyncpg elsewhere (old docs, comments), they're stale;
+#   requirements.txt pins psycopg[binary], and that's what's used below.
 if _url.startswith("postgres://"):
     _url = _url.replace("postgres://", "postgresql+psycopg://", 1)
 elif _url.startswith("postgresql://") and "+" not in _url:

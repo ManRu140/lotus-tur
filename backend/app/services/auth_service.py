@@ -19,7 +19,16 @@ async def _get_user_by_username(session: AsyncSession, username: str) -> User | 
 
 
 async def _get_user_by_email(session: AsyncSession, email: str) -> User | None:
-    result = await session.execute(select(User).where(User.email == email))
+    # NOTE: relies on every write path (register_user, google_auth,
+    # vk_auth) lowercasing email before it reaches the DB — see the
+    # `normalize_email` validator on RegisterRequest and the .lower()
+    # calls in google_auth/vk_auth. Rows created *before* that
+    # normalization was added may still have mixed-case emails and
+    # won't match a lowercased lookup here; backfill with
+    # `UPDATE users SET email = LOWER(email)` (after first checking for
+    # any resulting duplicate-email collisions) if this matters for an
+    # existing deployment.
+    result = await session.execute(select(User).where(User.email == email.lower()))
     return result.scalar_one_or_none()
 
 
@@ -139,7 +148,7 @@ async def google_auth(
                 detail="Сервис Google недоступен",
             ) from exc
 
-    email: str = gdata.get("email", "")
+    email: str = (gdata.get("email", "") or "").lower()
     if not email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -200,6 +209,8 @@ async def vk_auth(code: str, session: AsyncSession) -> TokenResponse:
 
     vk_user_id: int | None = vk_data.get("user_id")
     vk_email: str | None = vk_data.get("email")
+    if vk_email:
+        vk_email = vk_email.lower()
     if not vk_user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
